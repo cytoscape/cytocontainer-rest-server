@@ -1,0 +1,20 @@
+[Unit]
+Description=Community Detection REST service
+After=auditd.service systemd-user-sessions.service time-sync.target docker.service
+
+[Service]
+User=cdrunner
+TimeoutStartSec=0
+Type=simple
+KillMode=process
+WorkingDirectory=/tmp
+StandardOutput=null
+StandardError=null
+ExecStart=/bin/java -jar /opt/communitydetection/communitydetection-rest.jar --mode runserver --conf /etc/communitydetection.conf
+Restart=always
+RestartSec=5
+LimitNOFILE=5555
+
+[Install]
+WantedBy=multi-user.target
+

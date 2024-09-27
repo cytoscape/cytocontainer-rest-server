@@ -18,6 +18,7 @@ import java.util.Optional;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+import org.cytoscape.cytocontainer.rest.services.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +44,7 @@ public class SwaggerFilter extends AbstractSpecFilter {
             List<String>> params, Map<String, String> cookies,
             Map<String, List<String>> headers) {
         
+		_logger.info("filtering swagger");
         Info info = openAPI.getInfo();
 		if (info == null){
 			info = new Info();
@@ -87,7 +89,7 @@ public class SwaggerFilter extends AbstractSpecFilter {
     }
 
     protected String getServerUrl(){
-		return "localhost";
+		return "/cy/cytocontainer";
     }
     
     protected String getSwaggerDescription(){

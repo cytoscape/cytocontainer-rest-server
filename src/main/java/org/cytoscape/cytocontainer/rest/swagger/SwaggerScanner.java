@@ -17,7 +17,7 @@ public class SwaggerScanner extends JaxrsApplicationAndResourcePackagesAnnotatio
 
 	/**
 	 * Call the super implementation of classes and then only keep classes
-	 * whose package name starts with org.ndex
+	 * whose package name starts with org.cytoscape.cytocontainer
 	 * @return 
 	 */
 	@Override
@@ -25,11 +25,10 @@ public class SwaggerScanner extends JaxrsApplicationAndResourcePackagesAnnotatio
 		Set<Class<?>> unprocessed_classes = super.classes();
 		Set<Class<?>> output = new HashSet<>();
 		for (Class c : unprocessed_classes){
-			if (!c.getPackageName().startsWith("org.cytoscape.cytocontainer") ||
-					c.getCanonicalName().startsWith("org.cytoscape.cytocontainer.rest.services.CustomOpenApiResource")){
+			if (!c.getPackageName().startsWith("org.cytoscape.cytocontainer")){
 				continue;
 			}
-			_logger.info("Adding to swagger " + c.getCanonicalName());
+			_logger.info("Adding {} class to swagger ", c.getCanonicalName());
 			output.add(c);
 		}
 		return output;

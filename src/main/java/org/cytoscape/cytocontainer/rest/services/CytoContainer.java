@@ -24,13 +24,13 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.Response;
 import org.cytoscape.cytocontainer.rest.model.CytoContainerRequest;
 import org.cytoscape.cytocontainer.rest.model.CytoContainerResult;
-import org.cytoscape.cytocontainer.rest.model.ServiceMetaData;
 import org.cytoscape.cytocontainer.rest.model.CytoContainerResultStatus;
 import org.cytoscape.cytocontainer.rest.model.ErrorResponse;
 import org.cytoscape.cytocontainer.rest.model.Task;
 import org.cytoscape.cytocontainer.rest.model.exceptions.CytoContainerBadRequestException;
 import org.cytoscape.cytocontainer.rest.model.exceptions.CytoContainerException;
 import org.cytoscape.cytocontainer.rest.engine.CytoContainerEngine;
+import org.cytoscape.cytocontainer.rest.model.Algorithm;
 
 /**
  * CytoContainer service
@@ -158,18 +158,16 @@ public class CytoContainer {
             return Response.status(500).type(MediaType.APPLICATION_JSON).entity(er).build();
         }
     }
-	
-	
-	
+
 	@GET
 	@Path(Configuration.V_ONE_PATH + "/{algorithm}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(summary = "Gets meta data about this service",
-               description = "Provides detailed information about each algorithm/task that can be used with this service",
+    @Operation(summary = "Gets meta data about this service/algorithm",
+               description = "Provides detailed information about algorithm offered by this service",
                responses = {@ApiResponse(responseCode = "200",
                            description = "Success",
                            content = @Content(mediaType = MediaType.APPLICATION_JSON,
-                                schema = @Schema(implementation = ServiceMetaData.class))),
+                                schema = @Schema(implementation = Algorithm.class))),
                    @ApiResponse(responseCode = "410",
                            description = "Task not found"),
                    @ApiResponse(responseCode = "500", description = "Server Error",
@@ -184,7 +182,7 @@ public class CytoContainer {
                 throw new NullPointerException("CytoContainer Engine not loaded");
             }
             
-            ServiceMetaData cda = engine.getMetaData(algorithm);
+            Algorithm cda = engine.getMetaData(algorithm);
             if (cda == null){
                 return Response.status(410).build();
             }

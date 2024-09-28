@@ -1,13 +1,12 @@
 package org.cytoscape.cytocontainer.rest.engine;
 
 import java.io.InputStream;
-import org.cytoscape.cytocontainer.rest.model.CytoContainerAlgorithms;
-import org.cytoscape.cytocontainer.rest.model.ServiceMetaData;
 import org.cytoscape.cytocontainer.rest.model.CytoContainerRequest;
 import org.cytoscape.cytocontainer.rest.model.CytoContainerResultStatus;
 import org.cytoscape.cytocontainer.rest.model.CytoContainerResult;
 import org.cytoscape.cytocontainer.rest.model.exceptions.CytoContainerException;
 import org.cytoscape.cytocontainer.rest.model.ServerStatus;
+import org.cytoscape.cytocontainer.rest.model.Algorithm;
 
 /**
  *
@@ -56,12 +55,12 @@ public interface CytoContainerEngine extends Runnable {
     public void delete(final String algorithm, final String id) throws CytoContainerException;
     
 	/**
-	 * Gets community detection metadata for this service
+	 * Gets community detection metadata for this algorithm
 	 * 
 	 * @throws CytoContainerException if there is an a error
 	 * @return metadata
 	 */
-	public ServiceMetaData getMetaData(final String algorithm) throws CytoContainerException;
+	public Algorithm getMetaData(final String algorithm) throws CytoContainerException;
 	
     /**
      * Gets status of server

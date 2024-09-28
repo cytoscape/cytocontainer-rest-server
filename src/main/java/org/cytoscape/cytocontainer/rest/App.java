@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,7 +29,9 @@ import org.eclipse.jetty.ee10.servlet.DefaultServlet;
 import org.jboss.resteasy.plugins.server.servlet.FilterDispatcher;
 import org.cytoscape.cytocontainer.rest.model.CytoContainerAlgorithm;
 import org.cytoscape.cytocontainer.rest.model.CytoContainerAlgorithms;
-import org.cytoscape.cytocontainer.rest.model.Parameter;
+import org.cytoscape.cytocontainer.rest.model.AlgorithmParameter;
+import org.cytoscape.cytocontainer.rest.model.SelectedData;
+import org.cytoscape.cytocontainer.rest.model.SelectedDataParameter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +57,7 @@ public class App {
     /**
      * Default name for community detection algorithms json file
      */
-    public static final String CD_ALGORITHMS_FILE = "cytocontaineralgorithms.json";
+    public static final String CD_ALGORITHMS_FILE = "algorithms.json";
     
     /**
      * Sets logging level valid values DEBUG INFO WARN ALL ERROR
@@ -172,7 +175,6 @@ public class App {
                 HashMap<String, String> initMap = new HashMap<>();
                 initMap.put("resteasy.servlet.mapping.prefix",
                              applicationPath + "/");
-                initMap.put("resteasy.resources", "org.jboss.resteasy.plugins.stats.RegistryStatsResource");
                 initMap.put("jakarta.ws.rs.Application",
                         "org.cytoscape.cytocontainer.rest.CytoContainerApplication");
                 final ServletHolder restEasyServlet = new ServletHolder(
@@ -272,44 +274,69 @@ public class App {
          LinkedHashMap<String, CytoContainerAlgorithm> algoSet = new LinkedHashMap<>();
         //gprofiler term mapper
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
-        cda.setName("gprofilersingletermv2");
+		cda.setAction(CytoContainerAlgorithm.ADD_TABLES_ACTION);
+		cda.setVersion("1.0.0");
+		cda.setRootMenu("Tools.Community Detection.Enrichment.gProfiler");
+		cda.setName("gprofilersingletermv2");
+		cda.setHiddenParameters(Arrays.asList("--someflag", "flagvalue"));
         algoSet.put(cda.getName(), cda);
         cda.setDescription("Uses gprofiler to find best term below pvalue cut off"
                 + "using a list of genes as input");
         cda.setDockerImage("coleslawndex/gprofilersingletermv2");
+		SelectedData sda = new SelectedData();
+		sda.setType(SelectedData.NODES_TYPE);
+		SelectedDataParameter nodeparam = new SelectedDataParameter();
+		nodeparam.setName("CD_MemberList");
+		nodeparam.setDataType("String");
+		nodeparam.setDescription("Column containing space delimited set of genes");
 
-        cda.setVersion("1.0.0");
-        Parameter cp = new Parameter();
+		sda.setParameters(Arrays.asList(nodeparam));
+		cda.setSelectedData(sda);
+		
+
+        AlgorithmParameter cp = new AlgorithmParameter();
         cp.setDescription("Maximum pvalue to allow for results");
-        cp.setName("--maxpval");
+        cp.setFlag("--maxpval");
         cp.setType("value");
         cp.setDefaultValue("0.00001");
         cp.setDisplayName("Maximum Pvalue");
         cp.setValidationHelp("Must be a number");
         cp.setValidationType("number");
-        HashSet<Parameter> cpSet = new HashSet<>();
+        HashSet<AlgorithmParameter> cpSet = new HashSet<>();
         cpSet.add(cp);
         cda.setParameters(cpSet);
         
         //louvain
         CytoContainerAlgorithm cdb = new CytoContainerAlgorithm();
         cdb.setName("louvain");
+		cdb.setAction(CytoContainerAlgorithm.ADD_NETWORKS_ACTION);
+
+		cdb.setRootMenu("Tools.Community Detection.Louvain");
         algoSet.put(cdb.getName(), cdb );
         cdb.setDescription("Runs louvain community detection algorithm");
         cdb.setDockerImage("ecdymore/slouvaintest");
 
         cdb.setVersion("2.0.0");
         
-        cp = new Parameter();
-        cp.setName("--directed");
+        cp = new AlgorithmParameter();
+        cp.setFlag("--directed");
         cp.setDescription("If set, generate directed graph");
         cp.setDisplayName("Generate directed graph");
         cp.setType("flag");
         cpSet = new HashSet<>();
         cpSet.add(cp);
+		SelectedDataParameter netParam = new SelectedDataParameter();
+		netParam.setFormat(SelectedDataParameter.CX_FORMAT);
+		netParam.setModel(SelectedDataParameter.NETWORK_MODEL);
         
-        cp = new Parameter();
-        cp.setName("--configmodel");
+		SelectedData sdb = new SelectedData();
+		sdb.setParameters(Arrays.asList(netParam));
+		sdb.setType(SelectedData.NETWORK_TYPE);
+		sdb.setScope(SelectedData.ALL_SCOPE);
+		cdb.setSelectedData(sdb);
+        
+		cp = new AlgorithmParameter();
+        cp.setFlag("--configmodel");
         cp.setDescription("Configuration model which must be one of following:"
                 + ": RB, RBER, CPM, Suprise, Significance, Default");
         cp.setDisplayName("Configuration Model");
@@ -321,76 +348,6 @@ public class App {
         cpSet.add(cp);
         
         cdb.setParameters(cpSet);
-        
-        //infomap
-        CytoContainerAlgorithm cdc = new CytoContainerAlgorithm();
-        cdc.setName("infomap");
-        algoSet.put(cdc.getName(), cdc);
-        cdc.setDescription("Runs infomap community detection algorithm");
-        cdc.setDockerImage("ecdymore/sinfomaptest");
-        cdc.setVersion("2.0.0");
-        
-        cp = new Parameter();
-        cp.setName("--directed");
-        cp.setDescription("If set, infomap assumes directed links");
-        cp.setDisplayName("Assume Directed Links");
-        cp.setType("flag");
-        cpSet = new HashSet<>();
-        cpSet.add(cp);
-        
-        cp = new Parameter();
-        cp.setName("--enableoverlapping");
-        cp.setDescription("If set, Let nodes be part of different and "
-                + "overlapping modules. Applies to ordinary networks by "
-                + "first representing the memoryless dynamics with memory "
-                + "nodes.");
-        cp.setDisplayName("Enable Overlapping");
-        cp.setType("flag");
-        cpSet.add(cp);
-        
-        cp = new Parameter();
-        cp.setName("--markovtime");
-        cp.setDescription("Scale link flow with this value to change the cost "
-                + "of moving between modules. Higher for less modules");
-        cp.setDisplayName("Markov time");
-        cp.setType("value");
-        cp.setDefaultValue("0.75");
-        cp.setValidationType("number");
-        cp.setValidationHelp("Should be a number");
-        cpSet.add(cp);
-        cdc.setParameters(cpSet);
-        
-        
-        //clixo
-        CytoContainerAlgorithm cde = new CytoContainerAlgorithm();
-        cde.setName("clixo");
-        algoSet.put(cde.getName(), cde);
-        cde.setDescription("Runs clixo community detection algorithm");
-        cde.setDockerImage("coleslawndex/clixo:1.0");
-
-        cde.setVersion("2.0.0");
-        
-        cp = new Parameter();
-        cp.setName("--alpha");
-        cp.setDescription("Threshold between clusters");
-        cp.setDisplayName("Alpha");
-        cp.setType("value");
-        cp.setDefaultValue("0.1");
-        cp.setValidationType("number");
-        
-        cpSet = new HashSet<>();
-        cpSet.add(cp);
-        
-        cp = new Parameter();
-        cp.setName("--beta");
-        cp.setDescription("Merge similarity for overlapping clusters");
-        cp.setDisplayName("Beta");
-        cp.setType("value");
-        cp.setDefaultValue("0.5");
-        cp.setValidationType("number");
-        cpSet.add(cp);
-        cde.setParameters(cpSet);
-        
         CytoContainerAlgorithms algos = new CytoContainerAlgorithms();
         algos.setAlgorithms(algoSet);
         ObjectMapper mappy = new ObjectMapper();
@@ -425,7 +382,7 @@ public class App {
         sb.append(Configuration.MOUNT_OPTIONS + " = :ro\n\n");
         
         sb.append("# Sets HOST URL prefix (value is prefixed to Location header when query is invoked. Can be commented out)\n");
-        sb.append("# " + Configuration.HOST_URL + " = https://cytoservice.cytoscape.org\n\n");
+        sb.append("# " + Configuration.HOST_URL + " = http://localhost:8081\n\n");
         
         sb.append("# If set, overrides title shown in Swagger and openapi.json\n");
         sb.append("# " + Configuration.SWAGGER_TITLE + " = my service\n\n");

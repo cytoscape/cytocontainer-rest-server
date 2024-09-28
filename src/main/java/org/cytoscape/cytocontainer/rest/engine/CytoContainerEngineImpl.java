@@ -24,7 +24,6 @@ import org.apache.commons.io.FileUtils;
 import org.cytoscape.cytocontainer.rest.engine.util.DockerCytoContainerRunner;
 import org.cytoscape.cytocontainer.rest.model.CytoContainerAlgorithm;
 import org.cytoscape.cytocontainer.rest.model.CytoContainerAlgorithms;
-import org.cytoscape.cytocontainer.rest.model.ServiceMetaData;
 import org.cytoscape.cytocontainer.rest.model.CytoContainerRequest;
 import org.cytoscape.cytocontainer.rest.model.CytoContainerResultStatus;
 import org.cytoscape.cytocontainer.rest.model.CytoContainerResult;
@@ -39,6 +38,7 @@ import org.cytoscape.cytocontainer.rest.services.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.cytoscape.cytocontainer.rest.engine.util.CytoContainerRequestValidator;
+import org.cytoscape.cytocontainer.rest.model.Algorithm;
 
 /**
  * Runs CytoContainer tasks 
@@ -63,7 +63,6 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
     private AtomicInteger _queuedTasks;
     private AtomicInteger _canceledTasks;
     private CytoContainerAlgorithms _algorithms;
-	private ServiceMetaData _metaData;
 	
     private CytoContainerRequestValidator _validator;
     private String _dockerCmd;
@@ -87,7 +86,6 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
             final String taskDir,
             final String dockerCmd,
             final CytoContainerAlgorithms algorithms,
-			final ServiceMetaData metaData,
             final CytoContainerRequestValidator validator){
         _executorService = es;
         _shutdown = false;
@@ -95,21 +93,12 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
         _taskDir = taskDir;
         _dockerCmd = dockerCmd;
         _algorithms = algorithms;
-		_metaData = metaData;
         _validator = validator;
         _results = new ConcurrentHashMap<>();
         _completedTasks = new AtomicInteger(0);
         _queuedTasks = new AtomicInteger(0);
         _canceledTasks = new AtomicInteger(0);
     }
-	
-	public CytoContainerEngineImpl(ExecutorService es,
-            final String taskDir,
-            final String dockerCmd,
-            final CytoContainerAlgorithms algorithms,
-            final CytoContainerRequestValidator validator){
-		this(es, taskDir, dockerCmd, algorithms, null, validator);
-	}
     
     /**
      * Sets milliseconds thread should sleep if no work needs to be done.
@@ -261,7 +250,7 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
     }
     
     /**
-     * Request a Community Detection algorithm be run. This is the call that
+     * Request a algorithm be run. This is the call that
      * should be coming from the rest POST endpoint
      * @param request The request
      * @return UUID as string
@@ -457,11 +446,21 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
     }
 
 	@Override
-	public ServiceMetaData getMetaData(final String algorithm) throws CytoContainerException {
-		if (_metaData == null){
-            throw new CytoContainerException("No MetaData found");
+	public Algorithm getMetaData(final String algorithm) throws CytoContainerException {
+		if (_algorithms == null){
+            throw new CytoContainerException("No Algorithms found");
         }
-        return _metaData;
+		if (algorithm == null){
+			throw new CytoContainerException("Algorithm must be set");
+		}
+		if (_algorithms.getAlgorithms() == null){
+			throw new CytoContainerException("No algorithms found in in db");
+		}
+		CytoContainerAlgorithm algo = _algorithms.getAlgorithms().get(algorithm);
+		if (algo == null){
+			throw new CytoContainerException("No algorithm matching name found");
+		}
+        return new Algorithm(algo);
 	}
 
     /**

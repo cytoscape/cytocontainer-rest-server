@@ -3,7 +3,7 @@ package org.cytoscape.cytocontainer.rest.engine.util;
 import java.util.Map;
 import org.cytoscape.cytocontainer.rest.model.CytoContainerAlgorithm;
 import org.cytoscape.cytocontainer.rest.model.CytoContainerRequest;
-import org.cytoscape.cytocontainer.rest.model.Parameter;
+import org.cytoscape.cytocontainer.rest.model.AlgorithmParameter;
 import org.cytoscape.cytocontainer.rest.model.ErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +69,7 @@ public class CytoContainerRequestValidatorImpl implements CytoContainerRequestVa
         }
         
         //validate the custom parameters
-        Map<String,Parameter> params = cda.getParameterMap();
+        Map<String,AlgorithmParameter> params = cda.getParameterMap();
         for (String pName : cdr.getParameters().keySet()){
             if (params == null || params.containsKey(pName) == false){
                 ErrorResponse er = new ErrorResponse();
@@ -95,23 +95,23 @@ public class CytoContainerRequestValidatorImpl implements CytoContainerRequestVa
      * @param userParamValue 
      * @return {@code null} if its a valid parameter otherwise {@link org.ndexbio.communitydetection.rest.model.ErrorResponse} denoting the problem
      */
-    private ErrorResponse validateParameter(final Parameter algoParam,
+    private ErrorResponse validateParameter(final AlgorithmParameter algoParam,
             final String userParamValue){
 
         //for string parameter
         if (algoParam.getType() == null ||
-                Parameter.STRING_VALIDATION.equalsIgnoreCase(algoParam.getValidationType())){
+                AlgorithmParameter.STRING_VALIDATION.equalsIgnoreCase(algoParam.getValidationType())){
             return validateStringParameter(algoParam, userParamValue);
         }
         
         //for flag types 
-        if (Parameter.FLAG_TYPE.equalsIgnoreCase(algoParam.getType())){
+        if (AlgorithmParameter.FLAG_TYPE.equalsIgnoreCase(algoParam.getType())){
             return validateFlagParameter(algoParam, userParamValue);
         }
 
         //for digits and number parameter
-        if (Parameter.DIGITS_VALIDATION.equalsIgnoreCase(algoParam.getValidationType()) ||
-            Parameter.NUMBER_VALIDATION.equalsIgnoreCase(algoParam.getValidationType())){
+        if (AlgorithmParameter.DIGITS_VALIDATION.equalsIgnoreCase(algoParam.getValidationType()) ||
+            AlgorithmParameter.NUMBER_VALIDATION.equalsIgnoreCase(algoParam.getValidationType())){
             return validateNumericParameter(algoParam, userParamValue);
         }
         
@@ -128,26 +128,26 @@ public class CytoContainerRequestValidatorImpl implements CytoContainerRequestVa
      * @param userParamValue user's parameter value
      * @return {@code null} if its a valid parameter otherwise {@link org.ndexbio.communitydetection.rest.model.ErrorResponse}
      */
-    private ErrorResponse validateFlagParameter(final Parameter algoParam,
+    private ErrorResponse validateFlagParameter(final AlgorithmParameter algoParam,
             final String userParamValue){
         
         
         if (userParamValue != null && userParamValue.trim().length() > 0){
                 ErrorResponse er = new ErrorResponse();
                 er.setMessage("Flag only given a value");
-                er.setDescription(algoParam.getName() + " is a flag only parameter, "
+                er.setDescription(algoParam.getFlag() + " is a flag only parameter, "
                         + "but the following value was passed in " + userParamValue);
                 return er;
         }
         return null;
     }
     
-    private ErrorResponse validateStringParameter(final Parameter algoParam,
+    private ErrorResponse validateStringParameter(final AlgorithmParameter algoParam,
             final String userParamValue){
         if (userParamValue == null || userParamValue.trim().length() == 0){
                 ErrorResponse er = new ErrorResponse();
                 er.setMessage("Parameter missing value");
-                er.setDescription(algoParam.getName() + " is a value parameter, "
+                er.setDescription(algoParam.getFlag() + " is a value parameter, "
                         + "but no value was passed in");
                 return er;
         }
@@ -174,17 +174,17 @@ public class CytoContainerRequestValidatorImpl implements CytoContainerRequestVa
         }
     }
     
-    private ErrorResponse validateNumericParameter(final Parameter algoParam,
+    private ErrorResponse validateNumericParameter(final AlgorithmParameter algoParam,
             final String userParamValue){
         if (userParamValue == null || userParamValue.trim().length() == 0){
                 ErrorResponse er = new ErrorResponse();
                 er.setMessage("Parameter missing value");
-                er.setDescription(algoParam.getName() + " is a value parameter, "
+                er.setDescription(algoParam.getFlag() + " is a value parameter, "
                         + "but no value was passed in");
                 return er;
         }
         try {
-            if (algoParam.getValidationType().equalsIgnoreCase(Parameter.DIGITS_VALIDATION)){
+            if (algoParam.getValidationType().equalsIgnoreCase(AlgorithmParameter.DIGITS_VALIDATION)){
                 return checkIfParamIsDigitsAndWithinRange(algoParam, userParamValue);
             }
             return checkIfParamIsNumberAndWithinRange(algoParam, userParamValue); 
@@ -197,7 +197,7 @@ public class CytoContainerRequestValidatorImpl implements CytoContainerRequestVa
         }
     }
     
-    private ErrorResponse checkIfParamIsDigitsAndWithinRange(final Parameter algoParam,
+    private ErrorResponse checkIfParamIsDigitsAndWithinRange(final AlgorithmParameter algoParam,
             final String userParamValue){
         
         if (Pattern.matches("-?\\d+$", userParamValue) == false){
@@ -230,7 +230,7 @@ public class CytoContainerRequestValidatorImpl implements CytoContainerRequestVa
         return null;
     }
     
-    private ErrorResponse checkIfParamIsNumberAndWithinRange(final Parameter algoParam,
+    private ErrorResponse checkIfParamIsNumberAndWithinRange(final AlgorithmParameter algoParam,
             final String userParamValue){
         double val = Double.parseDouble(userParamValue);
         if (algoParam.getMinValue() != null){
@@ -255,7 +255,7 @@ public class CytoContainerRequestValidatorImpl implements CytoContainerRequestVa
         return null;
     }
     
-    private void setValidationHelpInErrorResponse(final Parameter algoParam,
+    private void setValidationHelpInErrorResponse(final AlgorithmParameter algoParam,
             ErrorResponse er){
         if (algoParam.getValidationHelp() != null){
             er.setMessage(algoParam.getValidationHelp());

@@ -32,7 +32,8 @@ import org.cytoscape.cytocontainer.rest.model.CytoContainerAlgorithms;
 import org.cytoscape.cytocontainer.rest.model.AlgorithmParameter;
 import org.cytoscape.cytocontainer.rest.model.SelectedData;
 import org.cytoscape.cytocontainer.rest.model.SelectedDataParameter;
-
+import org.cytoscape.cytocontainer.rest.model.CyWebMenuItem;
+import org.cytoscape.cytocontainer.rest.model.CyWebMenuItemPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -274,9 +275,21 @@ public class App {
          LinkedHashMap<String, CytoContainerAlgorithm> algoSet = new LinkedHashMap<>();
         //gprofiler term mapper
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
-		cda.setAction(CytoContainerAlgorithm.ADD_TABLES_ACTION);
+		cda.setCyWebAction(CytoContainerAlgorithm.ADD_TABLES_ACTION);
 		cda.setVersion("1.0.0");
-		cda.setRootMenu("Tools.Community Detection.Enrichment.gProfiler");
+		CyWebMenuItem toolsMenuItem = new CyWebMenuItem();
+		toolsMenuItem.setRoot("Tools");
+		CyWebMenuItemPath cdMenuItemPath = new CyWebMenuItemPath();
+		cdMenuItemPath.setName("Community Detection");
+		cdMenuItemPath.setGravity(0);
+		CyWebMenuItemPath enMenuItemPath = new CyWebMenuItemPath();
+		enMenuItemPath.setName("Enrichment");
+		enMenuItemPath.setGravity(1);
+		CyWebMenuItemPath gpMenuItemPath = new CyWebMenuItemPath();
+		gpMenuItemPath.setName("gProfiler");
+		gpMenuItemPath.setGravity(2);
+		toolsMenuItem.setPath(Arrays.asList(cdMenuItemPath, enMenuItemPath, gpMenuItemPath));
+		cda.setCyWebMenuItem(toolsMenuItem);
 		cda.setName("gprofilersingletermv2");
 		cda.setHiddenParameters(Arrays.asList("--someflag", "flagvalue"));
         algoSet.put(cda.getName(), cda);
@@ -309,9 +322,18 @@ public class App {
         //louvain
         CytoContainerAlgorithm cdb = new CytoContainerAlgorithm();
         cdb.setName("louvain");
-		cdb.setAction(CytoContainerAlgorithm.ADD_NETWORKS_ACTION);
+		cdb.setCyWebAction(CytoContainerAlgorithm.ADD_NETWORKS_ACTION);
 
-		cdb.setRootMenu("Tools.Community Detection.Louvain");
+		CyWebMenuItem toolsCdbMenuItem = new CyWebMenuItem();
+		toolsCdbMenuItem.setRoot("Tools");
+		CyWebMenuItemPath cdCdbMenuItemPath = new CyWebMenuItemPath();
+		cdCdbMenuItemPath.setName("Community Detection");
+		cdCdbMenuItemPath.setGravity(0);
+		CyWebMenuItemPath loCdbMenuItemPath = new CyWebMenuItemPath();
+		loCdbMenuItemPath.setName("Louvain");
+		loCdbMenuItemPath.setGravity(1);
+		toolsCdbMenuItem.setPath(Arrays.asList(cdCdbMenuItemPath, loCdbMenuItemPath));
+		cdb.setCyWebMenuItem(toolsCdbMenuItem);
         algoSet.put(cdb.getName(), cdb );
         cdb.setDescription("Runs louvain community detection algorithm");
         cdb.setDockerImage("ecdymore/slouvaintest");

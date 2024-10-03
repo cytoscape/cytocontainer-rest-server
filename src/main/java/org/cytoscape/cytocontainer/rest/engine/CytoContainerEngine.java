@@ -16,6 +16,8 @@ public interface CytoContainerEngine extends Runnable {
     
     /**
      * Submits request for processing
+	 * 
+	 * @param algorithm name of algorithm
      * @param request to process
      * @throws CytoContainerException if there is an error
      * @return UUID as a string that is an identifier for query
@@ -24,8 +26,9 @@ public interface CytoContainerEngine extends Runnable {
      
     /**
      * Gets query results
+	 * 
+	 * @param algorithm name of algorithm
      * @param id id of task
-
      * @return result of task
      * @throws CytoContainerException  if there is an error
      */
@@ -33,6 +36,8 @@ public interface CytoContainerEngine extends Runnable {
 	
 	/**
      * Gets query result data only as {@code InputStream}
+	 * 
+	 * @param algorithm name of algorithm
      * @param id id of task
      * @return data in result of task as {@code InputStream}
      * @throws CytoContainerException  if there is an error
@@ -49,6 +54,8 @@ public interface CytoContainerEngine extends Runnable {
     
     /**
      * Deletes query
+	 * 
+	 * @param algorithm name of algorithm
      * @param id id of task
      * @throws CytoContainerException if there is an error
      */
@@ -57,6 +64,7 @@ public interface CytoContainerEngine extends Runnable {
 	/**
 	 * Gets community detection metadata for this algorithm
 	 * 
+	 * @param algorithm name of algorithm
 	 * @throws CytoContainerException if there is an a error
 	 * @return metadata
 	 */
@@ -64,6 +72,8 @@ public interface CytoContainerEngine extends Runnable {
 	
     /**
      * Gets status of server
+	 * 
+	 * @param algorithm name of algorithm
      * @return status of server
      * @throws CytoContainerException if there is an error
      */

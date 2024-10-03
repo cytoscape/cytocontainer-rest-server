@@ -10,8 +10,8 @@ import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CancellationException;
@@ -40,6 +40,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.cytoscape.cytocontainer.rest.engine.util.CytoContainerRequestValidator;
 import org.cytoscape.cytocontainer.rest.model.Algorithm;
+import org.cytoscape.cytocontainer.rest.model.AlgorithmParameter;
+import org.cytoscape.cytocontainer.rest.model.CytoContainerParameter;
 
 /**
  * Runs CytoContainer tasks 
@@ -310,14 +312,18 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
         }
     }
 	
-	private Map<String, String> getParametersCombinedWithHiddenParameters(CytoContainerAlgorithm algo, Map<String, String> params){
+	private Map<String, String> getParametersCombinedWithHiddenParameters(CytoContainerAlgorithm algo, Map<String, String> params) throws CytoContainerException {
 		if (algo.getHiddenParameters() == null && params == null){
 			return null;
 		}
-		Map<String, String> pMap = new HashMap<>();
-		if (params != null){
+		Map<String, String> pMap = new LinkedHashMap<>();
+		Map<String, String> paramFlagMap = algo.getParameterFlagMap();
+		if (paramFlagMap != null && params != null){
 			for (String key : params.keySet()){
-				pMap.put(key, params.get(key));
+				if (!paramFlagMap.containsKey(key)){
+					throw new CytoContainerException("'" + key + "' parameter not found in algorithm. skipping...");
+				}
+				pMap.put(paramFlagMap.get(key), params.get(key));
 			}
 		}
 		if (algo.getHiddenParameters() != null){

@@ -78,7 +78,7 @@ public class CytoContainerRequestValidatorImpl implements CytoContainerRequestVa
                 er.setDescription(pName + " is not a custom parameter for algorithm: " + cda.getName());
                 return er;
             }
-            ErrorResponse er = validateParameter((CytoContainerParameter)params.get(pName), customParams.get(pName));
+            ErrorResponse er = validateParameter(params.get(pName), customParams.get(pName));
             if (er != null){
                 return er;
             }
@@ -96,12 +96,14 @@ public class CytoContainerRequestValidatorImpl implements CytoContainerRequestVa
      * @param userParamValue 
      * @return {@code null} if its a valid parameter otherwise {@link org.ndexbio.communitydetection.rest.model.ErrorResponse} denoting the problem
      */
-    private ErrorResponse validateParameter(final CytoContainerParameter algoParam,
+    private ErrorResponse validateParameter(final AlgorithmParameter algoParam,
             final String userParamValue){
 
+		if (algoParam.getType() == null){
+			return null;
+		}
         //for string parameter
-        if (algoParam.getType() == null ||
-                AlgorithmParameter.STRING_VALIDATION.equalsIgnoreCase(algoParam.getValidationType())){
+        if (AlgorithmParameter.STRING_VALIDATION.equalsIgnoreCase(algoParam.getValidationType())){
             return validateStringParameter(algoParam, userParamValue);
         }
         
@@ -118,7 +120,7 @@ public class CytoContainerRequestValidatorImpl implements CytoContainerRequestVa
         
         ErrorResponse er = new ErrorResponse();
         er.setMessage("Unknown parameter type");
-        er.setDescription(algoParam.getValidationType() + " is not a valid type");
+        er.setDescription("For parameter: '" + algoParam.getDisplayName() + "' " + algoParam.getValidationType() + " is not a valid type");
         return er;
     }
     
@@ -129,26 +131,26 @@ public class CytoContainerRequestValidatorImpl implements CytoContainerRequestVa
      * @param userParamValue user's parameter value
      * @return {@code null} if its a valid parameter otherwise {@link org.ndexbio.communitydetection.rest.model.ErrorResponse}
      */
-    private ErrorResponse validateFlagParameter(final CytoContainerParameter algoParam,
+    private ErrorResponse validateFlagParameter(final AlgorithmParameter algoParam,
             final String userParamValue){
         
         
         if (userParamValue != null && userParamValue.trim().length() > 0){
                 ErrorResponse er = new ErrorResponse();
                 er.setMessage("Flag only given a value");
-                er.setDescription(algoParam.getFlag() + " is a flag only parameter, "
+                er.setDescription("'" + algoParam.getDisplayName()+ "' is a flag only parameter, "
                         + "but the following value was passed in " + userParamValue);
                 return er;
         }
         return null;
     }
     
-    private ErrorResponse validateStringParameter(final CytoContainerParameter algoParam,
+    private ErrorResponse validateStringParameter(final AlgorithmParameter algoParam,
             final String userParamValue){
         if (userParamValue == null || userParamValue.trim().length() == 0){
                 ErrorResponse er = new ErrorResponse();
                 er.setMessage("Parameter missing value");
-                er.setDescription(algoParam.getFlag() + " is a value parameter, "
+                er.setDescription("'" + algoParam.getDisplayName()+ "' is a value parameter, "
                         + "but no value was passed in");
                 return er;
         }
@@ -175,12 +177,12 @@ public class CytoContainerRequestValidatorImpl implements CytoContainerRequestVa
         }
     }
     
-    private ErrorResponse validateNumericParameter(final CytoContainerParameter algoParam,
+    private ErrorResponse validateNumericParameter(final AlgorithmParameter algoParam,
             final String userParamValue){
         if (userParamValue == null || userParamValue.trim().length() == 0){
                 ErrorResponse er = new ErrorResponse();
                 er.setMessage("Parameter missing value");
-                er.setDescription(algoParam.getFlag() + " is a value parameter, "
+                er.setDescription("'" + algoParam.getDisplayName()+ "' is a value parameter, "
                         + "but no value was passed in");
                 return er;
         }
@@ -198,7 +200,7 @@ public class CytoContainerRequestValidatorImpl implements CytoContainerRequestVa
         }
     }
     
-    private ErrorResponse checkIfParamIsDigitsAndWithinRange(final CytoContainerParameter algoParam,
+    private ErrorResponse checkIfParamIsDigitsAndWithinRange(final AlgorithmParameter algoParam,
             final String userParamValue){
         
         if (Pattern.matches("-?\\d+$", userParamValue) == false){
@@ -231,7 +233,7 @@ public class CytoContainerRequestValidatorImpl implements CytoContainerRequestVa
         return null;
     }
     
-    private ErrorResponse checkIfParamIsNumberAndWithinRange(final CytoContainerParameter algoParam,
+    private ErrorResponse checkIfParamIsNumberAndWithinRange(final AlgorithmParameter algoParam,
             final String userParamValue){
         double val = Double.parseDouble(userParamValue);
         if (algoParam.getMinValue() != null){
@@ -256,7 +258,7 @@ public class CytoContainerRequestValidatorImpl implements CytoContainerRequestVa
         return null;
     }
     
-    private void setValidationHelpInErrorResponse(final CytoContainerParameter algoParam,
+    private void setValidationHelpInErrorResponse(final AlgorithmParameter algoParam,
             ErrorResponse er){
         if (algoParam.getValidationHelp() != null){
             er.setMessage(algoParam.getValidationHelp());

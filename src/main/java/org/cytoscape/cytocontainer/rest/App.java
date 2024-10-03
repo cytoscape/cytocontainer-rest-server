@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -33,7 +34,6 @@ import org.cytoscape.cytocontainer.rest.model.ServiceInputDefinition;
 import org.cytoscape.cytocontainer.rest.model.SelectedDataParameter;
 import org.cytoscape.cytocontainer.rest.model.CyWebMenuItem;
 import org.cytoscape.cytocontainer.rest.model.CyWebMenuItemPath;
-import org.cytoscape.cytocontainer.rest.model.CytoContainerParameter;
 import org.cytoscape.cytocontainer.rest.model.InputColumn;
 import org.cytoscape.cytocontainer.rest.model.InputNetwork;
 import org.slf4j.Logger;
@@ -274,6 +274,7 @@ public class App {
      */
     public static String generateExampleCytoContainerAlgorithms() throws Exception {
         
+		Map<String, String> pFlagMap = null;
          LinkedHashMap<String, CytoContainerAlgorithm> algoSet = new LinkedHashMap<>();
         //gprofiler term mapper
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
@@ -308,16 +309,18 @@ public class App {
 		cda.setServiceInputDefinition(sda);
 		
 
-        CytoContainerParameter cp = new CytoContainerParameter();
+        AlgorithmParameter cp = new AlgorithmParameter();
         cp.setDescription("Maximum pvalue to allow for results");
-        cp.setFlag("--maxpval");
-        cp.setType("value");
+        cp.setType("text");
         cp.setDefaultValue("0.00001");
         cp.setDisplayName("Maximum Pvalue");
         cp.setValidationHelp("Must be a number");
         cp.setValidationType("number");
         HashSet<AlgorithmParameter> cpSet = new HashSet<>();
         cpSet.add(cp);
+		pFlagMap = new HashMap<>();
+		pFlagMap.put(cp.getDisplayName(), "--maxpval");
+        cda.setParameterFlagMap(pFlagMap);
         cda.setParameters(cpSet);
         
         //louvain
@@ -341,13 +344,15 @@ public class App {
 
         cdb.setVersion("2.0.0");
         
-        cp = new CytoContainerParameter();
-        cp.setFlag("--directed");
+        cp = new AlgorithmParameter();
         cp.setDescription("If set, generate directed graph");
         cp.setDisplayName("Generate directed graph");
-        cp.setType("flag");
+        cp.setType("checkBox");
         cpSet = new HashSet<>();
         cpSet.add(cp);
+		pFlagMap = new HashMap<>();
+		pFlagMap.put(cp.getDisplayName(), "--directed");
+        cdb.setParameterFlagMap(pFlagMap);
 		InputNetwork iNet = new InputNetwork();
 		iNet.setFormat(InputNetwork.CX_FORMAT);
 		iNet.setModel(InputNetwork.NETWORK_MODEL);
@@ -358,8 +363,7 @@ public class App {
 		sdb.setInputNetwork(iNet);
 		cdb.setServiceInputDefinition(sdb);
         
-		cp = new CytoContainerParameter();
-        cp.setFlag("--configmodel");
+		cp = new AlgorithmParameter();
         cp.setDescription("Configuration model which must be one of following:"
                 + ": RB, RBER, CPM, Suprise, Significance, Default");
         cp.setDisplayName("Configuration Model");
@@ -369,7 +373,9 @@ public class App {
         cp.setValidationHelp("Must be one of following: RB, RBER, CPM, Suprise, Significance, Default");
         cp.setValidationRegex("RB|RBER|CPM|Suprise|Significance|Default");
         cpSet.add(cp);
-        
+		pFlagMap = new HashMap<>();
+		pFlagMap.put(cp.getDisplayName(), "--configmodel");
+        cdb.setParameterFlagMap(pFlagMap);
         cdb.setParameters(cpSet);
         CytoContainerAlgorithms algos = new CytoContainerAlgorithms();
         algos.setAlgorithms(algoSet);

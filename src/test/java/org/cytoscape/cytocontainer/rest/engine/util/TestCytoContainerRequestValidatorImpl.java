@@ -225,7 +225,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         AlgorithmParameter cp = new AlgorithmParameter();
         cp.setFlag("--somearg");
-        cp.setType(AlgorithmParameter.VALUE_TYPE);
+        cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.STRING_VALIDATION);
         
         aParams.add(cp);
@@ -249,7 +249,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         AlgorithmParameter cp = new AlgorithmParameter();
         cp.setFlag("--somearg");
-        cp.setType(AlgorithmParameter.VALUE_TYPE);
+        cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.STRING_VALIDATION);
         
         aParams.add(cp);
@@ -273,7 +273,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         AlgorithmParameter cp = new AlgorithmParameter();
         cp.setFlag("--somearg");
-        cp.setType(AlgorithmParameter.VALUE_TYPE);
+        cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.STRING_VALIDATION);
         
         aParams.add(cp);
@@ -297,7 +297,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         AlgorithmParameter cp = new AlgorithmParameter();
         cp.setFlag("--somearg");
-        cp.setType(AlgorithmParameter.VALUE_TYPE);
+        cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.STRING_VALIDATION);
         cp.setValidationRegex("[");
         aParams.add(cp);
@@ -321,7 +321,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         AlgorithmParameter cp = new AlgorithmParameter();
         cp.setFlag("--somearg");
-        cp.setType(AlgorithmParameter.VALUE_TYPE);
+        cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.STRING_VALIDATION);
         cp.setValidationRegex("foo|bar");
         aParams.add(cp);
@@ -345,7 +345,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         AlgorithmParameter cp = new AlgorithmParameter();
         cp.setFlag("--somearg");
-        cp.setType(AlgorithmParameter.VALUE_TYPE);
+        cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.STRING_VALIDATION);
         cp.setValidationRegex("^x.*v$");
         aParams.add(cp);
@@ -369,7 +369,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         AlgorithmParameter cp = new AlgorithmParameter();
         cp.setFlag("--somearg");
-        cp.setType(AlgorithmParameter.VALUE_TYPE);
+        cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.STRING_VALIDATION);
         cp.setValidationRegex("^x.*v$");
         cp.setValidationHelp("some help");
@@ -394,7 +394,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         AlgorithmParameter cp = new AlgorithmParameter();
         cp.setFlag("--somearg");
-        cp.setType(AlgorithmParameter.VALUE_TYPE);
+        cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.NUMBER_VALIDATION);
         
         aParams.add(cp);
@@ -418,7 +418,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         AlgorithmParameter cp = new AlgorithmParameter();
         cp.setFlag("--somearg");
-        cp.setType(AlgorithmParameter.VALUE_TYPE);
+        cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.NUMBER_VALIDATION);
         
         aParams.add(cp);
@@ -442,7 +442,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         AlgorithmParameter cp = new AlgorithmParameter();
         cp.setFlag("--somearg");
-        cp.setType(AlgorithmParameter.VALUE_TYPE);
+        cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.DIGITS_VALIDATION);
         
         aParams.add(cp);
@@ -466,7 +466,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         AlgorithmParameter cp = new AlgorithmParameter();
         cp.setFlag("--somearg");
-        cp.setType(AlgorithmParameter.VALUE_TYPE);
+        cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.DIGITS_VALIDATION);
         
         aParams.add(cp);
@@ -490,7 +490,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         AlgorithmParameter cp = new AlgorithmParameter();
         cp.setFlag("--somearg");
-        cp.setType(AlgorithmParameter.VALUE_TYPE);
+        cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.DIGITS_VALIDATION);
         
         aParams.add(cp);
@@ -514,7 +514,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         AlgorithmParameter cp = new AlgorithmParameter();
         cp.setFlag("--somearg");
-        cp.setType(AlgorithmParameter.VALUE_TYPE);
+        cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.DIGITS_VALIDATION);
         cp.setMinValue(9);
         cp.setMaxValue(11);
@@ -539,7 +539,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         AlgorithmParameter cp = new AlgorithmParameter();
         cp.setFlag("--somearg");
-        cp.setType(AlgorithmParameter.VALUE_TYPE);
+        cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.DIGITS_VALIDATION);
         cp.setMinValue(9);
         aParams.add(cp);
@@ -563,7 +563,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         AlgorithmParameter cp = new AlgorithmParameter();
         cp.setFlag("--somearg");
-        cp.setType(AlgorithmParameter.VALUE_TYPE);
+        cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.DIGITS_VALIDATION);
         cp.setMaxValue(7);
         aParams.add(cp);
@@ -587,7 +587,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         AlgorithmParameter cp = new AlgorithmParameter();
         cp.setFlag("--somearg");
-        cp.setType(AlgorithmParameter.VALUE_TYPE);
+        cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.NUMBER_VALIDATION);
         
         aParams.add(cp);
@@ -611,7 +611,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         AlgorithmParameter cp = new AlgorithmParameter();
         cp.setFlag("--somearg");
-        cp.setType(AlgorithmParameter.VALUE_TYPE);
+        cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.NUMBER_VALIDATION);
         
         aParams.add(cp);
@@ -635,7 +635,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         AlgorithmParameter cp = new AlgorithmParameter();
         cp.setFlag("--somearg");
-        cp.setType(AlgorithmParameter.VALUE_TYPE);
+        cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.NUMBER_VALIDATION);
         
         aParams.add(cp);
@@ -659,7 +659,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         AlgorithmParameter cp = new AlgorithmParameter();
         cp.setFlag("--somearg");
-        cp.setType(AlgorithmParameter.VALUE_TYPE);
+        cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.NUMBER_VALIDATION);
         cp.setMinValue(1.5);
         cp.setMaxValue(6.3);
@@ -684,7 +684,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         AlgorithmParameter cp = new AlgorithmParameter();
         cp.setFlag("--somearg");
-        cp.setType(AlgorithmParameter.VALUE_TYPE);
+        cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.NUMBER_VALIDATION);
         cp.setMinValue(9.6);
         aParams.add(cp);
@@ -708,7 +708,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         AlgorithmParameter cp = new AlgorithmParameter();
         cp.setFlag("--somearg");
-        cp.setType(AlgorithmParameter.VALUE_TYPE);
+        cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.NUMBER_VALIDATION);
         cp.setMaxValue(7.2);
         aParams.add(cp);

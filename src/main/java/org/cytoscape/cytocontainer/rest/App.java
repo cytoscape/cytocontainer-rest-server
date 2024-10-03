@@ -9,7 +9,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,10 +29,13 @@ import org.jboss.resteasy.plugins.server.servlet.FilterDispatcher;
 import org.cytoscape.cytocontainer.rest.model.CytoContainerAlgorithm;
 import org.cytoscape.cytocontainer.rest.model.CytoContainerAlgorithms;
 import org.cytoscape.cytocontainer.rest.model.AlgorithmParameter;
-import org.cytoscape.cytocontainer.rest.model.SelectedData;
+import org.cytoscape.cytocontainer.rest.model.ServiceInputDefinition;
 import org.cytoscape.cytocontainer.rest.model.SelectedDataParameter;
 import org.cytoscape.cytocontainer.rest.model.CyWebMenuItem;
 import org.cytoscape.cytocontainer.rest.model.CyWebMenuItemPath;
+import org.cytoscape.cytocontainer.rest.model.CytoContainerParameter;
+import org.cytoscape.cytocontainer.rest.model.InputColumn;
+import org.cytoscape.cytocontainer.rest.model.InputNetwork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -296,18 +298,17 @@ public class App {
         cda.setDescription("Uses gprofiler to find best term below pvalue cut off"
                 + "using a list of genes as input");
         cda.setDockerImage("coleslawndex/gprofilersingletermv2");
-		SelectedData sda = new SelectedData();
-		sda.setType(SelectedData.NODES_TYPE);
+		ServiceInputDefinition sda = new ServiceInputDefinition();
+		sda.setType(ServiceInputDefinition.NODES_TYPE);
 		SelectedDataParameter nodeparam = new SelectedDataParameter();
-		nodeparam.setName("CD_MemberList");
-		nodeparam.setDataType("String");
-		nodeparam.setDescription("Column containing space delimited set of genes");
-
-		sda.setParameters(Arrays.asList(nodeparam));
-		cda.setSelectedData(sda);
+		InputColumn cdaInputColumn = new InputColumn();
+		cdaInputColumn.setDefaultColumnName("CD_MemberList");
+		cdaInputColumn.setDataType("string");
+		sda.setInputColumns(Arrays.asList(cdaInputColumn));
+		cda.setServiceInputDefinition(sda);
 		
 
-        AlgorithmParameter cp = new AlgorithmParameter();
+        CytoContainerParameter cp = new CytoContainerParameter();
         cp.setDescription("Maximum pvalue to allow for results");
         cp.setFlag("--maxpval");
         cp.setType("value");
@@ -340,24 +341,24 @@ public class App {
 
         cdb.setVersion("2.0.0");
         
-        cp = new AlgorithmParameter();
+        cp = new CytoContainerParameter();
         cp.setFlag("--directed");
         cp.setDescription("If set, generate directed graph");
         cp.setDisplayName("Generate directed graph");
         cp.setType("flag");
         cpSet = new HashSet<>();
         cpSet.add(cp);
-		SelectedDataParameter netParam = new SelectedDataParameter();
-		netParam.setFormat(SelectedDataParameter.CX_FORMAT);
-		netParam.setModel(SelectedDataParameter.NETWORK_MODEL);
+		InputNetwork iNet = new InputNetwork();
+		iNet.setFormat(InputNetwork.CX_FORMAT);
+		iNet.setModel(InputNetwork.NETWORK_MODEL);
         
-		SelectedData sdb = new SelectedData();
-		sdb.setParameters(Arrays.asList(netParam));
-		sdb.setType(SelectedData.NETWORK_TYPE);
-		sdb.setScope(SelectedData.ALL_SCOPE);
-		cdb.setSelectedData(sdb);
+		ServiceInputDefinition sdb = new ServiceInputDefinition();
+		sdb.setType(ServiceInputDefinition.NETWORK_TYPE);
+		sdb.setScope(ServiceInputDefinition.ALL_SCOPE);
+		sdb.setInputNetwork(iNet);
+		cdb.setServiceInputDefinition(sdb);
         
-		cp = new AlgorithmParameter();
+		cp = new CytoContainerParameter();
         cp.setFlag("--configmodel");
         cp.setDescription("Configuration model which must be one of following:"
                 + ": RB, RBER, CPM, Suprise, Significance, Default");

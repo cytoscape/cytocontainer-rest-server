@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import org.cytoscape.cytocontainer.rest.model.CytoContainerParameter;
 
 /**
  * Performs validation of the {@link org.ndexbio.communitydetection.rest.model.CommunityDetectionRequest}
@@ -77,7 +78,7 @@ public class CytoContainerRequestValidatorImpl implements CytoContainerRequestVa
                 er.setDescription(pName + " is not a custom parameter for algorithm: " + cda.getName());
                 return er;
             }
-            ErrorResponse er = validateParameter(params.get(pName), customParams.get(pName));
+            ErrorResponse er = validateParameter((CytoContainerParameter)params.get(pName), customParams.get(pName));
             if (er != null){
                 return er;
             }
@@ -95,7 +96,7 @@ public class CytoContainerRequestValidatorImpl implements CytoContainerRequestVa
      * @param userParamValue 
      * @return {@code null} if its a valid parameter otherwise {@link org.ndexbio.communitydetection.rest.model.ErrorResponse} denoting the problem
      */
-    private ErrorResponse validateParameter(final AlgorithmParameter algoParam,
+    private ErrorResponse validateParameter(final CytoContainerParameter algoParam,
             final String userParamValue){
 
         //for string parameter
@@ -128,7 +129,7 @@ public class CytoContainerRequestValidatorImpl implements CytoContainerRequestVa
      * @param userParamValue user's parameter value
      * @return {@code null} if its a valid parameter otherwise {@link org.ndexbio.communitydetection.rest.model.ErrorResponse}
      */
-    private ErrorResponse validateFlagParameter(final AlgorithmParameter algoParam,
+    private ErrorResponse validateFlagParameter(final CytoContainerParameter algoParam,
             final String userParamValue){
         
         
@@ -142,7 +143,7 @@ public class CytoContainerRequestValidatorImpl implements CytoContainerRequestVa
         return null;
     }
     
-    private ErrorResponse validateStringParameter(final AlgorithmParameter algoParam,
+    private ErrorResponse validateStringParameter(final CytoContainerParameter algoParam,
             final String userParamValue){
         if (userParamValue == null || userParamValue.trim().length() == 0){
                 ErrorResponse er = new ErrorResponse();
@@ -174,7 +175,7 @@ public class CytoContainerRequestValidatorImpl implements CytoContainerRequestVa
         }
     }
     
-    private ErrorResponse validateNumericParameter(final AlgorithmParameter algoParam,
+    private ErrorResponse validateNumericParameter(final CytoContainerParameter algoParam,
             final String userParamValue){
         if (userParamValue == null || userParamValue.trim().length() == 0){
                 ErrorResponse er = new ErrorResponse();
@@ -197,7 +198,7 @@ public class CytoContainerRequestValidatorImpl implements CytoContainerRequestVa
         }
     }
     
-    private ErrorResponse checkIfParamIsDigitsAndWithinRange(final AlgorithmParameter algoParam,
+    private ErrorResponse checkIfParamIsDigitsAndWithinRange(final CytoContainerParameter algoParam,
             final String userParamValue){
         
         if (Pattern.matches("-?\\d+$", userParamValue) == false){
@@ -230,7 +231,7 @@ public class CytoContainerRequestValidatorImpl implements CytoContainerRequestVa
         return null;
     }
     
-    private ErrorResponse checkIfParamIsNumberAndWithinRange(final AlgorithmParameter algoParam,
+    private ErrorResponse checkIfParamIsNumberAndWithinRange(final CytoContainerParameter algoParam,
             final String userParamValue){
         double val = Double.parseDouble(userParamValue);
         if (algoParam.getMinValue() != null){
@@ -255,7 +256,7 @@ public class CytoContainerRequestValidatorImpl implements CytoContainerRequestVa
         return null;
     }
     
-    private void setValidationHelpInErrorResponse(final AlgorithmParameter algoParam,
+    private void setValidationHelpInErrorResponse(final CytoContainerParameter algoParam,
             ErrorResponse er){
         if (algoParam.getValidationHelp() != null){
             er.setMessage(algoParam.getValidationHelp());

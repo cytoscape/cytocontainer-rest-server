@@ -88,7 +88,7 @@ public class CytoContainer {
                                 schema = @Schema(implementation = ErrorResponse.class)))
                })
     public Response request(@PathParam("algorithm") final String algorithm, @RequestBody(description="Request as json", required = true,
-                                                   content = @Content(schema = @Schema(implementation = CytoContainerRequest.class))) final String query) {
+                                                   content = @Content(schema = @Schema(implementation = CytoContainerRequest.class))) final CytoContainerRequest query) {
         ObjectMapper omappy = new ObjectMapper();
 
         try {
@@ -99,9 +99,7 @@ public class CytoContainer {
             if (engine == null){
                 throw new NullPointerException("CytoContainer Engine not loaded");
             }
-            CytoContainerRequest pQuery = omappy.readValue(query, CytoContainerRequest.class);
-			
-            String id = engine.request(algorithm, pQuery);
+            String id = engine.request(algorithm, query);
             if (id == null){
                 throw new CytoContainerException("No id returned from CytoContainer engine");
             }

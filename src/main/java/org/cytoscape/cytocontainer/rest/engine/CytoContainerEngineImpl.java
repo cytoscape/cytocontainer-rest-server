@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
@@ -294,9 +295,10 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
         _results.put(id, cdr);
         logRequest(request, id);
         String dockerImage = cda.getDockerImage();
+		Map<String, String> combinedParams = getParametersCombinedWithHiddenParameters(cda, request.getParameters());
         try {
             DockerCytoContainerRunner task = new DockerCytoContainerRunner(id, request, cdr.getStartTime(),
-            _taskDir, _dockerCmd, dockerImage, request.getParameters(),
+            _taskDir, _dockerCmd, dockerImage, combinedParams,
                     Configuration.getInstance().getAlgorithmTimeOut(),
             TimeUnit.SECONDS,
             Configuration.getInstance().getMountOptions(),
@@ -307,6 +309,24 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
             throw new CytoContainerException(ex.getMessage());
         }
     }
+	
+	private Map<String, String> getParametersCombinedWithHiddenParameters(CytoContainerAlgorithm algo, Map<String, String> params){
+		if (algo.getHiddenParameters() == null && params == null){
+			return null;
+		}
+		Map<String, String> pMap = new HashMap<>();
+		if (params != null){
+			for (String key : params.keySet()){
+				pMap.put(key, params.get(key));
+			}
+		}
+		if (algo.getHiddenParameters() != null){
+			for (String p : algo.getHiddenParameters()){
+				pMap.put(p, "");
+			}
+		}
+		return pMap;
+	}
     
     private void logRequest(final CytoContainerRequest request,
 	    final String id){

@@ -40,8 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.cytoscape.cytocontainer.rest.engine.util.CytoContainerRequestValidator;
 import org.cytoscape.cytocontainer.rest.model.Algorithm;
-import org.cytoscape.cytocontainer.rest.model.AlgorithmParameter;
-import org.cytoscape.cytocontainer.rest.model.CytoContainerParameter;
+import org.cytoscape.cytocontainer.rest.model.Algorithms;
 
 /**
  * Runs CytoContainer tasks 
@@ -487,6 +486,17 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
 			throw new CytoContainerException("No algorithm matching name found");
 		}
         return new Algorithm(algo);
+	}
+	
+	@Override
+	public Algorithms getAllAlgorithms() throws CytoContainerException {
+		if (_algorithms == null){
+            throw new CytoContainerException("No Algorithms found");
+        }
+		if (_algorithms.getAlgorithms() == null){
+			throw new CytoContainerException("No algorithms found in in db");
+		}
+		return new Algorithms(_algorithms);
 	}
 
     /**

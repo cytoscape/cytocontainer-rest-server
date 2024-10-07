@@ -7,6 +7,7 @@ import org.cytoscape.cytocontainer.rest.model.CytoContainerResult;
 import org.cytoscape.cytocontainer.rest.model.exceptions.CytoContainerException;
 import org.cytoscape.cytocontainer.rest.model.ServerStatus;
 import org.cytoscape.cytocontainer.rest.model.Algorithm;
+import org.cytoscape.cytocontainer.rest.model.Algorithms;
 
 /**
  *
@@ -79,6 +80,8 @@ public interface CytoContainerEngine extends Runnable {
      */
     public ServerStatus getServerStatus(final String algorithm) throws CytoContainerException;
     
+	public Algorithms getAllAlgorithms() throws CytoContainerException;
+	
     /**
      * Tells implementing objects to shutdown
      */

@@ -26,7 +26,7 @@ import org.cytoscape.cytocontainer.rest.model.CytoContainerRequest;
 import org.cytoscape.cytocontainer.rest.model.CytoContainerResultStatus;
 import org.cytoscape.cytocontainer.rest.model.CytoContainerResult;
 import org.cytoscape.cytocontainer.rest.model.ErrorResponse;
-import org.cytoscape.cytocontainer.rest.model.Task;
+import org.cytoscape.cytocontainer.rest.model.CytoContainerRequestId;
 import org.cytoscape.cytocontainer.rest.model.exceptions.CytoContainerBadRequestException;
 import org.cytoscape.cytocontainer.rest.model.exceptions.CytoContainerException;
 import org.cytoscape.cytocontainer.rest.engine.CytoContainerEngine;
@@ -293,8 +293,8 @@ public class TestCytoContainer {
             MultivaluedMap<String, Object> resmap = response.getOutputHeaders();
             assertEquals(new URI(Configuration.V_ONE_PATH + "/12345"), resmap.getFirst("Location"));
             ObjectMapper mapper = new ObjectMapper();
-            Task t = mapper.readValue(response.getOutput(),
-                    Task.class);
+            CytoContainerRequestId t = mapper.readValue(response.getOutput(),
+                    CytoContainerRequestId.class);
             assertEquals("12345", t.getId());
             verify(mockEngine);
 
@@ -337,8 +337,8 @@ public class TestCytoContainer {
             MultivaluedMap<String, Object> resmap = response.getOutputHeaders();
             assertEquals(new URI("http://foo.com" + Configuration.V_ONE_PATH + "/12345"), resmap.getFirst("Location"));
             ObjectMapper mapper = new ObjectMapper();
-            Task t = mapper.readValue(response.getOutput(),
-                    Task.class);
+            CytoContainerRequestId t = mapper.readValue(response.getOutput(),
+                    CytoContainerRequestId.class);
             assertEquals("12345", t.getId());
             verify(mockEngine);
 

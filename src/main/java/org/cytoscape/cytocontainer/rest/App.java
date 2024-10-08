@@ -2,6 +2,9 @@ package org.cytoscape.cytocontainer.rest;
 
 
 import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.core.OutputStreamAppender;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Properties;
 import java.io.File;
@@ -152,6 +155,28 @@ public class App {
                 String logDir = props.getProperty(App.RUNSERVER_LOGDIR, ".");
                 RolloverFileOutputStream os = new RolloverFileOutputStream(logDir 
                         + File.separator + "cytocontainer_yyyy_mm_dd.log", true);
+				
+				RolloverFileOutputStream requestOS = new RolloverFileOutputStream(logDir + File.separator + "requests_yyyy_mm_dd.log", true);
+				
+				LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+
+				PatternLayoutEncoder logEncoder = new PatternLayoutEncoder();
+				logEncoder.setContext(lc);
+				logEncoder.setPattern("[%date]\t%msg%n");
+				logEncoder.start();
+				
+				OutputStreamAppender osa = new OutputStreamAppender();
+				osa.setOutputStream(requestOS);
+				osa.setContext(lc);
+				osa.setEncoder(logEncoder);
+				osa.setName(RequestLoggingFilter.REQUEST_LOGGER_NAME + "appender");
+				osa.start();
+				ch.qos.logback.classic.Logger requestLog = 
+					  (ch.qos.logback.classic.Logger) lc.getLogger(RequestLoggingFilter.REQUEST_LOGGER_NAME);
+                requestLog.setLevel(Level.toLevel("INFO"));
+				
+				requestLog.setAdditive(false);
+				requestLog.addAppender(osa);
 		
 		
                 final int port = Integer.valueOf(props.getProperty(App.RUNSERVER_PORT, "8081"));
@@ -191,7 +216,10 @@ public class App {
 				FilterHolder filterHolder = new FilterHolder(new CorsFilter());
                 webappContext.addFilter(filterHolder,
                                         applicationPath + "/*", null);
-
+				
+				FilterHolder reqFilterHolder = new FilterHolder(new RequestLoggingFilter());
+				webappContext.addFilter(reqFilterHolder,
+                                        applicationPath + "/*", null);
                 webappContext.addFilter(FilterDispatcher.class, "/*", null);
                 
 

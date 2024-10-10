@@ -6,6 +6,7 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.core.OutputStreamAppender;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.BufferedInputStream;
 import java.util.Properties;
 import java.io.File;
 import java.io.FileInputStream;
@@ -93,10 +94,12 @@ public class App {
     public static final String EXAMPLE_CONF_MODE = "exampleconf";
     public static final String EXAMPLE_ALGO_MODE = "examplealgo";
     public static final String RUNSERVER_MODE = "runserver";
+	public static final String PRINT_ALGOS_MODE = "printalgorithms";
     
     public static final String SUPPORTED_MODES = EXAMPLE_CONF_MODE + ", " +
                                                  EXAMPLE_ALGO_MODE +
-                                                    ", " + RUNSERVER_MODE;
+                                                    ", " + RUNSERVER_MODE +
+			                                        ", " + PRINT_ALGOS_MODE;
     
     public static void main(String[] args){
 
@@ -144,6 +147,13 @@ public class App {
                 System.out.flush();
                 return;
             }
+			if (mode.equals(PRINT_ALGOS_MODE)){
+				Configuration.setAlternateConfigurationFile(optionSet.valueOf(CONF).toString());
+			
+				System.out.println(getAlgorithmSummary(Configuration.getInstance().getAlgorithms()));
+				System.out.flush();
+				return;
+			}
       
             if (mode.equals(RUNSERVER_MODE)){
                 Configuration.setAlternateConfigurationFile(optionSet.valueOf(CONF).toString());
@@ -257,6 +267,20 @@ public class App {
 
     }
     
+	public static String getAlgorithmSummary(CytoContainerAlgorithms algos) {
+		StringBuilder sb = new StringBuilder();
+		
+		if (algos == null || algos.getAlgorithms() == null){
+			return "No algorithms found";
+		}
+		for (String key : algos.getAlgorithms().keySet()){
+			sb.append(key);
+			sb.append("\n");
+
+		}
+
+		return sb.toString();
+	}
     /**
      * Gets Comma delimited list of classes that should be parsed by OpenAPI to
      * generate Swagger documentation. If a diffusion algorithm was set in config,

@@ -6,19 +6,20 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.core.OutputStreamAppender;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.BufferedInputStream;
 import java.util.Properties;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -40,6 +41,7 @@ import org.cytoscape.cytocontainer.rest.model.CyWebMenuItem;
 import org.cytoscape.cytocontainer.rest.model.CyWebMenuItemPath;
 import org.cytoscape.cytocontainer.rest.model.InputColumn;
 import org.cytoscape.cytocontainer.rest.model.InputNetwork;
+import org.cytoscape.cytocontainer.rest.model.exceptions.CytoContainerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,11 +97,13 @@ public class App {
     public static final String EXAMPLE_ALGO_MODE = "examplealgo";
     public static final String RUNSERVER_MODE = "runserver";
 	public static final String PRINT_ALGOS_MODE = "printalgorithms";
+	public static final String GENERATE_ALGO_MODE = "generatealgorithm";
     
     public static final String SUPPORTED_MODES = EXAMPLE_CONF_MODE + ", " +
                                                  EXAMPLE_ALGO_MODE +
                                                     ", " + RUNSERVER_MODE +
-			                                        ", " + PRINT_ALGOS_MODE;
+			                                        ", " + PRINT_ALGOS_MODE +
+			                                        ", " + GENERATE_ALGO_MODE;
     
     public static void main(String[] args){
 
@@ -152,6 +156,10 @@ public class App {
 			
 				System.out.println(getAlgorithmSummary(Configuration.getInstance().getAlgorithms()));
 				System.out.flush();
+				return;
+			}
+			if (mode.equals(GENERATE_ALGO_MODE)){
+				System.out.print(generateAlgorithm());
 				return;
 			}
       
@@ -318,6 +326,102 @@ public class App {
         return props;
     }
     
+	/**
+	 * Asks user a series of questions and generates a json of an algorithm
+	 * @return 
+	 */
+	public static String generateAlgorithm() throws Exception {
+		CytoContainerAlgorithm algo = new CytoContainerAlgorithm();
+		Scanner userIn = new Scanner(System.in);
+		System.out.print("Algorithm name: ");
+		algo.setName(userIn.nextLine());
+		System.out.print("Docker Image: ");
+		algo.setDockerImage(userIn.nextLine());
+		while(true){
+			System.out.print("cyWebAction: ");
+			try {
+				algo.setCyWebAction(userIn.nextLine());
+				break;
+			} catch(CytoContainerException cce){
+				System.err.println("\t" + cce.getMessage());
+				System.err.println("\t Valid options: " + CytoContainerAlgorithm.ACTION_SET.toString() + "\n");
+			}
+		}
+		
+		System.out.print("Version: ");
+		algo.setVersion(userIn.nextLine());
+		
+		System.out.print("Description: ");
+		algo.setDescription(userIn.nextLine());
+		
+		System.out.print("Author: ");
+		algo.setAuthor(userIn.nextLine());
+		
+		System.out.print("Citation: ");
+		algo.setCitation(userIn.nextLine());
+		
+		System.out.print("Top Menu (Example Apps): ");
+		CyWebMenuItem menu = new CyWebMenuItem();
+		menu.setRoot(userIn.nextLine());
+		CyWebMenuItemPath path = null;
+		List<CyWebMenuItemPath> submenus = new ArrayList<>();
+		while(true){
+			path = new CyWebMenuItemPath();
+			System.out.print("Menu name: ");
+			path.setName(userIn.nextLine());
+			while(true){
+				System.out.print("Menu gravity: ");
+				try {
+					path.setGravity(Integer.parseInt(userIn.nextLine()));
+					break;
+				} catch(NumberFormatException nfe){
+					System.err.print("Must enter an integer\n");
+				}
+			}
+			submenus.add(path);
+			System.out.print("Add another submenu (y/n)? ");
+			String answer = userIn.nextLine();
+			if (answer.startsWith("n")){
+				break;
+			}
+		}
+		menu.setPath(submenus);
+		algo.setCyWebMenuItem(menu);
+		
+		ServiceInputDefinition inputDef = new ServiceInputDefinition();
+		while(true){
+			System.out.println("Type of data that should be sent (" + ServiceInputDefinition.TYPE_SET +"): ");
+			try {
+				inputDef.setType(userIn.nextLine());
+				break;
+			} catch(CytoContainerException cee){
+				System.err.println("\t" + cee.getMessage());
+			}
+		}
+		
+		while(true){
+			System.out.println("Scope of data that should be sent (" + ServiceInputDefinition.SCOPE_SET +"): ");
+			try {
+				inputDef.setScope(userIn.nextLine());
+				break;
+			} catch(CytoContainerException cee){
+				System.err.println("\t" + cee.getMessage());
+			}
+		}
+		if (inputDef.getType().equals(ServiceInputDefinition.NETWORK_TYPE)){
+			// prompt user for inputNetwork data
+		} else {
+			// prompt user for input columns
+		}
+		
+		CytoContainerAlgorithms algos = new CytoContainerAlgorithms();
+		LinkedHashMap<String, CytoContainerAlgorithm> aMap = new LinkedHashMap<>();
+		aMap.put(algo.getName(), algo);
+		algos.setAlgorithms(aMap);
+		ObjectMapper mappy = new ObjectMapper();
+        return mappy.writerWithDefaultPrettyPrinter().writeValueAsString(algos);
+		
+	}
     /**
      * Generates an example community detection algorithms json string
      * with actual docker images

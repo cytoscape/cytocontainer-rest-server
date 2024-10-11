@@ -10,6 +10,8 @@ import org.cytoscape.cytocontainer.rest.model.CytoContainerRequest;
 import org.cytoscape.cytocontainer.rest.model.AlgorithmParameter;
 import org.cytoscape.cytocontainer.rest.model.CytoContainerParameter;
 import org.cytoscape.cytocontainer.rest.model.ErrorResponse;
+import org.cytoscape.cytocontainer.rest.model.exceptions.CytoContainerException;
+import static org.junit.Assert.fail;
 import org.junit.Ignore;
 
 /**
@@ -138,7 +140,12 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
-        cp.setType("someunknowntype");
+		try {
+			cp.setType("someunknowntype");
+			fail("expected exception");
+		} catch(CytoContainerException cce){
+			
+		}
         aParams.add(cp);
        
         cda.setParameters(aParams);
@@ -154,7 +161,7 @@ public class TestCytoContainerRequestValidatorImpl {
     }
     
     @Test
-    public void testSingleFlagParameterValid(){
+    public void testSingleFlagParameterValid() throws CytoContainerException {
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
@@ -177,7 +184,7 @@ public class TestCytoContainerRequestValidatorImpl {
     }
     
     @Test
-    public void testSingleFlagParameterWithWhiteSpaceValueButValid(){
+    public void testSingleFlagParameterWithWhiteSpaceValueButValid() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
@@ -200,7 +207,7 @@ public class TestCytoContainerRequestValidatorImpl {
     }
     
     @Test
-    public void testSingleFlagParameterPassedValue(){
+    public void testSingleFlagParameterPassedValue() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
@@ -222,7 +229,7 @@ public class TestCytoContainerRequestValidatorImpl {
     }
     
     @Test
-    public void testSingleStringParameterValueIsNull(){
+    public void testSingleStringParameterValueIsNull() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
@@ -246,7 +253,7 @@ public class TestCytoContainerRequestValidatorImpl {
     }
     
     @Test
-    public void testSingleStringParameterValueIsEmptyWhiteSpace(){
+    public void testSingleStringParameterValueIsEmptyWhiteSpace() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
@@ -270,7 +277,7 @@ public class TestCytoContainerRequestValidatorImpl {
     }
     
     @Test
-    public void testSingleStringParameterNoRegex(){
+    public void testSingleStringParameterNoRegex() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
@@ -294,7 +301,7 @@ public class TestCytoContainerRequestValidatorImpl {
     }
     
     @Test
-    public void testSingleStringParameterInvalidRegex(){
+    public void testSingleStringParameterInvalidRegex() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
@@ -318,7 +325,7 @@ public class TestCytoContainerRequestValidatorImpl {
     }
     
     @Test
-    public void testSingleStringParameterPassesRegex(){
+    public void testSingleStringParameterPassesRegex() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
@@ -342,7 +349,7 @@ public class TestCytoContainerRequestValidatorImpl {
     }
     
     @Test
-    public void testSingleStringParameterFailsRegexNoHelp(){
+    public void testSingleStringParameterFailsRegexNoHelp() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
@@ -366,7 +373,7 @@ public class TestCytoContainerRequestValidatorImpl {
     }
     
     @Test
-    public void testSingleStringParameterFailsRegexWithHelp(){
+    public void testSingleStringParameterFailsRegexWithHelp() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
@@ -391,7 +398,7 @@ public class TestCytoContainerRequestValidatorImpl {
     }
     
     @Test
-    public void testSingleNumericParameterNullValue(){
+    public void testSingleNumericParameterNullValue() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
@@ -415,7 +422,7 @@ public class TestCytoContainerRequestValidatorImpl {
     }
     
     @Test
-    public void testSingleNumericParameterWhitespaceValue(){
+    public void testSingleNumericParameterWhitespaceValue() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
@@ -439,7 +446,7 @@ public class TestCytoContainerRequestValidatorImpl {
     }
     
     @Test
-    public void testSingleDigitsParameterValidValue(){
+    public void testSingleDigitsParameterValidValue() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
@@ -463,7 +470,7 @@ public class TestCytoContainerRequestValidatorImpl {
     }
     
     @Test
-    public void testSingleDigitsParameterNegativeValue(){
+    public void testSingleDigitsParameterNegativeValue() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
@@ -487,7 +494,7 @@ public class TestCytoContainerRequestValidatorImpl {
     }
     
     @Test
-    public void testSingleDigitsParameterInvalidFloatValue(){
+    public void testSingleDigitsParameterInvalidFloatValue() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
@@ -511,7 +518,7 @@ public class TestCytoContainerRequestValidatorImpl {
     }
     
     @Test
-    public void testSingleDigitsParameterValidValueWithMinMaxSet(){
+    public void testSingleDigitsParameterValidValueWithMinMaxSet() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
@@ -536,7 +543,7 @@ public class TestCytoContainerRequestValidatorImpl {
     }
     
     @Test
-    public void testSingleDigitsParameterValidValueWithValueBelowMin(){
+    public void testSingleDigitsParameterValidValueWithValueBelowMin() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
@@ -560,7 +567,7 @@ public class TestCytoContainerRequestValidatorImpl {
     }
     
     @Test
-    public void testSingleDigitsParameterValidValueWithValueAboveMax(){
+    public void testSingleDigitsParameterValidValueWithValueAboveMax() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
@@ -584,7 +591,7 @@ public class TestCytoContainerRequestValidatorImpl {
     }
     
     @Test
-    public void testSingleNumberParameterInValidValue(){
+    public void testSingleNumberParameterInValidValue() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
@@ -608,7 +615,7 @@ public class TestCytoContainerRequestValidatorImpl {
     }
     
     @Test
-    public void testSingleNumberParameterScientificNotationValue(){
+    public void testSingleNumberParameterScientificNotationValue() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
@@ -632,7 +639,7 @@ public class TestCytoContainerRequestValidatorImpl {
     }
     
     @Test
-    public void testSingleNumberParameterValidValue(){
+    public void testSingleNumberParameterValidValue() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
@@ -656,7 +663,7 @@ public class TestCytoContainerRequestValidatorImpl {
     }
     
     @Test
-    public void testSingleNumberParameterValidValueWithMinMaxSet(){
+    public void testSingleNumberParameterValidValueWithMinMaxSet() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
@@ -681,7 +688,7 @@ public class TestCytoContainerRequestValidatorImpl {
     }
     
     @Test
-    public void testSingleNumberParameterValidValueWithValueBelowMin(){
+    public void testSingleNumberParameterValidValueWithValueBelowMin() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
@@ -705,7 +712,7 @@ public class TestCytoContainerRequestValidatorImpl {
     }
     
      @Test
-    public void testSingleNumberParameterValidValueWithValueAboveMax(){
+    public void testSingleNumberParameterValidValueWithValueAboveMax() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
         HashSet<AlgorithmParameter> aParams = new HashSet<>();

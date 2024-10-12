@@ -35,10 +35,12 @@ import org.jboss.resteasy.plugins.server.servlet.FilterDispatcher;
 import org.cytoscape.cytocontainer.rest.model.CytoContainerAlgorithm;
 import org.cytoscape.cytocontainer.rest.model.CytoContainerAlgorithms;
 import org.cytoscape.cytocontainer.rest.model.AlgorithmParameter;
+import org.cytoscape.cytocontainer.rest.model.CXDataType;
 import org.cytoscape.cytocontainer.rest.model.ServiceInputDefinition;
 import org.cytoscape.cytocontainer.rest.model.SelectedDataParameter;
 import org.cytoscape.cytocontainer.rest.model.CyWebMenuItem;
 import org.cytoscape.cytocontainer.rest.model.CyWebMenuItemPath;
+import org.cytoscape.cytocontainer.rest.model.CytoContainerParameter;
 import org.cytoscape.cytocontainer.rest.model.InputColumn;
 import org.cytoscape.cytocontainer.rest.model.InputNetwork;
 import org.cytoscape.cytocontainer.rest.model.exceptions.CytoContainerException;
@@ -159,7 +161,7 @@ public class App {
 				return;
 			}
 			if (mode.equals(GENERATE_ALGO_MODE)){
-				System.out.print(generateAlgorithm());
+				System.out.println(generateAlgorithm());
 				return;
 			}
       
@@ -327,7 +329,7 @@ public class App {
     }
     
 	/**
-	 * Asks user a series of questions and generates a json of an algorithm
+	 * Asks user a series of questions to generate json of an algorithm
 	 * @return 
 	 */
 	public static String generateAlgorithm() throws Exception {
@@ -338,13 +340,12 @@ public class App {
 		System.out.print("Docker Image: ");
 		algo.setDockerImage(userIn.nextLine());
 		while(true){
-			System.out.print("cyWebAction: ");
+			System.out.print("cyWebAction (" + CytoContainerAlgorithm.ACTION_SET + "): ");
 			try {
 				algo.setCyWebAction(userIn.nextLine());
 				break;
 			} catch(CytoContainerException cce){
 				System.err.println("\t" + cce.getMessage());
-				System.err.println("\t Valid options: " + CytoContainerAlgorithm.ACTION_SET.toString() + "\n");
 			}
 		}
 		
@@ -381,7 +382,7 @@ public class App {
 			submenus.add(path);
 			System.out.print("Add another submenu (y/n)? ");
 			String answer = userIn.nextLine();
-			if (answer.startsWith("n")){
+			if (answer.startsWith("n") || answer.startsWith("N")){
 				break;
 			}
 		}
@@ -390,7 +391,7 @@ public class App {
 		
 		ServiceInputDefinition inputDef = new ServiceInputDefinition();
 		while(true){
-			System.out.println("Type of data that should be sent (" + ServiceInputDefinition.TYPE_SET +"): ");
+			System.out.print("Type of data that should be sent to service (" + ServiceInputDefinition.TYPE_SET +"): ");
 			try {
 				inputDef.setType(userIn.nextLine());
 				break;
@@ -400,7 +401,7 @@ public class App {
 		}
 		
 		while(true){
-			System.out.println("Scope of data that should be sent (" + ServiceInputDefinition.SCOPE_SET +"): ");
+			System.out.print("Scope of data that should be sent to service (" + ServiceInputDefinition.SCOPE_SET +"): ");
 			try {
 				inputDef.setScope(userIn.nextLine());
 				break;
@@ -410,17 +411,131 @@ public class App {
 		}
 		if (inputDef.getType().equals(ServiceInputDefinition.NETWORK_TYPE)){
 			// prompt user for inputNetwork data
+			InputNetwork inputNet = new InputNetwork();
+			while (true){
+				System.out.print("Model (" + InputNetwork.MODEL_SET + "): ");
+				try {
+					inputNet.setModel(userIn.nextLine());
+				} catch(CytoContainerException cce){
+					System.err.println("\t" + cce.getMessage());
+				}
+				break;
+			}
+			while (true){
+				System.out.print("Format (" + InputNetwork.FORMAT_SET + "): ");
+				try{
+					inputNet.setFormat(userIn.nextLine());
+					break;
+				} catch(CytoContainerException cce){
+					System.err.println("\t" + cce.getMessage());
+				}
+			}
+			inputDef.setInputNetwork(inputNet);
 		} else {
 			// prompt user for input columns
+			List<InputColumn> inputCols = new ArrayList<>();
+			InputColumn inputCol = null;
+			String res = null;
+			while(true){
+				inputCol = new InputColumn();
+				System.out.print("InputColumn columnName(if set, other args ignored): ");
+				res = userIn.nextLine();
+				if (res != null && !res.isBlank()){
+					inputCol.setColumnName(res);
+					inputCols.add(inputCol);
+					System.out.print("Add another InputColumn (y/n)? ");
+					String answer = userIn.nextLine();
+					if (answer.startsWith("n") || answer.startsWith("N")){
+						break;
+					}
+					continue;
+				}
+				System.out.print("InputColumn name: ");
+				inputCol.setName(userIn.nextLine());
+				
+				System.out.print("InputColumn description: ");
+				inputCol.setDescription(userIn.nextLine());
+				
+				while(true){
+					System.out.print("InputColumn dataType (" + CXDataType.COLUMN_FILTER_SET +"): ");
+					try {
+						res = userIn.nextLine();
+						if (res != null && !res.isBlank()){
+							inputCol.setDataType(res);
+						}
+						break;
+					} catch(CytoContainerException cce){
+						System.err.println("\t" + cce.getMessage());
+					}
+				}
+				while (true){
+					System.out.print("InputColumn allowMultipleSelection (true/false): ");
+					String aMSelect = userIn.nextLine();
+					try {
+						inputCol.setAllowMultipleSelection(Boolean.parseBoolean(aMSelect));
+						break;
+					} catch(Exception ex){
+						System.err.println("\t" + ex.getMessage());
+					}
+				}
+				System.out.print("InputColumn defaultColumnName: ");
+				inputCol.setDefaultColumnName(userIn.nextLine());
+				
+				inputCols.add(inputCol);
+				System.out.print("Add another InputColumn (y/n)? ");
+				String answer = userIn.nextLine();
+				if (answer.startsWith("n") || answer.startsWith("N")){
+					break;
+				}
+			}
+			inputDef.setInputColumns(inputCols);
 		}
-		
+		algo.setServiceInputDefinition(inputDef);
 		CytoContainerAlgorithms algos = new CytoContainerAlgorithms();
 		LinkedHashMap<String, CytoContainerAlgorithm> aMap = new LinkedHashMap<>();
 		aMap.put(algo.getName(), algo);
 		algos.setAlgorithms(aMap);
 		ObjectMapper mappy = new ObjectMapper();
+		System.out.println("\n");
         return mappy.writerWithDefaultPrettyPrinter().writeValueAsString(algos);
 		
+	}
+	
+	public static CytoContainerParameter promptUserForParameter(Scanner userIn) {
+		CytoContainerParameter param = new CytoContainerParameter();
+		System.out.print("Parameter displayName: ");
+		param.setDisplayName(userIn.nextLine());
+		System.out.print("Parameter description: ");
+		param.setDisplayName(userIn.nextLine());
+		System.out.print("Parameter displayName: ");
+		param.setDisplayName(userIn.nextLine());
+		promptForParameterType(param, userIn);
+		promptForValidationType(param, userIn);
+		return param;
+	}
+	
+	public static final void promptForParameterType(CytoContainerParameter param, Scanner userIn){
+		while (true){
+			System.out.print("Parameter type (" + CytoContainerParameter.TYPE_SET + "): ");
+			try {
+				param.setType(userIn.nextLine());
+				return;
+			} catch(CytoContainerException cce){
+				System.err.println("\t" + cce.getMessage());
+			}
+		}
+	}
+	
+	public static final void promptForValidationType(CytoContainerParameter param, Scanner userIn){
+		while (true){
+			System.out.print("Parameter validationType (" + CytoContainerParameter.VALIDATION_SET + "): ");
+			try {
+				param.setValidationType(userIn.nextLine());
+				return;
+			} catch(CytoContainerException cce){
+				System.err.println("\t" + cce.getMessage());
+			}
+		}
 	}
     /**
      * Generates an example community detection algorithms json string

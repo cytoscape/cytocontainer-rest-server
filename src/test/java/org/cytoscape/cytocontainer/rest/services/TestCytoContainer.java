@@ -172,7 +172,7 @@ public class TestCytoContainer {
             Configuration.getInstance().setCytoContainerEngine(mockEngine);
             
             dispatcher.invoke(request, response);
-            assertEquals(500, response.getStatus());
+            assertEquals(400, response.getStatus());
             ObjectMapper mapper = new ObjectMapper();
             ErrorResponse er = mapper.readValue(response.getOutput(),
                     ErrorResponse.class);
@@ -212,7 +212,7 @@ public class TestCytoContainer {
             Configuration.getInstance().setCytoContainerEngine(mockEngine);
             
             dispatcher.invoke(request, response);
-            assertEquals(500, response.getStatus());
+            assertEquals(400, response.getStatus());
             ObjectMapper mapper = new ObjectMapper();
             ErrorResponse er = mapper.readValue(response.getOutput(),
                     ErrorResponse.class);
@@ -392,7 +392,7 @@ public class TestCytoContainer {
             Configuration.getInstance().setCytoContainerEngine(mockEngine);
             
             dispatcher.invoke(request, response);
-            assertEquals(410, response.getStatus());
+            assertEquals(400, response.getStatus());
             verify(mockEngine);
         } finally {
             _folder.delete();
@@ -506,7 +506,7 @@ public class TestCytoContainer {
             Configuration.getInstance().setCytoContainerEngine(mockEngine);
             
             dispatcher.invoke(request, response);
-            assertEquals(410, response.getStatus());
+            assertEquals(400, response.getStatus());
             verify(mockEngine);
         } finally {
             _folder.delete();
@@ -594,7 +594,7 @@ public class TestCytoContainer {
             Configuration.getInstance().setCytoContainerEngine(mockEngine);
             
             dispatcher.invoke(request, response);
-            assertEquals(200, response.getStatus());
+            assertEquals(204, response.getStatus());
             verify(mockEngine);
         } finally {
             _folder.delete();

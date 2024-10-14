@@ -377,12 +377,12 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
     @Override
     public CytoContainerResult getResult(final String algorithm, String id) throws CytoContainerException {
         if (id == null){
-            throw new CytoContainerException("Id is null");
+            throw new CytoContainerBadRequestException("Id is null");
         }
         
         CytoContainerResult cdr = getCytoContainerResultFromDbOrFilesystem(id);
         if (cdr == null){
-            throw new CytoContainerException("No task with id of " + id + " found");
+            throw new CytoContainerBadRequestException("No task with id of " + id + " found");
         }
         return cdr;
     }
@@ -392,7 +392,7 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
 		File dataFile = new File(this.getCytoContainerResultDataFilePath(id));
 		CytoContainerResult cdr = getCytoContainerResultFromDbOrFilesystem(id);
         if (cdr == null){
-            throw new CytoContainerException("No task with id of " + id + " found");
+            throw new CytoContainerBadRequestException("No task with id of " + id + " found");
         }
 		
 
@@ -428,12 +428,12 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
     @Override
     public CytoContainerResultStatus getStatus(final String algorithm, final String id) throws CytoContainerException {
         if (id == null){
-            throw new CytoContainerException("Id is null");
+            throw new CytoContainerBadRequestException("Id is null");
         }
         
         CytoContainerResult cdr = getCytoContainerResultFromDbOrFilesystem(id);
         if (cdr == null){
-            throw new CytoContainerException("No task with id of " + id + " found");
+            throw new CytoContainerBadRequestException("No task with id of " + id + " found");
         }
         return new CytoContainerResultStatus(cdr);
     }
@@ -448,7 +448,7 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
     @Override
     public void delete(final String algorithm, String id) throws CytoContainerException {
         if (id == null){
-            throw new CytoContainerException("id is null");
+            throw new CytoContainerBadRequestException("id is null");
         }
         _logger.debug("Deleting task " + id);
         if (_results.containsKey(id) == true){

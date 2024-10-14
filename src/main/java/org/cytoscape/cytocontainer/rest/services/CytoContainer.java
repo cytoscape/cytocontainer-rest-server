@@ -113,7 +113,7 @@ public class CytoContainer {
             if (er == null){
                 er = new ErrorResponse("Bad request received", breq);
             }
-            return Response.serverError().type(MediaType.APPLICATION_JSON).entity(er).build();
+            return Response.status(400).type(MediaType.APPLICATION_JSON).entity(er).build();
         }catch(Exception ex){
             ErrorResponse er = new ErrorResponse("Error requesting CytoContainer", ex);
             return Response.serverError().type(MediaType.APPLICATION_JSON).entity(er).build();
@@ -131,7 +131,7 @@ public class CytoContainer {
                            description = "Success",
                            content = @Content(mediaType = MediaType.APPLICATION_JSON,
                                 schema = @Schema(implementation = CytoContainerResult.class))),
-                   @ApiResponse(responseCode = "410",
+                   @ApiResponse(responseCode = "400",
                            description = "Task not found"),
                    @ApiResponse(responseCode = "500", description = "Server Error",
                                 content = @Content(mediaType = MediaType.APPLICATION_JSON,
@@ -147,11 +147,15 @@ public class CytoContainer {
             
             CytoContainerResult eqr = engine.getResult(algorithm, id);
             if (eqr == null){
-                return Response.status(410).build();
+                return Response.status(400).build();
             }
 			
             return Response.ok().type(MediaType.APPLICATION_JSON).entity(eqr).build();
         }
+		catch(CytoContainerBadRequestException cbre){
+			ErrorResponse er = new ErrorResponse("Error getting results for id: " + id, cbre);
+            return Response.status(400).type(MediaType.APPLICATION_JSON).entity(er).build();
+		}
         catch(Exception ex){
             ErrorResponse er = new ErrorResponse("Error getting results for id: " + id, ex);
             return Response.status(500).type(MediaType.APPLICATION_JSON).entity(er).build();
@@ -167,7 +171,7 @@ public class CytoContainer {
                            description = "Success",
                            content = @Content(mediaType = MediaType.APPLICATION_JSON,
                                 schema = @Schema(implementation = Algorithm.class))),
-                   @ApiResponse(responseCode = "410",
+                   @ApiResponse(responseCode = "400",
                            description = "Task not found"),
                    @ApiResponse(responseCode = "500", description = "Server Error",
                                 content = @Content(mediaType = MediaType.APPLICATION_JSON,
@@ -183,7 +187,7 @@ public class CytoContainer {
             
             Algorithm cda = engine.getMetaData(algorithm);
             if (cda == null){
-                return Response.status(410).build();
+                return Response.status(400).build();
             }
             return Response.ok().type(MediaType.APPLICATION_JSON).entity(cda).build();
         }
@@ -202,7 +206,7 @@ public class CytoContainer {
                            description = "Success",
                            content = @Content(mediaType = MediaType.APPLICATION_JSON,
                                 schema = @Schema(implementation = Algorithms.class))),
-                   @ApiResponse(responseCode = "410",
+                   @ApiResponse(responseCode = "400",
                            description = "Task not found"),
                    @ApiResponse(responseCode = "500", description = "Server Error",
                                 content = @Content(mediaType = MediaType.APPLICATION_JSON,
@@ -218,7 +222,7 @@ public class CytoContainer {
             
             Algorithms algos = engine.getAllAlgorithms();
             if (algos == null){
-                return Response.status(410).build();
+                return Response.status(400).build();
             }
             return Response.ok().type(MediaType.APPLICATION_JSON).entity(algos).build();
         }
@@ -238,7 +242,7 @@ public class CytoContainer {
                            description = "Success",
                            content = @Content(mediaType = MediaType.APPLICATION_JSON,
                                 schema = @Schema(implementation = CytoContainerResultStatus.class))),
-                   @ApiResponse(responseCode = "410",
+                   @ApiResponse(responseCode = "400",
                            description = "Task not found"),
                    @ApiResponse(responseCode = "500", description = "Server Error",
                                 content = @Content(mediaType = MediaType.APPLICATION_JSON,
@@ -253,10 +257,14 @@ public class CytoContainer {
             }
             CytoContainerResultStatus eqs = engine.getStatus(algorithm, id);
             if (eqs ==  null){
-                return Response.status(410).build();
+                return Response.status(400).build();
             }
             return Response.ok().type(MediaType.APPLICATION_JSON).entity(eqs).build();
         }
+		catch(CytoContainerBadRequestException cbre){
+			ErrorResponse er = new ErrorResponse("Error getting results for id: " + id, cbre);
+            return Response.status(400).type(MediaType.APPLICATION_JSON).entity(er).build();
+		}
         catch(Exception ex){
             ErrorResponse er = new ErrorResponse("Error getting results for id: " + id, ex);
             return Response.serverError().type(MediaType.APPLICATION_JSON).entity(er).build();
@@ -268,25 +276,27 @@ public class CytoContainer {
     @Operation(summary = "Deletes task associated with {id} passed in",
                description="",
                responses = {
-                   @ApiResponse(responseCode = "200",
+                   @ApiResponse(responseCode = "204",
                            description = "Delete request successfully received"),
                    @ApiResponse(responseCode = "400",
-                           description = "Invalid delete request"),
+                           description = "Not found"),
                    @ApiResponse(responseCode = "500", description = "Server Error",
                                 content = @Content(mediaType = MediaType.APPLICATION_JSON,
                                 schema = @Schema(implementation = ErrorResponse.class)))
                })
     public Response deleteRequest(@PathParam("algorithm") final String algorithm, @PathParam("id") final String id) {
-        ObjectMapper omappy = new ObjectMapper();
-
         try {
             CytoContainerEngine engine = Configuration.getInstance().getCytoContainerEngine();
             if (engine == null){
                 throw new NullPointerException("CytoContainer Engine not loaded");
             }
             engine.delete(algorithm, id);
-            return Response.ok().build();
+            return Response.status(204).build();
         }
+		catch(CytoContainerBadRequestException cbre){
+			ErrorResponse er = new ErrorResponse("Error deleting: " + id, cbre);
+            return Response.status(400).type(MediaType.APPLICATION_JSON).entity(er).build();
+		}
         catch(Exception ex){
             ErrorResponse er = new ErrorResponse("Error deleting: " + id, ex);
             return Response.serverError().type(MediaType.APPLICATION_JSON).entity(er).build();

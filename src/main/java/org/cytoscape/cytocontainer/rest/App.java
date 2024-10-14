@@ -594,7 +594,7 @@ public class App {
 				return null;
 			}
 			try {
-				return Integer.getInteger(val);
+				return Integer.parseInt(val);
 			} catch(NumberFormatException e){
 				System.err.println("\t" + val + " is not a valid integer");
 			}

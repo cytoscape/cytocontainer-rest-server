@@ -335,8 +335,8 @@ public class App {
 	public static String generateAlgorithm() throws Exception {
 		CytoContainerAlgorithm algo = new CytoContainerAlgorithm();
 		Scanner userIn = new Scanner(System.in);
-		System.out.print("Algorithm name: ");
-		algo.setName(userIn.nextLine());
+		System.out.print("Algorithm name (white space will be replaced by _): ");
+		algo.setName(userIn.nextLine().replaceAll("\\s+","_"));
 		System.out.print("Docker Image: ");
 		algo.setDockerImage(userIn.nextLine());
 		while(true){
@@ -360,6 +360,33 @@ public class App {
 		
 		System.out.print("Citation: ");
 		algo.setCitation(userIn.nextLine());
+		
+		promptForHiddenParameters(algo, userIn);
+		
+		HashSet<AlgorithmParameter> params = new HashSet<>();
+		Map<String, String> paramFlagMap = new HashMap<>();
+		
+		while(true){
+			if (params.isEmpty()){
+				System.out.print("Add parameter (y/n)? ");
+			} else {
+				System.out.print("Add another parameter (y/n)? ");
+			}
+			String answer = userIn.nextLine();
+			if (answer.startsWith("n") || answer.startsWith("N")){
+				break;
+			}
+			CytoContainerParameter param = promptUserForParameter(userIn);
+			
+			params.add(param);
+			paramFlagMap.put(param.getDisplayName(), param.getFlag());
+
+			
+		}
+		if (!params.isEmpty()){
+			algo.setParameterFlagMap(paramFlagMap);
+			algo.setParameters(params);
+		}
 		
 		System.out.print("Top Menu (Example Apps): ");
 		CyWebMenuItem menu = new CyWebMenuItem();
@@ -505,13 +532,91 @@ public class App {
 		CytoContainerParameter param = new CytoContainerParameter();
 		System.out.print("Parameter displayName: ");
 		param.setDisplayName(userIn.nextLine());
+		
+		System.out.print("Parameter Flag: ");
+		param.setFlag(userIn.nextLine());
+		
 		System.out.print("Parameter description: ");
-		param.setDisplayName(userIn.nextLine());
-		System.out.print("Parameter displayName: ");
-		param.setDisplayName(userIn.nextLine());
+		param.setDescription(userIn.nextLine());
+		
 		promptForParameterType(param, userIn);
-		promptForValidationType(param, userIn);
+		
+		if (param.getType().equals(CytoContainerParameter.DROPDOWN_TYPE)){
+			promptForValueList(param, userIn);
+		}
+		
+		System.out.print("Parameter defaultValue: ");
+		param.setDefaultValue(userIn.nextLine());
+		
+		if (param.getType().equals(CytoContainerParameter.TEXT_TYPE)){
+			promptForValidationType(param, userIn);
+		}
+		
+		if (param.getValidationType() != null && param.getValidationType().equals(CytoContainerParameter.STRING_VALIDATION)){
+			System.out.print("Parameter validationRegex: ");
+			param.setValidationRegex(userIn.nextLine());
+		}
+		
+		if (param.getValidationType() != null && (param.getValidationType().equals(CytoContainerParameter.STRING_VALIDATION) || param.getValidationType().equals(CytoContainerParameter.NUMBER_VALIDATION) || param.getValidationType().equals(CytoContainerParameter.DIGITS_VALIDATION))){
+			System.out.print("Parameter validationHelp: ");
+			param.setValidationHelp(userIn.nextLine());
+		}
+
+		
+
+		if (param.getValidationType() != null && (param.getValidationType().equals(CytoContainerParameter.NUMBER_VALIDATION) || param.getValidationType().equals(CytoContainerParameter.DIGITS_VALIDATION))){
+			param.setMinValue(promptForIntegerValue("Parameter minValue: ", userIn));
+			param.setMaxValue(promptForIntegerValue("Parameter maxValue: ", userIn));
+		}
 		return param;
+	}
+	
+	public static void promptForColumnTypeFilter(CytoContainerParameter param, Scanner userIn){
+		while(true){
+			System.out.print("Parameter columnTypeFilter (" + CXDataType.COLUMN_FILTER_SET + "): ");
+			try {
+				String res = userIn.nextLine();
+				if (res != null && !res.isBlank()){
+					param.setColumnTypeFilter(userIn.nextLine());
+				}
+				break;
+			} catch(CytoContainerException cce){
+				System.err.println("\t" + cce.getMessage());
+			}
+		}
+	}
+	
+	public static Integer promptForIntegerValue(final String prompt, Scanner userIn){
+		while (true){
+			System.out.print(prompt);
+			String val = userIn.nextLine();
+			if (val == null || val.isBlank()){
+				return null;
+			}
+			try {
+				return Integer.getInteger(val);
+			} catch(NumberFormatException e){
+				System.err.println("\t" + val + " is not a valid integer");
+			}
+		}
+	}
+	
+	public static final void promptForHiddenParameters(CytoContainerAlgorithm algo, Scanner userIn){
+		System.out.print("Parameter hidden parameters (as comma delimited): ");
+		String res = userIn.nextLine();
+		if (res == null || res.isBlank()){
+			return;
+		}
+		algo.setHiddenParameters(Arrays.asList(res.split("\\s*,\\s*")));
+	}
+	
+	public static final void promptForValueList(CytoContainerParameter param, Scanner userIn){
+		System.out.print("Parameter valueList (as comma delimited): ");
+		String res = userIn.nextLine();
+		if (res == null || res.isBlank()){
+			return;
+		}
+		param.setValueList(Arrays.asList(res.split("\\s*,\\s*")));
 	}
 	
 	public static final void promptForParameterType(CytoContainerParameter param, Scanner userIn){

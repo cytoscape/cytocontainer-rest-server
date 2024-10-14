@@ -23,6 +23,12 @@ import java.util.Scanner;
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import org.cytoscape.cytocontainer.rest.engine.CytoContainerEngineFactory;
+import org.cytoscape.cytocontainer.rest.engine.CytoContainerEngineImpl;
+import org.cytoscape.cytocontainer.rest.engine.util.CommandLineRunnerImpl;
+import org.cytoscape.cytocontainer.rest.engine.util.CytoContainerRequestValidatorImpl;
+import org.cytoscape.cytocontainer.rest.engine.util.DockerCytoContainerRunner;
+import org.cytoscape.cytocontainer.rest.engine.util.StringMessageBodyWriter;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.util.RolloverFileOutputStream;
 
@@ -49,7 +55,12 @@ import org.slf4j.LoggerFactory;
 
 
 import org.cytoscape.cytocontainer.rest.services.Configuration;
+import org.cytoscape.cytocontainer.rest.services.CytoContainer;
 import org.cytoscape.cytocontainer.rest.services.CytoContainerHttpServletDispatcher;
+import org.cytoscape.cytocontainer.rest.services.OpenApiHttpServletDispatcher;
+import org.cytoscape.cytocontainer.rest.services.Status;
+import org.cytoscape.cytocontainer.rest.swagger.SwaggerFilter;
+import org.cytoscape.cytocontainer.rest.swagger.SwaggerScanner;
 import org.eclipse.jetty.ee10.servlet.FilterHolder;
 
 
@@ -74,6 +85,11 @@ public class App {
      * Sets logging level valid values DEBUG INFO WARN ALL ERROR
      */
     public static final String RUNSERVER_LOGLEVEL = "runserver.log.level";
+	
+	/**
+	 * Sets root logger logging level values DEBUG INFO WARN ALL ERROR
+	 */
+	public static final String ROOT_LOGLEVEL = "root.log.level";
 
     /**
      * Sets log directory for embedded Jetty
@@ -170,7 +186,8 @@ public class App {
                 Properties props = getPropertiesFromConf(optionSet.valueOf(CONF).toString());
                 ch.qos.logback.classic.Logger rootLog = 
         		(ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-                rootLog.setLevel(Level.toLevel(props.getProperty(App.RUNSERVER_LOGLEVEL, "INFO")));
+                rootLog.setLevel(Level.toLevel(props.getProperty(App.ROOT_LOGLEVEL, "INFO")));
+				setLogLevelForClassesInThisPackage(Level.toLevel(props.getProperty(App.RUNSERVER_LOGLEVEL, "INFO")));
 
                 String logDir = props.getProperty(App.RUNSERVER_LOGDIR, ".");
                 RolloverFileOutputStream os = new RolloverFileOutputStream(logDir 
@@ -276,6 +293,23 @@ public class App {
         }
 
     }
+	
+	/**
+	 * Sets logging level for specific classes in this package
+	 * @param logLevel 
+	 */
+	public static void setLogLevelForClassesInThisPackage(Level logLevel){
+		ch.qos.logback.classic.Logger curLog = null; 
+		Class[] classPkgs = {CytoContainerEngineFactory.class, CytoContainerEngineImpl.class, 
+			CytoContainer.class, Status.class, CommandLineRunnerImpl.class,
+		    CytoContainerHttpServletDispatcher.class, Configuration.class, OpenApiHttpServletDispatcher.class,
+		    DockerCytoContainerRunner.class, CytoContainerRequestValidatorImpl.class, StringMessageBodyWriter.class,
+		SwaggerFilter.class, SwaggerScanner.class};
+		for (Class c : classPkgs){
+			curLog =(ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(c);
+			curLog.setLevel(logLevel);
+		}
+	}
     
 	public static String getAlgorithmSummary(CytoContainerAlgorithms algos) {
 		StringBuilder sb = new StringBuilder();
@@ -804,8 +838,11 @@ public class App {
         sb.append("# Sets Jetty Context Path for Cytoscape Container Service\n");
         sb.append(Configuration.RUNSERVER_CONTEXTPATH + " = /cy\n\n");
         
-        sb.append("# Valid log levels DEBUG INFO WARN ERROR ALL\n");
+        sb.append("# App log level. Valid log levels DEBUG INFO WARN ERROR ALL\n");
         sb.append(App.RUNSERVER_LOGLEVEL + " = INFO\n");
+		
+		sb.append("# Root log level. Valid log levels DEBUG INFO WARN ERROR ALL\n");
+        sb.append(App.ROOT_LOGLEVEL + " = INFO\n");
 
         return sb.toString();
     }

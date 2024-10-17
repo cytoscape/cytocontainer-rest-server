@@ -53,11 +53,11 @@ public class Status {
         ObjectMapper omappy = new ObjectMapper();
 
         try {
-            CytoContainerEngine enricher = Configuration.getInstance().getCytoContainerEngine();
-            if (enricher == null){
+            CytoContainerEngine engine = Configuration.getInstance().getCytoContainerEngine();
+            if (engine == null){
                 throw new NullPointerException("CytoContainer Engine not loaded");
             }
-            ServerStatus sObj = enricher.getServerStatus(algorithm);
+            ServerStatus sObj = engine.getServerStatus(algorithm);
             if (sObj == null){
                 throw new NullPointerException("No Server Status object returned");
             }
@@ -87,6 +87,6 @@ public class Status {
                                 schema = @Schema(implementation = ErrorResponse.class)))
                })
     public Response status() {
-        return status("NOTSETBYCALLER");
+        return status("");
     }
 }

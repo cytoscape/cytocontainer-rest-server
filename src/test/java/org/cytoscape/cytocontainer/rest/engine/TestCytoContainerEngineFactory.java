@@ -39,7 +39,7 @@ public class TestCytoContainerEngineFactory {
         CytoContainerEngine cde = factory.getCytoContainerEngine();
 
         verify(mockConfig);
-        ServerStatus ss = cde.getServerStatus("notset");
+        ServerStatus ss = cde.getServerStatus("");
         assertEquals(ServerStatus.OK_STATUS, ss.getStatus());
     }
 }

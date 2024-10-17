@@ -374,9 +374,9 @@ public class App {
 		System.out.print("Docker Image: ");
 		algo.setDockerImage(userIn.nextLine());
 		while(true){
-			System.out.print("cyWebAction (" + CytoContainerAlgorithm.ACTION_SET + "): ");
+			System.out.print("cyWebAction as comma delimited list (" + CytoContainerAlgorithm.ACTION_SET + "): ");
 			try {
-				algo.setCyWebAction(userIn.nextLine());
+				algo.setCyWebActions(Arrays.asList(userIn.nextLine().split("\\w?,\\w?")));
 				break;
 			} catch(CytoContainerException cce){
 				System.err.println("\t" + cce.getMessage());
@@ -688,7 +688,7 @@ public class App {
          LinkedHashMap<String, CytoContainerAlgorithm> algoSet = new LinkedHashMap<>();
         //gprofiler term mapper
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
-		cda.setCyWebAction(CytoContainerAlgorithm.ADD_TABLES_ACTION);
+		cda.setCyWebActions(Arrays.asList(CytoContainerAlgorithm.ADD_TABLES_ACTION));
 		cda.setVersion("1.0.0");
 		CyWebMenuItem toolsMenuItem = new CyWebMenuItem();
 		toolsMenuItem.setRoot("Tools");
@@ -736,7 +736,7 @@ public class App {
         //louvain
         CytoContainerAlgorithm cdb = new CytoContainerAlgorithm();
         cdb.setName("louvain");
-		cdb.setCyWebAction(CytoContainerAlgorithm.ADD_NETWORKS_ACTION);
+		cdb.setCyWebActions(Arrays.asList(CytoContainerAlgorithm.ADD_NETWORKS_ACTION));
 
 		CyWebMenuItem toolsCdbMenuItem = new CyWebMenuItem();
 		toolsCdbMenuItem.setRoot("Tools");

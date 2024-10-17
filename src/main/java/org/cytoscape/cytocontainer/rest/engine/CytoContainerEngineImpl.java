@@ -510,7 +510,11 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
             String version = "unknown";
             ServerStatus sObj = new ServerStatus();
             sObj.setStatus(ServerStatus.OK_STATUS);
-            sObj.setVersion(CytoContainerHttpServletDispatcher.getVersion());
+			if (algorithm == null || algorithm.isBlank()){
+	            sObj.setVersion(CytoContainerHttpServletDispatcher.getVersion());
+			} else {
+				sObj.setVersion(_algorithms.getAlgorithms().get(algorithm).getVersion());
+			}
             OperatingSystemMXBean omb = ManagementFactory.getOperatingSystemMXBean();
             float unknown = (float)-1;
             float load = (float)omb.getSystemLoadAverage();

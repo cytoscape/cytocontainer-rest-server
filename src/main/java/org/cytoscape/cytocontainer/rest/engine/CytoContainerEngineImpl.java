@@ -40,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.cytoscape.cytocontainer.rest.engine.util.CytoContainerRequestValidator;
 import org.cytoscape.cytocontainer.rest.model.Algorithm;
+import org.cytoscape.cytocontainer.rest.model.AlgorithmParameter;
 import org.cytoscape.cytocontainer.rest.model.Algorithms;
 
 /**
@@ -311,18 +312,39 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
         }
     }
 	
+	/**
+	 * Add parameter to pMap unless datatype is checkbox which is a special case
+	 * where only the flag is added and value is ignored if value is true otherwise
+	 * do not add the parameter
+	 * @param key - DisplayName of parameter
+	 * @param flag - internal parameter flag for example: --foo
+	 * @param value - value passed in for the request
+	 * @param param - the algorithm parameter
+	 * @param pMap - map of parameters to be sent to command line
+	 */
+	private void addParameter(final String key, final String flag, final String value, AlgorithmParameter param,
+			Map<String, String> pMap){
+		if (param.getType() == null || !param.getType().equals(AlgorithmParameter.CHECKBOX_TYPE)){
+			pMap.put(flag, value);
+		}
+		if (value.equalsIgnoreCase("true")){
+			pMap.put(flag, null);
+		}
+	}
+	
 	private Map<String, String> getParametersCombinedWithHiddenParameters(CytoContainerAlgorithm algo, Map<String, String> params) throws CytoContainerException {
 		if (algo.getHiddenParameters() == null && params == null){
 			return null;
 		}
 		Map<String, String> pMap = new LinkedHashMap<>();
 		Map<String, String> paramFlagMap = algo.getParameterFlagMap();
+		Map<String, AlgorithmParameter> algoParamMap = algo.getParameterMap();
 		if (paramFlagMap != null && params != null){
 			for (String key : params.keySet()){
 				if (!paramFlagMap.containsKey(key)){
 					throw new CytoContainerException("'" + key + "' parameter not found in algorithm. skipping...");
 				}
-				pMap.put(paramFlagMap.get(key), params.get(key));
+				addParameter(key, paramFlagMap.get(key), params.get(key), algoParamMap.get(key), pMap);
 			}
 		}
 		if (algo.getHiddenParameters() != null){

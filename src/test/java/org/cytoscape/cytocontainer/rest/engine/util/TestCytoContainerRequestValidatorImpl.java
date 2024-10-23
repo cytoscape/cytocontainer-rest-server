@@ -3,6 +3,7 @@ package org.cytoscape.cytocontainer.rest.engine.util;
 import com.fasterxml.jackson.databind.node.TextNode;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.cytoscape.cytocontainer.rest.model.CytoContainerAlgorithm;
@@ -12,13 +13,11 @@ import org.cytoscape.cytocontainer.rest.model.CytoContainerParameter;
 import org.cytoscape.cytocontainer.rest.model.ErrorResponse;
 import org.cytoscape.cytocontainer.rest.model.exceptions.CytoContainerException;
 import static org.junit.Assert.fail;
-import org.junit.Ignore;
 
 /**
  *
  * @author churas
  */
-@Ignore
 public class TestCytoContainerRequestValidatorImpl {
 
     @Test
@@ -116,16 +115,20 @@ public class TestCytoContainerRequestValidatorImpl {
     public void testAlgorithmParameterTypeNotSet(){
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
+		Map<String, String> pMap = new HashMap<>();
+		pMap.put("something", "--somearg");
+		cda.setParameterFlagMap(pMap);
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
-        cp.setFlag("--somearg");
+        cp.setDisplayName("something");
+		cp.setFlag("--somearg");
         aParams.add(cp);
        
         cda.setParameters(aParams);
         
         CytoContainerRequest cdr = new CytoContainerRequest();
         HashMap<String, String> cParams = new HashMap<>();
-        cParams.put("--somearg", "blah");
+        cParams.put("something", "blah");
         cdr.setParameters(cParams);
         cdr.setData(new TextNode("hi"));
         CytoContainerRequestValidatorImpl validator = new CytoContainerRequestValidatorImpl();
@@ -137,6 +140,9 @@ public class TestCytoContainerRequestValidatorImpl {
     public void testAlgorithmParameterUnknownType(){
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
+		Map<String, String> pMap = new HashMap<>();
+		pMap.put("something", "--somearg");
+		cda.setParameterFlagMap(pMap);
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
@@ -152,12 +158,12 @@ public class TestCytoContainerRequestValidatorImpl {
         
         CytoContainerRequest cdr = new CytoContainerRequest();
         HashMap<String, String> cParams = new HashMap<>();
-        cParams.put("--somearg", "blah");
+        cParams.put("foo", "blah");
         cdr.setParameters(cParams);
         cdr.setData(new TextNode("hi"));
         CytoContainerRequestValidatorImpl validator = new CytoContainerRequestValidatorImpl();
         ErrorResponse er = validator.validateRequest(cda, cdr);
-        assertEquals("Unknown parameter type", er.getMessage());
+        assertEquals("Invalid custom parameter", er.getMessage());
     }
     
     @Test

@@ -710,7 +710,7 @@ public class App {
                 + "using a list of genes as input");
         cda.setDockerImage("coleslawndex/gprofilersingletermv2");
 		ServiceInputDefinition sda = new ServiceInputDefinition();
-		sda.setType(ServiceInputDefinition.NODES_TYPE);
+		sda.setType(ServiceInputDefinition.NODE_TYPE);
 		SelectedDataParameter nodeparam = new SelectedDataParameter();
 		InputColumn cdaInputColumn = new InputColumn();
 		cdaInputColumn.setDefaultColumnName("CD_MemberList");
@@ -777,7 +777,7 @@ public class App {
         cp.setDescription("Configuration model which must be one of following:"
                 + ": RB, RBER, CPM, Suprise, Significance, Default");
         cp.setDisplayName("Configuration Model");
-        cp.setType("value");
+        cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setDefaultValue("Default");
         cp.setValidationType("string");
         cp.setValidationHelp("Must be one of following: RB, RBER, CPM, Suprise, Significance, Default");

@@ -107,9 +107,9 @@ public class CytoContainerRequestValidatorImpl implements CytoContainerRequestVa
             return validateStringParameter(algoParam, userParamValue);
         }
         
-        //for flag types 
-        if (AlgorithmParameter.FLAG_TYPE.equalsIgnoreCase(algoParam.getType())){
-            return validateFlagParameter(algoParam, userParamValue);
+		// for checkbox types
+		if (AlgorithmParameter.CHECKBOX_TYPE.equalsIgnoreCase(algoParam.getType())){
+            return validateCheckBoxParameter(algoParam, userParamValue);
         }
 
         //for digits and number parameter
@@ -122,6 +122,32 @@ public class CytoContainerRequestValidatorImpl implements CytoContainerRequestVa
         er.setMessage("Unknown parameter type");
         er.setDescription("For parameter: '" + algoParam.getDisplayName() + "' " + algoParam.getValidationType() + " is not a valid type");
         return er;
+    }
+	
+	/**
+     * Verify the value for a parameter of type {@value org.ndexbio.communitydetection.rest.model.CustomParameter#CHECKBOX_TYPE}
+     * has null or empty string for a value
+     * @param algoParam 
+     * @param userParamValue user's parameter value
+     * @return {@code null} if its a valid parameter otherwise {@link org.ndexbio.communitydetection.rest.model.ErrorResponse}
+     */
+    private ErrorResponse validateCheckBoxParameter(final AlgorithmParameter algoParam,
+            final String userParamValue){
+        
+        if (userParamValue != null){
+			
+			String trimVal = userParamValue.trim();
+     
+			if (!trimVal.equalsIgnoreCase("true") &&
+					!trimVal.equalsIgnoreCase("false")){
+                ErrorResponse er = new ErrorResponse();
+                er.setMessage("Invalid " + AlgorithmParameter.CHECKBOX_TYPE + " type value");
+                er.setDescription("'" + algoParam.getDisplayName()+ "' is a checkbox parameter, "
+                        + "that allows true|false|null|whitespace, but the following value was passed in " + userParamValue);
+                return er;
+			}
+        }
+        return null;
     }
     
     /**

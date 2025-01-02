@@ -167,20 +167,21 @@ public class TestCytoContainerRequestValidatorImpl {
     }
     
     @Test
-    public void testSingleFlagParameterValid() throws CytoContainerException {
+    public void testSingleCheckBoxParameterValid() throws CytoContainerException {
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
-        cp.setType(AlgorithmParameter.FLAG_TYPE);
+		cp.setDisplayName("somearg");
+        cp.setType(AlgorithmParameter.CHECKBOX_TYPE);
         aParams.add(cp);
        
         cda.setParameters(aParams);
         
         CytoContainerRequest cdr = new CytoContainerRequest();
         HashMap<String, String> cParams = new HashMap<>();
-        cParams.put("--somearg", null);
+        cParams.put("somearg", null);
         cdr.setParameters(cParams);
         cdr.setData(new TextNode("hi"));
         CytoContainerRequestValidatorImpl validator = new CytoContainerRequestValidatorImpl();
@@ -190,20 +191,21 @@ public class TestCytoContainerRequestValidatorImpl {
     }
     
     @Test
-    public void testSingleFlagParameterWithWhiteSpaceValueButValid() throws CytoContainerException{
+    public void testSingleCheckBoxParameterWithWhiteSpaceValueButValid() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
-        cp.setType(AlgorithmParameter.FLAG_TYPE);
+		cp.setDisplayName("somearg");
+        cp.setType(AlgorithmParameter.CHECKBOX_TYPE);
         aParams.add(cp);
        
         cda.setParameters(aParams);
         
         CytoContainerRequest cdr = new CytoContainerRequest();
         HashMap<String, String> cParams = new HashMap<>();
-        cParams.put("--somearg", " ");
+        cParams.put("somearg", " ");
         cdr.setParameters(cParams);
         cdr.setData(new TextNode("hi"));
         CytoContainerRequestValidatorImpl validator = new CytoContainerRequestValidatorImpl();
@@ -213,25 +215,26 @@ public class TestCytoContainerRequestValidatorImpl {
     }
     
     @Test
-    public void testSingleFlagParameterPassedValue() throws CytoContainerException{
+    public void testSingleCheckBoxParameterPassedValue() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
+		cp.setDisplayName("somearg");
         cp.setFlag("--somearg");
-        cp.setType(AlgorithmParameter.FLAG_TYPE);
+        cp.setType(AlgorithmParameter.CHECKBOX_TYPE);
         aParams.add(cp);
        
         cda.setParameters(aParams);
         
         CytoContainerRequest cdr = new CytoContainerRequest();
         HashMap<String, String> cParams = new HashMap<>();
-        cParams.put("--somearg", "foo");
+        cParams.put("somearg", "foo");
         cdr.setParameters(cParams);
         cdr.setData(new TextNode("hi"));
         CytoContainerRequestValidatorImpl validator = new CytoContainerRequestValidatorImpl();
         ErrorResponse er = validator.validateRequest(cda, cdr);
-        assertEquals("Flag only given a value", er.getMessage());
+        assertEquals("Invalid checkBox type value", er.getMessage());
     }
     
     @Test
@@ -241,6 +244,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
+		cp.setDisplayName("somearg");
         cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.STRING_VALIDATION);
         
@@ -250,7 +254,7 @@ public class TestCytoContainerRequestValidatorImpl {
         
         CytoContainerRequest cdr = new CytoContainerRequest();
         HashMap<String, String> cParams = new HashMap<>();
-        cParams.put("--somearg", null);
+        cParams.put("somearg", null);
         cdr.setParameters(cParams);
         cdr.setData(new TextNode("hi"));
         CytoContainerRequestValidatorImpl validator = new CytoContainerRequestValidatorImpl();
@@ -265,6 +269,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
+		cp.setDisplayName("somearg");
         cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.STRING_VALIDATION);
         
@@ -274,7 +279,7 @@ public class TestCytoContainerRequestValidatorImpl {
         
         CytoContainerRequest cdr = new CytoContainerRequest();
         HashMap<String, String> cParams = new HashMap<>();
-        cParams.put("--somearg", "  ");
+        cParams.put("somearg", "  ");
         cdr.setParameters(cParams);
         cdr.setData(new TextNode("hi"));
         CytoContainerRequestValidatorImpl validator = new CytoContainerRequestValidatorImpl();
@@ -289,6 +294,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
+		cp.setDisplayName("somearg");
         cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.STRING_VALIDATION);
         
@@ -298,7 +304,7 @@ public class TestCytoContainerRequestValidatorImpl {
         
         CytoContainerRequest cdr = new CytoContainerRequest();
         HashMap<String, String> cParams = new HashMap<>();
-        cParams.put("--somearg", "foo");
+        cParams.put("somearg", "foo");
         cdr.setParameters(cParams);
         cdr.setData(new TextNode("hi"));
         CytoContainerRequestValidatorImpl validator = new CytoContainerRequestValidatorImpl();
@@ -313,6 +319,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
+		cp.setDisplayName("somearg");
         cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.STRING_VALIDATION);
         cp.setValidationRegex("[");
@@ -322,7 +329,7 @@ public class TestCytoContainerRequestValidatorImpl {
         
         CytoContainerRequest cdr = new CytoContainerRequest();
         HashMap<String, String> cParams = new HashMap<>();
-        cParams.put("--somearg", "foo");
+        cParams.put("somearg", "foo");
         cdr.setParameters(cParams);
         cdr.setData(new TextNode("hi"));
         CytoContainerRequestValidatorImpl validator = new CytoContainerRequestValidatorImpl();
@@ -337,6 +344,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
+		cp.setDisplayName("somearg");
         cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.STRING_VALIDATION);
         cp.setValidationRegex("foo|bar");
@@ -346,7 +354,7 @@ public class TestCytoContainerRequestValidatorImpl {
         
         CytoContainerRequest cdr = new CytoContainerRequest();
         HashMap<String, String> cParams = new HashMap<>();
-        cParams.put("--somearg", "foo");
+        cParams.put("somearg", "foo");
         cdr.setParameters(cParams);
         cdr.setData(new TextNode("hi"));
         CytoContainerRequestValidatorImpl validator = new CytoContainerRequestValidatorImpl();
@@ -361,6 +369,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
+		cp.setDisplayName("somearg");
         cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.STRING_VALIDATION);
         cp.setValidationRegex("^x.*v$");
@@ -370,7 +379,7 @@ public class TestCytoContainerRequestValidatorImpl {
         
         CytoContainerRequest cdr = new CytoContainerRequest();
         HashMap<String, String> cParams = new HashMap<>();
-        cParams.put("--somearg", "foo");
+        cParams.put("somearg", "foo");
         cdr.setParameters(cParams);
         cdr.setData(new TextNode("hi"));
         CytoContainerRequestValidatorImpl validator = new CytoContainerRequestValidatorImpl();
@@ -385,6 +394,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
+		cp.setDisplayName("somearg");
         cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.STRING_VALIDATION);
         cp.setValidationRegex("^x.*v$");
@@ -395,7 +405,7 @@ public class TestCytoContainerRequestValidatorImpl {
         
         CytoContainerRequest cdr = new CytoContainerRequest();
         HashMap<String, String> cParams = new HashMap<>();
-        cParams.put("--somearg", "foo");
+        cParams.put("somearg", "foo");
         cdr.setParameters(cParams);
         cdr.setData(new TextNode("hi"));
         CytoContainerRequestValidatorImpl validator = new CytoContainerRequestValidatorImpl();
@@ -410,6 +420,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
+		cp.setDisplayName("somearg");
         cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.NUMBER_VALIDATION);
         
@@ -419,7 +430,7 @@ public class TestCytoContainerRequestValidatorImpl {
         
         CytoContainerRequest cdr = new CytoContainerRequest();
         HashMap<String, String> cParams = new HashMap<>();
-        cParams.put("--somearg", null);
+        cParams.put("somearg", null);
         cdr.setParameters(cParams);
         cdr.setData(new TextNode("hi"));
         CytoContainerRequestValidatorImpl validator = new CytoContainerRequestValidatorImpl();
@@ -434,6 +445,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
+		cp.setDisplayName("somearg");
         cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.NUMBER_VALIDATION);
         
@@ -443,7 +455,7 @@ public class TestCytoContainerRequestValidatorImpl {
         
         CytoContainerRequest cdr = new CytoContainerRequest();
         HashMap<String, String> cParams = new HashMap<>();
-        cParams.put("--somearg", " ");
+        cParams.put("somearg", " ");
         cdr.setParameters(cParams);
         cdr.setData(new TextNode("hi"));
         CytoContainerRequestValidatorImpl validator = new CytoContainerRequestValidatorImpl();
@@ -458,6 +470,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
+		cp.setDisplayName("somearg");
         cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.DIGITS_VALIDATION);
         
@@ -467,7 +480,7 @@ public class TestCytoContainerRequestValidatorImpl {
         
         CytoContainerRequest cdr = new CytoContainerRequest();
         HashMap<String, String> cParams = new HashMap<>();
-        cParams.put("--somearg", "10");
+        cParams.put("somearg", "10");
         cdr.setParameters(cParams);
         cdr.setData(new TextNode("hi"));
         CytoContainerRequestValidatorImpl validator = new CytoContainerRequestValidatorImpl();
@@ -482,6 +495,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
+		cp.setDisplayName("somearg");
         cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.DIGITS_VALIDATION);
         
@@ -491,7 +505,7 @@ public class TestCytoContainerRequestValidatorImpl {
         
         CytoContainerRequest cdr = new CytoContainerRequest();
         HashMap<String, String> cParams = new HashMap<>();
-        cParams.put("--somearg", "-45");
+        cParams.put("somearg", "-45");
         cdr.setParameters(cParams);
         cdr.setData(new TextNode("hi"));
         CytoContainerRequestValidatorImpl validator = new CytoContainerRequestValidatorImpl();
@@ -506,6 +520,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
+		cp.setDisplayName("somearg");
         cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.DIGITS_VALIDATION);
         
@@ -515,7 +530,7 @@ public class TestCytoContainerRequestValidatorImpl {
         
         CytoContainerRequest cdr = new CytoContainerRequest();
         HashMap<String, String> cParams = new HashMap<>();
-        cParams.put("--somearg", "10.5");
+        cParams.put("somearg", "10.5");
         cdr.setParameters(cParams);
         cdr.setData(new TextNode("hi"));
         CytoContainerRequestValidatorImpl validator = new CytoContainerRequestValidatorImpl();
@@ -530,6 +545,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
+		cp.setDisplayName("somearg");
         cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.DIGITS_VALIDATION);
         cp.setMinValue(9);
@@ -540,7 +556,7 @@ public class TestCytoContainerRequestValidatorImpl {
         
         CytoContainerRequest cdr = new CytoContainerRequest();
         HashMap<String, String> cParams = new HashMap<>();
-        cParams.put("--somearg", "10");
+        cParams.put("somearg", "10");
         cdr.setParameters(cParams);
         cdr.setData(new TextNode("hi"));
         CytoContainerRequestValidatorImpl validator = new CytoContainerRequestValidatorImpl();
@@ -555,6 +571,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
+		cp.setDisplayName("somearg");
         cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.DIGITS_VALIDATION);
         cp.setMinValue(9);
@@ -564,7 +581,7 @@ public class TestCytoContainerRequestValidatorImpl {
         
         CytoContainerRequest cdr = new CytoContainerRequest();
         HashMap<String, String> cParams = new HashMap<>();
-        cParams.put("--somearg", "8");
+        cParams.put("somearg", "8");
         cdr.setParameters(cParams);
         cdr.setData(new TextNode("hi"));
         CytoContainerRequestValidatorImpl validator = new CytoContainerRequestValidatorImpl();
@@ -579,6 +596,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
+		cp.setDisplayName("somearg");
         cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.DIGITS_VALIDATION);
         cp.setMaxValue(7);
@@ -588,7 +606,7 @@ public class TestCytoContainerRequestValidatorImpl {
         
         CytoContainerRequest cdr = new CytoContainerRequest();
         HashMap<String, String> cParams = new HashMap<>();
-        cParams.put("--somearg", "8");
+        cParams.put("somearg", "8");
         cdr.setParameters(cParams);
         cdr.setData(new TextNode("hi"));
         CytoContainerRequestValidatorImpl validator = new CytoContainerRequestValidatorImpl();
@@ -603,6 +621,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
+		cp.setDisplayName("somearg");
         cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.NUMBER_VALIDATION);
         
@@ -612,7 +631,7 @@ public class TestCytoContainerRequestValidatorImpl {
         
         CytoContainerRequest cdr = new CytoContainerRequest();
         HashMap<String, String> cParams = new HashMap<>();
-        cParams.put("--somearg", "xxx");
+        cParams.put("somearg", "xxx");
         cdr.setParameters(cParams);
         cdr.setData(new TextNode("hi"));
         CytoContainerRequestValidatorImpl validator = new CytoContainerRequestValidatorImpl();
@@ -627,6 +646,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
+		cp.setDisplayName("somearg");
         cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.NUMBER_VALIDATION);
         
@@ -636,7 +656,7 @@ public class TestCytoContainerRequestValidatorImpl {
         
         CytoContainerRequest cdr = new CytoContainerRequest();
         HashMap<String, String> cParams = new HashMap<>();
-        cParams.put("--somearg", "1e-5");
+        cParams.put("somearg", "1e-5");
         cdr.setParameters(cParams);
         cdr.setData(new TextNode("hi"));
         CytoContainerRequestValidatorImpl validator = new CytoContainerRequestValidatorImpl();
@@ -651,6 +671,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
+		cp.setDisplayName("somearg");
         cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.NUMBER_VALIDATION);
         
@@ -660,7 +681,7 @@ public class TestCytoContainerRequestValidatorImpl {
         
         CytoContainerRequest cdr = new CytoContainerRequest();
         HashMap<String, String> cParams = new HashMap<>();
-        cParams.put("--somearg", "10.5");
+        cParams.put("somearg", "10.5");
         cdr.setParameters(cParams);
         cdr.setData(new TextNode("hi"));
         CytoContainerRequestValidatorImpl validator = new CytoContainerRequestValidatorImpl();
@@ -675,6 +696,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
+		cp.setDisplayName("somearg");
         cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.NUMBER_VALIDATION);
         cp.setMinValue(1.5);
@@ -685,7 +707,7 @@ public class TestCytoContainerRequestValidatorImpl {
         
         CytoContainerRequest cdr = new CytoContainerRequest();
         HashMap<String, String> cParams = new HashMap<>();
-        cParams.put("--somearg", "4.2");
+        cParams.put("somearg", "4.2");
         cdr.setParameters(cParams);
         cdr.setData(new TextNode("hi"));
         CytoContainerRequestValidatorImpl validator = new CytoContainerRequestValidatorImpl();
@@ -700,6 +722,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
+		cp.setDisplayName("somearg");
         cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.NUMBER_VALIDATION);
         cp.setMinValue(9.6);
@@ -709,7 +732,7 @@ public class TestCytoContainerRequestValidatorImpl {
         
         CytoContainerRequest cdr = new CytoContainerRequest();
         HashMap<String, String> cParams = new HashMap<>();
-        cParams.put("--somearg", "8.9");
+        cParams.put("somearg", "8.9");
         cdr.setParameters(cParams);
         cdr.setData(new TextNode("hi"));
         CytoContainerRequestValidatorImpl validator = new CytoContainerRequestValidatorImpl();
@@ -724,6 +747,7 @@ public class TestCytoContainerRequestValidatorImpl {
         HashSet<AlgorithmParameter> aParams = new HashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
+		cp.setDisplayName("somearg");
         cp.setType(AlgorithmParameter.TEXT_TYPE);
         cp.setValidationType(AlgorithmParameter.NUMBER_VALIDATION);
         cp.setMaxValue(7.2);
@@ -733,7 +757,7 @@ public class TestCytoContainerRequestValidatorImpl {
         
         CytoContainerRequest cdr = new CytoContainerRequest();
         HashMap<String, String> cParams = new HashMap<>();
-        cParams.put("--somearg", "8.3");
+        cParams.put("somearg", "8.3");
         cdr.setParameters(cParams);
         cdr.setData(new TextNode("hi"));
         CytoContainerRequestValidatorImpl validator = new CytoContainerRequestValidatorImpl();

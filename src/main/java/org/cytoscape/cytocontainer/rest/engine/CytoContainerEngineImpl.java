@@ -486,10 +486,24 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
         if (thisTaskDir.exists() == false){
             return;
         }
-        _logger.debug("Attempting to delete task from filesystem: " + thisTaskDir.getAbsolutePath());
-        if (FileUtils.deleteQuietly(thisTaskDir) == false){
-            _logger.error("There was a problem deleting the directory: " + thisTaskDir.getAbsolutePath());
-        }
+        _logger.debug("Attempting to rename task directory in filesystem: " + thisTaskDir.getAbsolutePath());
+		File renamedTaskDir = new File(thisTaskDir.getAbsolutePath() + ".deleted");
+		try {
+			FileUtils.moveDirectory(thisTaskDir, renamedTaskDir);
+		} catch(NullPointerException npe){
+			_logger.error("NullPointerException trying to rename directory: "
+					+ thisTaskDir.getAbsolutePath() + " to " + renamedTaskDir.getAbsolutePath(),npe);
+		} catch(IllegalArgumentException iae){
+			_logger.error("IllegalArgumentException trying to rename directory: "
+					+ thisTaskDir.getAbsolutePath() + " to " + renamedTaskDir.getAbsolutePath(),iae);
+			
+		} catch(FileNotFoundException fne){
+			_logger.error("FileNotFoundException trying to rename directory: "
+					+ thisTaskDir.getAbsolutePath() + " to " + renamedTaskDir.getAbsolutePath(),fne);
+		} catch(IOException ex){
+			_logger.error("IOException trying to rename directory: "
+					+ thisTaskDir.getAbsolutePath() + " to " + renamedTaskDir.getAbsolutePath(),ex);
+		}
     }
 
 	@Override

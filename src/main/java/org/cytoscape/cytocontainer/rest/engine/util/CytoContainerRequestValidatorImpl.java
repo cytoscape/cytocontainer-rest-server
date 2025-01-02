@@ -139,34 +139,14 @@ public class CytoContainerRequestValidatorImpl implements CytoContainerRequestVa
 			String trimVal = userParamValue.trim();
      
 			if (!trimVal.equalsIgnoreCase("true") &&
-					!trimVal.equalsIgnoreCase("false")){
+					!trimVal.equalsIgnoreCase("false") &&
+					!trimVal.equalsIgnoreCase("")){
                 ErrorResponse er = new ErrorResponse();
                 er.setMessage("Invalid " + AlgorithmParameter.CHECKBOX_TYPE + " type value");
                 er.setDescription("'" + algoParam.getDisplayName()+ "' is a checkbox parameter, "
                         + "that allows true|false|null|whitespace, but the following value was passed in " + userParamValue);
                 return er;
 			}
-        }
-        return null;
-    }
-    
-    /**
-     * Verify the value for a parameter of type {@value org.ndexbio.communitydetection.rest.model.CustomParameter#FLAG_TYPE}
-     * has null or empty string for a value
-     * @param algoParam 
-     * @param userParamValue user's parameter value
-     * @return {@code null} if its a valid parameter otherwise {@link org.ndexbio.communitydetection.rest.model.ErrorResponse}
-     */
-    private ErrorResponse validateFlagParameter(final AlgorithmParameter algoParam,
-            final String userParamValue){
-        
-        
-        if (userParamValue != null && userParamValue.trim().length() > 0){
-                ErrorResponse er = new ErrorResponse();
-                er.setMessage("Flag only given a value");
-                er.setDescription("'" + algoParam.getDisplayName()+ "' is a flag only parameter, "
-                        + "but the following value was passed in " + userParamValue);
-                return er;
         }
         return null;
     }

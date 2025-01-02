@@ -445,8 +445,7 @@ public class TestDockerCytoContainerRunner {
             File stdErrFile = runner.getStandardErrorFile();
             expect(mockCLR.runCommandLineProcess(1, TimeUnit.SECONDS, stdOutFile, stdErrFile,
                     "docker", "run", "--rm", "-v", wDir + ":" + wDir + ":ro", "hello-world",
-                    "flagonly", "somearg", "argvalue",
-                    inputFile.getAbsolutePath())).andReturn(0);
+                    inputFile.getAbsolutePath(),"flagonly", "somearg", "argvalue")).andReturn(0);
             expect(mockCLR.getLastCommand()).andReturn("lastcommand");
             runner.setAlternateCommandLineRunner(mockCLR);
             replay(mockCLR);

@@ -343,6 +343,7 @@ public class DockerCytoContainerRunner implements Callable {
             mCmd.add("-v");
             mCmd.add(mapDir);
             mCmd.add(_dockerImage);
+			mCmd.add(_inputFilePath);
             if (_customParameters != null){
                 _logger.debug("Custom Parameters is not null adding to command line call");
                 for (String key : _customParameters.keySet()){
@@ -356,7 +357,6 @@ public class DockerCytoContainerRunner implements Callable {
             } else {
                 _logger.debug("Custom Parameters is null");
             }
-            mCmd.add(_inputFilePath);
             int  exitValue = _runner.runCommandLineProcess(_timeOut, _timeUnit,
                     stdOutFile, stdErrFile, mCmd.toArray(new String[0]));
             writeCommandRunToFile();

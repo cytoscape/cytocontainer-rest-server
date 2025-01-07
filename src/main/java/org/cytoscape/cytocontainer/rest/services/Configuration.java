@@ -120,9 +120,20 @@ public class Configuration {
             _logger.error("Path to algorithms configuration dir is null");
             return null;
         }
+		File algoFileDir = new File(algoConfDir);
+
+		if (algoFileDir.exists() == false){
+			_logger.error(algoConfDir + " does not exist");
+			return null;
+		}
+
+		if (algoFileDir.isDirectory() == false){
+			_logger.error(algoConfDir + " is not a directory");
+			return null;
+		}
+		
 		CytoContainerAlgorithms cca = new CytoContainerAlgorithms();
 		LinkedHashMap<String, CytoContainerAlgorithm> algoMap = new LinkedHashMap<>();
-		File algoFileDir = new File(algoConfDir);
 		String[] extensions = new String[] { "json" };
 		CytoContainerAlgorithm algo = null;
 		for (File f : FileUtils.listFiles(algoFileDir, extensions, true)){
@@ -133,6 +144,10 @@ public class Configuration {
 			catch(IOException io){
 				  _logger.error("Skipping, error parsing json: " + f.getAbsolutePath() + " : " + io.getMessage());
 				  continue;
+			}
+			if (algoMap.containsKey(algo.getName()) == true){
+				_logger.error("Skipping, algorithm with matching name already found: " + f.getAbsolutePath());
+				continue;
 			}
 			algoMap.put(algo.getName(), algo);
 		}

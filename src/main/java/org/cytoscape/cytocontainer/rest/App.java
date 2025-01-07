@@ -79,7 +79,7 @@ public class App {
     /**
      * Default name for community detection algorithms json file
      */
-    public static final String CD_ALGORITHMS_FILE = "algorithms.json";
+    public static final String CD_ALGORITHMS_FILE = "algorithms/";
     
     /**
      * Sets logging level valid values DEBUG INFO WARN ALL ERROR
@@ -552,13 +552,10 @@ public class App {
 			inputDef.setInputColumns(inputCols);
 		}
 		algo.setServiceInputDefinition(inputDef);
-		CytoContainerAlgorithms algos = new CytoContainerAlgorithms();
-		LinkedHashMap<String, CytoContainerAlgorithm> aMap = new LinkedHashMap<>();
-		aMap.put(algo.getName(), algo);
-		algos.setAlgorithms(aMap);
+
 		ObjectMapper mappy = new ObjectMapper();
 		System.out.println("\n");
-        return mappy.writerWithDefaultPrettyPrinter().writeValueAsString(algos);
+        return mappy.writerWithDefaultPrettyPrinter().writeValueAsString(algo);
 		
 	}
 	
@@ -814,8 +811,8 @@ public class App {
         sb.append("# Algorithm/ docker command timeout in seconds. Anything taking longer will be killed\n");
         sb.append(Configuration.ALGORITHM_TIMEOUT + " = 180\n\n");
         
-        sb.append("# Path to file containing json of algorithms\n");
-        sb.append(Configuration.ALGORITHM_CONF_DIR + " = " + CD_ALGORITHMS_FILE + "\n\n");
+        sb.append("# Path to directory containing algorithm json files\n");
+        sb.append(Configuration.ALGORITHM_CONF_DIR + " = ./algorithms\n\n");
         
         sb.append("# Mount options, if unset :ro is used (podman may require :ro,z)\n");
         sb.append(Configuration.MOUNT_OPTIONS + " = :ro\n\n");

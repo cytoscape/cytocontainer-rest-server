@@ -128,7 +128,7 @@ public class TestConfiguration {
             File taskDir = new File(tempDir.getAbsolutePath() + File.separator + "tasks");
             Properties props = new Properties();
             props.setProperty(Configuration.TASK_DIR, taskDir.getAbsolutePath());
-            props.setProperty(Configuration.ALGORITHM_MAP, "haha");
+            props.setProperty(Configuration.ALGORITHM_CONF_DIR, "haha");
             FileOutputStream fos = new FileOutputStream(configFile);
             props.store(fos, "hello");
             fos.flush();

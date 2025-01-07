@@ -636,7 +636,7 @@ public class App {
 	}
 	
 	public static final void promptForHiddenParameters(CytoContainerAlgorithm algo, Scanner userIn){
-		System.out.print("Parameter hidden parameters (as comma delimited): ");
+		System.out.print("Parameter hidden parameters (as comma delimited ex: --colname,mycolname,--fastalgo): ");
 		String res = userIn.nextLine();
 		if (res == null || res.isBlank()){
 			return;
@@ -815,7 +815,7 @@ public class App {
         sb.append(Configuration.ALGORITHM_TIMEOUT + " = 180\n\n");
         
         sb.append("# Path to file containing json of algorithms\n");
-        sb.append(Configuration.ALGORITHM_MAP + " = " + CD_ALGORITHMS_FILE + "\n\n");
+        sb.append(Configuration.ALGORITHM_CONF_DIR + " = " + CD_ALGORITHMS_FILE + "\n\n");
         
         sb.append("# Mount options, if unset :ro is used (podman may require :ro,z)\n");
         sb.append(Configuration.MOUNT_OPTIONS + " = :ro\n\n");

@@ -4,10 +4,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.LinkedHashMap;
 
 import java.util.Properties;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import org.apache.commons.io.FileUtils;
 import org.cytoscape.cytocontainer.rest.model.exceptions.CytoContainerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +39,7 @@ public class Configuration {
     public static final String HOST_URL = "cytocontainer.host.url";    
     public static final String NUM_WORKERS = "cytocontainer.number.workers";
     public static final String DOCKER_CMD = "cytocontainer.docker.cmd";
-    public static final String ALGORITHM_MAP = "cytocontainer.algorithm.map";
+    public static final String ALGORITHM_CONF_DIR = "cytocontainer.algorithm.conf.dir";
     public static final String ALGORITHM_TIMEOUT = "cytocontainer.algorithm.timeout";
 
     public static final String MOUNT_OPTIONS = "cytocontainer.mount.options";
@@ -97,7 +99,7 @@ public class Configuration {
         _numWorkers = Integer.parseInt(props.getProperty(Configuration.NUM_WORKERS, "1"));
         _hostURL = props.getProperty(Configuration.HOST_URL, "");
         _dockerCmd = props.getProperty(Configuration.DOCKER_CMD, "docker");
-        _algorithms = getAlgorithms(props.getProperty(Configuration.ALGORITHM_MAP, null));
+        _algorithms = getAlgorithms(props.getProperty(Configuration.ALGORITHM_CONF_DIR, null));
         _timeOut = Long.parseLong(props.getProperty(Configuration.ALGORITHM_TIMEOUT, "180"));
         _mountOptions = props.getProperty(Configuration.MOUNT_OPTIONS, ":ro");
         _swaggerTitle = props.getProperty(Configuration.SWAGGER_TITLE, null);
@@ -113,25 +115,29 @@ public class Configuration {
         }
     }
     
-    protected CytoContainerAlgorithms getAlgorithms(final String algoPath){
-        if (algoPath == null){
-            _logger.error("Path to algorithms json file is null");
+    protected CytoContainerAlgorithms getAlgorithms(final String algoConfDir){
+        if (algoConfDir == null){
+            _logger.error("Path to algorithms configuration dir is null");
             return null;
         }
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            File algoFile = new File(algoPath);
-            if (algoFile.isFile() == false){
-                _logger.error(algoFile.getAbsolutePath() + " is not a file");
-                return null;
-            }
-            return mapper.readValue(algoFile, CytoContainerAlgorithms.class);
-        }
-        catch(IOException io){
-              _logger.error("Error parsing json: " + algoPath + " : " + io.getMessage());
-        }
-        
-        return null;
+		CytoContainerAlgorithms cca = new CytoContainerAlgorithms();
+		LinkedHashMap<String, CytoContainerAlgorithm> algoMap = new LinkedHashMap<>();
+		File algoFileDir = new File(algoConfDir);
+		String[] extensions = new String[] { "json" };
+		CytoContainerAlgorithm algo = null;
+		for (File f : FileUtils.listFiles(algoFileDir, extensions, true)){
+	        ObjectMapper mapper = new ObjectMapper();
+			try {
+				algo =  mapper.readValue(f, CytoContainerAlgorithm.class);
+			}
+			catch(IOException io){
+				  _logger.error("Skipping, error parsing json: " + f.getAbsolutePath() + " : " + io.getMessage());
+				  continue;
+			}
+			algoMap.put(algo.getName(), algo);
+		}
+        cca.setAlgorithms(algoMap);
+        return cca;
     }
         
     protected void setCytoContainerEngine(CytoContainerEngine ee){

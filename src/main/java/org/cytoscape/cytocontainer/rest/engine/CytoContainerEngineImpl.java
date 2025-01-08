@@ -42,6 +42,7 @@ import org.cytoscape.cytocontainer.rest.engine.util.CytoContainerRequestValidato
 import org.cytoscape.cytocontainer.rest.model.Algorithm;
 import org.cytoscape.cytocontainer.rest.model.AlgorithmParameter;
 import org.cytoscape.cytocontainer.rest.model.Algorithms;
+import org.cytoscape.cytocontainer.rest.model.exceptions.CytoContainerNotFoundException;
 
 /**
  * Runs CytoContainer tasks 
@@ -546,6 +547,12 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
 			if (algorithm == null || algorithm.isBlank()){
 	            sObj.setVersion(CytoContainerHttpServletDispatcher.getVersion());
 			} else {
+				if (_algorithms == null || _algorithms.getAlgorithms() == null){
+					throw new CytoContainerException("No algorithms found");
+				}
+				if (!_algorithms.getAlgorithms().containsKey(algorithm)){
+					throw new CytoContainerNotFoundException(algorithm + " algorithm not found");
+				}
 				sObj.setVersion(_algorithms.getAlgorithms().get(algorithm).getVersion());
 			}
             OperatingSystemMXBean omb = ManagementFactory.getOperatingSystemMXBean();
@@ -559,6 +566,10 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
             sObj.setCanceledTasks(_canceledTasks.get());
             logServerStatus(sObj);
             return sObj;
+		} catch(CytoContainerNotFoundException notFoundEx){
+			throw notFoundEx;
+		} catch(CytoContainerException cce){
+			throw cce;
         } catch(Exception ex){
             _logger.error("ServerStatus error", ex);
             throw new CytoContainerException("Exception raised when getting ServerStatus: " + ex.getMessage());

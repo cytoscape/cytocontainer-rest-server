@@ -57,7 +57,6 @@ public class TestDockerCytoContainerRunner {
         try {
             
             CytoContainerRequest cdr = new CytoContainerRequest();
-            cdr.setAlgorithm("somealgo");
             cdr.setData(new TextNode("blah"));
             DockerCytoContainerRunner runner = new DockerCytoContainerRunner("someid", cdr,
                     3, tempDir.getAbsolutePath(), "docker", "hello-world", null, 1,
@@ -96,7 +95,6 @@ public class TestDockerCytoContainerRunner {
         try {
             
             CytoContainerRequest cdr = new CytoContainerRequest();
-            cdr.setAlgorithm("somealgo");
             ObjectMapper mapper = new ObjectMapper();
             cdr.setData(mapper.readTree("{\"blah\": \"data\"}"));
             DockerCytoContainerRunner runner = new DockerCytoContainerRunner("someid", cdr,
@@ -117,7 +115,6 @@ public class TestDockerCytoContainerRunner {
         try {
             File nonExistantFile = new File(tempDir.getAbsolutePath() + File.separator + "doesnotexist");
             CytoContainerRequest cdr = new CytoContainerRequest();
-            cdr.setAlgorithm("somealgo");
             ObjectMapper mapper = new ObjectMapper();
             cdr.setData(mapper.readTree("{\"blah\": \"data\"}"));
             DockerCytoContainerRunner runner = new DockerCytoContainerRunner("someid", cdr,
@@ -143,7 +140,6 @@ public class TestDockerCytoContainerRunner {
             mapper.writeValue(fw, TextNode.valueOf("hello"));
 
             CytoContainerRequest cdr = new CytoContainerRequest();
-            cdr.setAlgorithm("somealgo");
             cdr.setData(mapper.readTree("{\"blah\": \"data\"}"));
             DockerCytoContainerRunner runner = new DockerCytoContainerRunner("someid", cdr,
                     0, tempDir.getAbsolutePath(), "docker", "hello-world", null, 1,
@@ -172,7 +168,6 @@ public class TestDockerCytoContainerRunner {
             
 
             CytoContainerRequest cdr = new CytoContainerRequest();
-            cdr.setAlgorithm("somealgo");
             cdr.setData(mapper.readTree("{\"blah\": \"data\"}"));
             DockerCytoContainerRunner runner = new DockerCytoContainerRunner("someid", cdr,
                     0, tempDir.getAbsolutePath(), "docker", "hello-world", null, 1,
@@ -198,7 +193,6 @@ public class TestDockerCytoContainerRunner {
             mapper.writeValue(fw, TextNode.valueOf("hello"));
 
             CytoContainerRequest cdr = new CytoContainerRequest();
-            cdr.setAlgorithm("somealgo");
             cdr.setData(mapper.readTree("{\"blah\": \"data\"}"));
             DockerCytoContainerRunner runner = new DockerCytoContainerRunner("someid", cdr,
                     0, tempDir.getAbsolutePath(), "docker", "hello-world", null, 1,
@@ -225,7 +219,6 @@ public class TestDockerCytoContainerRunner {
             mapper.writeValue(fw, TextNode.valueOf("hello"));
 
             CytoContainerRequest cdr = new CytoContainerRequest();
-            cdr.setAlgorithm("somealgo");
             cdr.setData(mapper.readTree("{\"blah\": \"data\"}"));
             DockerCytoContainerRunner runner = new DockerCytoContainerRunner("someid", cdr,
                     0, tempDir.getAbsolutePath(), "docker", "hello-world", null, 1,
@@ -253,7 +246,6 @@ public class TestDockerCytoContainerRunner {
             mapper.writeValue(fw, TextNode.valueOf("hello"));
 
             CytoContainerRequest cdr = new CytoContainerRequest();
-            cdr.setAlgorithm("somealgo");
             cdr.setData(mapper.readTree("{\"blah\": \"data\"}"));
             DockerCytoContainerRunner runner = new DockerCytoContainerRunner("someid", cdr,
                     0, tempDir.getAbsolutePath(), "docker", "hello-world", null, 1,
@@ -276,7 +268,6 @@ public class TestDockerCytoContainerRunner {
         File tempDir = _folder.newFolder();
         try {
             CytoContainerRequest cdr = new CytoContainerRequest();
-            cdr.setAlgorithm("somealgo");
             ObjectMapper mapper = new ObjectMapper();
             cdr.setData(mapper.readTree("{\"blah\": \"data\"}"));
             DockerCytoContainerRunner runner = new DockerCytoContainerRunner("someid", cdr,
@@ -308,7 +299,6 @@ public class TestDockerCytoContainerRunner {
         File tempDir = _folder.newFolder();
         try {
             CytoContainerRequest cdr = new CytoContainerRequest();
-            cdr.setAlgorithm("somealgo");
             ObjectMapper mapper = new ObjectMapper();
             cdr.setData(mapper.readTree("{\"blah\": \"data\"}"));
             DockerCytoContainerRunner runner = new DockerCytoContainerRunner("someid", cdr,
@@ -333,7 +323,6 @@ public class TestDockerCytoContainerRunner {
         File tempDir = _folder.newFolder();
         try {
             CytoContainerRequest cdr = new CytoContainerRequest();
-            cdr.setAlgorithm("somealgo");
             ObjectMapper mapper = new ObjectMapper();
             cdr.setData(mapper.readTree("{\"blah\": \"data\"}"));
             String workingDir = tempDir.getAbsolutePath() 
@@ -372,7 +361,6 @@ public class TestDockerCytoContainerRunner {
         File tempDir = _folder.newFolder();
         try {
             CytoContainerRequest cdr = new CytoContainerRequest();
-            cdr.setAlgorithm("somealgo");
             ObjectMapper mapper = new ObjectMapper();
             cdr.setData(mapper.readTree("{\"blah\": \"data\"}"));
             String workingDir = tempDir.getAbsolutePath() 
@@ -419,7 +407,6 @@ public class TestDockerCytoContainerRunner {
         File tempDir = _folder.newFolder();
         try {
             CytoContainerRequest cdr = new CytoContainerRequest();
-            cdr.setAlgorithm("somealgo");
             ObjectMapper mapper = new ObjectMapper();
             cdr.setData(mapper.readTree("{\"blah\": \"data\"}"));
             Map<String, String> cParams = new LinkedHashMap<>();

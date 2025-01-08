@@ -264,26 +264,23 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
     public String request(final String algorithm, CytoContainerRequest request) throws CytoContainerException,
             CytoContainerBadRequestException {
 
+		if (algorithm == null){
+			throw new CytoContainerBadRequestException("No algorithm specified");
+		}
         if (request == null){ 
             throw new CytoContainerBadRequestException("Request is null");
-        }
-        if (request.getAlgorithm() == null){
-			if (algorithm == null){
-				throw new CytoContainerBadRequestException("No algorithm specified");
-			}
-			request.setAlgorithm(algorithm);
         }
         
         if (_algorithms == null || _algorithms.getAlgorithms() == null){
             throw new CytoContainerException("No algorithms are available to run in service");
         }
         
-        if (_algorithms.getAlgorithms().containsKey(request.getAlgorithm()) == false){
-            throw new CytoContainerBadRequestException(request.getAlgorithm() 
+        if (_algorithms.getAlgorithms().containsKey(algorithm) == false){
+            throw new CytoContainerBadRequestException(algorithm 
                     + " is not a valid algorithm");
         }
         
-        CytoContainerAlgorithm cda = _algorithms.getAlgorithms().get(request.getAlgorithm());
+        CytoContainerAlgorithm cda = _algorithms.getAlgorithms().get(algorithm);
         ErrorResponse er = this._validator.validateRequest(cda, request);
         if (er != null){
             throw new CytoContainerBadRequestException("Validation failed", er);
@@ -295,7 +292,7 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
         cdr.setStatus(CytoContainerResult.SUBMITTED_STATUS);
         cdr.setId(id);
         _results.put(id, cdr);
-        logRequest(request, id);
+        logRequest(request, algorithm, id);
         String dockerImage = cda.getDockerImage();
 		Map<String, String> combinedParams = getParametersCombinedWithHiddenParameters(cda, request.getParameters());
         try {
@@ -355,7 +352,7 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
 		return pMap;
 	}
     
-    private void logRequest(final CytoContainerRequest request,
+    private void logRequest(final CytoContainerRequest request, final String algorithm,
 	    final String id){
 	if (request == null){
 	    return;
@@ -364,7 +361,7 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
 	sb.append("Request id: ");
 	sb.append(id == null ? "NULL" : id);
 	sb.append(" to run ( ");
-	sb.append(request.getAlgorithm() == null ? "NULL" : request.getAlgorithm());
+	sb.append(algorithm == null ? "NULL" : algorithm);
 	
         sb.append(" ) ");
 	

@@ -16,6 +16,8 @@ import jakarta.ws.rs.core.Response;
 import org.cytoscape.cytocontainer.rest.model.ErrorResponse;
 import org.cytoscape.cytocontainer.rest.model.ServerStatus;
 import org.cytoscape.cytocontainer.rest.engine.CytoContainerEngine;
+import org.cytoscape.cytocontainer.rest.model.exceptions.CytoContainerException;
+import org.cytoscape.cytocontainer.rest.model.exceptions.CytoContainerNotFoundException;
 
 /**
  * Returns status of Server
@@ -45,6 +47,9 @@ public class Status {
                    @ApiResponse(responseCode = "200", description = "Server Status",
                            content = @Content(mediaType = MediaType.APPLICATION_JSON,
                            schema = @Schema(implementation = ServerStatus.class))),
+				   @ApiResponse(responseCode = "404", description = "Not found",
+                                content = @Content(mediaType = MediaType.APPLICATION_JSON,
+                                schema = @Schema(implementation = ErrorResponse.class))),
                    @ApiResponse(responseCode = "500", description = "Server Error",
                                 content = @Content(mediaType = MediaType.APPLICATION_JSON,
                                 schema = @Schema(implementation = ErrorResponse.class)))
@@ -62,8 +67,13 @@ public class Status {
                 throw new NullPointerException("No Server Status object returned");
             }
             return Response.ok().type(MediaType.APPLICATION_JSON).entity(sObj).build();
-        } 
-        catch(Exception ex){
+        } catch(CytoContainerNotFoundException notFoundEx){
+			ErrorResponse er = notFoundEx.getErrorResponse();
+            if (er == null){
+                er = new ErrorResponse("Not Found", notFoundEx);
+            }
+            return Response.status(404).type(MediaType.APPLICATION_JSON).entity(er).build(); 
+     	} catch(Exception ex){
             ErrorResponse er = new ErrorResponse("Error retreiving server status", ex);
             return Response.serverError().type(MediaType.APPLICATION_JSON).entity(er.asJson()).build();
         }

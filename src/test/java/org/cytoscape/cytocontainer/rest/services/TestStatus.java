@@ -17,6 +17,7 @@ import org.cytoscape.cytocontainer.rest.model.ErrorResponse;
 import org.cytoscape.cytocontainer.rest.model.ServerStatus;
 import org.cytoscape.cytocontainer.rest.model.exceptions.CytoContainerException;
 import org.cytoscape.cytocontainer.rest.engine.CytoContainerEngine;
+import org.cytoscape.cytocontainer.rest.model.exceptions.CytoContainerNotFoundException;
 import org.jboss.resteasy.spi.Dispatcher;
 
 
@@ -142,6 +143,47 @@ public class TestStatus {
             ErrorResponse er = mapper.readValue(response.getOutput(),
                     ErrorResponse.class);
             assertEquals("Error retreiving server status", er.getMessage());
+            assertEquals("hi", er.getDescription());
+            verify(mockEngine);
+        } finally {
+            _folder.delete();
+            Configuration.getInstance().setCytoContainerEngine(null);
+        }
+    }
+	
+	@Test
+    public void testGetServerStatusThrowsNotFoundException() throws Exception {
+
+        try {
+            File tempDir = _folder.newFolder();
+            File confFile = new File(tempDir.getAbsolutePath() + File.separator + "foo.conf");
+            
+            FileWriter fw = new FileWriter(confFile);
+            
+            fw.write(Configuration.TASK_DIR + " = " + tempDir.getAbsolutePath() + "\n");
+            fw.flush();
+            fw.close();
+            Dispatcher dispatcher = MockDispatcherFactory.createDispatcher();
+            dispatcher.getRegistry().addSingletonResource(new Status());
+
+            MockHttpRequest request = MockHttpRequest.get(Configuration.V_ONE_PATH + "/algo" + Status.STATUS_PATH);
+
+            MockHttpResponse response = new MockHttpResponse();
+            Configuration.setAlternateConfigurationFile(confFile.getAbsolutePath());
+            
+            // create mock enrichment engine that returns null
+            CytoContainerEngine mockEngine = createMock(CytoContainerEngine.class);
+            expect(mockEngine.getServerStatus("algo")).andThrow(new CytoContainerNotFoundException("hi"));
+            replay(mockEngine);
+            
+            Configuration.getInstance().setCytoContainerEngine(mockEngine);
+
+            dispatcher.invoke(request, response);
+            assertEquals(404, response.getStatus());
+            ObjectMapper mapper = new ObjectMapper();
+            ErrorResponse er = mapper.readValue(response.getOutput(),
+                    ErrorResponse.class);
+            assertEquals("Not Found", er.getMessage());
             assertEquals("hi", er.getDescription());
             verify(mockEngine);
         } finally {

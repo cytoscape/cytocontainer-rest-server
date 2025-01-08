@@ -314,7 +314,6 @@ public class TestCytoContainerEngineImpl {
                 "docker", null, null);
         try {
             CytoContainerRequest cdr = new CytoContainerRequest();
-            cdr.setAlgorithm("foo");
             engine.request("foo",cdr);
             fail("Expected CytoContainerException");
         } catch(CytoContainerBadRequestException cdbe){
@@ -337,8 +336,7 @@ public class TestCytoContainerEngineImpl {
                 "docker", algos, null);
         try {
             CytoContainerRequest cdr = new CytoContainerRequest();
-            cdr.setAlgorithm("foo");
-            engine.request("algo",cdr);
+            engine.request("foo",cdr);
             fail("Expected CytoContainerBadRequestException");
         } catch(CytoContainerBadRequestException cdbe){
             assertEquals("foo is not a valid algorithm", cdbe.getMessage());
@@ -354,11 +352,10 @@ public class TestCytoContainerEngineImpl {
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("foo");
         LinkedHashMap<String, CytoContainerAlgorithm> aMap = new LinkedHashMap<>();
-        aMap.put(cda.getName(), cda);
+        aMap.put("algo", cda);
         algos.setAlgorithms(aMap);
         CytoContainerRequestValidator mockValidator = mock(CytoContainerRequestValidator.class);
         CytoContainerRequest cdr = new CytoContainerRequest();
-        cdr.setAlgorithm("foo");
         ErrorResponse er = new ErrorResponse();
         er.setMessage("problem");
         expect(mockValidator.validateRequest(cda, cdr)).andReturn(er);
@@ -397,11 +394,10 @@ public class TestCytoContainerEngineImpl {
             CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
             cda.setName("foo");
             LinkedHashMap<String, CytoContainerAlgorithm> aMap = new LinkedHashMap<>();
-            aMap.put(cda.getName(), cda);
+            aMap.put("algo", cda);
             algos.setAlgorithms(aMap);
             CytoContainerRequestValidator mockValidator = mock(CytoContainerRequestValidator.class);
             CytoContainerRequest cdr = new CytoContainerRequest();
-            cdr.setAlgorithm("foo");
 
             expect(mockValidator.validateRequest(cda, cdr)).andReturn(null);
 
@@ -448,11 +444,10 @@ public class TestCytoContainerEngineImpl {
             CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
             cda.setName("foo");
             LinkedHashMap<String, CytoContainerAlgorithm> aMap = new LinkedHashMap<>();
-            aMap.put(cda.getName(), cda);
+            aMap.put("algo", cda);
             algos.setAlgorithms(aMap);
             CytoContainerRequestValidator mockValidator = mock(CytoContainerRequestValidator.class);
             CytoContainerRequest cdr = new CytoContainerRequest();
-            cdr.setAlgorithm("foo");
             cdr.setData(TextNode.valueOf("hi"));
             Map<String, String> cParams = new HashMap<>();
             cParams.put("key1", null);

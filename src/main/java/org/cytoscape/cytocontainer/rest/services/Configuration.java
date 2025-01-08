@@ -10,6 +10,7 @@ import java.util.Properties;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.cytoscape.cytocontainer.rest.model.exceptions.CytoContainerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -136,20 +137,22 @@ public class Configuration {
 		LinkedHashMap<String, CytoContainerAlgorithm> algoMap = new LinkedHashMap<>();
 		String[] extensions = new String[] { "json" };
 		CytoContainerAlgorithm algo = null;
+		String algoName = null;
 		for (File f : FileUtils.listFiles(algoFileDir, extensions, true)){
 	        ObjectMapper mapper = new ObjectMapper();
 			try {
 				algo =  mapper.readValue(f, CytoContainerAlgorithm.class);
+				algoName = FilenameUtils.removeExtension(f.getName());
 			}
 			catch(IOException io){
 				  _logger.error("Skipping, error parsing json: " + f.getAbsolutePath() + " : " + io.getMessage());
 				  continue;
 			}
-			if (algoMap.containsKey(algo.getName()) == true){
+			if (algoMap.containsKey(algoName) == true){
 				_logger.error("Skipping, algorithm with matching name already found: " + f.getAbsolutePath());
 				continue;
 			}
-			algoMap.put(algo.getName(), algo);
+			algoMap.put(algoName, algo);
 		}
         cca.setAlgorithms(algoMap);
         return cca;

@@ -1,0 +1,60 @@
+{
+  "dockerImage": "coleslawndex/testcywebserviceapp:0.8.0",
+  "parameterFlagMap": {
+    "URL": "--openurl"
+  },
+  "hiddenParameters": [
+    "--mode",
+    "openURL"
+  ],
+  "serviceInputDefinition": {
+    "type": "network",
+    "scope": "dynamic",
+    "inputNetwork": {
+      "model": "network",
+      "format": "cx2"
+    },
+    "inputColumns": null
+  },
+  "version": "0.8.0",
+  "description": "Opens the URL specified by URL parameter",
+  "author": "Chris Churas",
+  "citation": "",
+  "parameters": [
+    {
+      "displayName": "URL",
+      "description": "URL to open",
+      "type": "text",
+      "valueList": null,
+      "defaultValue": "https://ndexbio.org",
+      "validationType": "string",
+      "validationHelp": "Any URL",
+      "validationRegex": ".*",
+      "columnTypeFilter": null,
+      "minValue": null,
+      "maxValue": null,
+      "flag": "--openurl"
+    }
+  ],
+  "email": null,
+  "website": null,
+  "tutorial": null,
+  "cyWebActions": [
+    "openURL"
+  ],
+  "cyWebMenuItem": {
+    "root": "Apps",
+    "path": [
+      {
+        "gravity": 0,
+        "name": "Example Service App"
+      },
+      {
+        "gravity": 0,
+        "name": "Open URL"
+      }
+    ]
+  },
+  "codeRepository": null,
+  "name": "Open URL"
+}

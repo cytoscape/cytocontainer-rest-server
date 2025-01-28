@@ -1,16 +1,16 @@
 [Unit]
-Description=Community Detection REST service
+Description=Cytoscape Container REST service
 After=auditd.service systemd-user-sessions.service time-sync.target docker.service
 
 [Service]
-User=cdrunner
+User=cytorunner
 TimeoutStartSec=0
 Type=simple
 KillMode=process
 WorkingDirectory=/tmp
 StandardOutput=null
 StandardError=null
-ExecStart=/bin/java -jar /opt/communitydetection/communitydetection-rest.jar --mode runserver --conf /etc/communitydetection.conf
+ExecStart=/bin/java -jar /opt/cytocontainer/cytocontainer-rest-server.jar --mode runserver --conf /etc/cytocontainer/server.conf
 Restart=always
 RestartSec=5
 LimitNOFILE=5555

@@ -1,0 +1,36 @@
+{
+  "dockerImage": "coleslawndex/testcywebserviceapp:0.7.0",
+  "hiddenParameters": [
+    "--mode",
+    "addNetworks"
+  ],
+  "description": "Adds new networks, does not have any parameters",
+  "cyWebActions": [
+    "addNetworks"
+  ],
+  "version": "0.7.0",
+  "parameters": null,
+  "cyWebMenuItem": {
+    "root": "Tools",
+    "path": [
+      {
+        "gravity": 0,
+        "name": "Example Service App"
+      },
+      {
+        "gravity": 1,
+        "name": "Add New Networks"
+      }
+    ]
+  },
+  "serviceInputDefinition": {
+    "type": "network",
+    "scope": "all",
+    "inputColumns": null,
+    "inputNetwork": {
+      "model": "network",
+      "format": "cx2"
+    }
+  },
+  "name": "addnetworksexample"
+}

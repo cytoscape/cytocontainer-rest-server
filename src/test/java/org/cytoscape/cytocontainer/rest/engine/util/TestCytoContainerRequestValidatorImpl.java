@@ -2,7 +2,7 @@ package org.cytoscape.cytocontainer.rest.engine.util;
 
 import com.fasterxml.jackson.databind.node.TextNode;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
@@ -89,7 +89,7 @@ public class TestCytoContainerRequestValidatorImpl {
     public void testNonMatchingParameter(){
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
-        HashSet<AlgorithmParameter> aParams = new HashSet<>();
+        LinkedHashSet<AlgorithmParameter> aParams = new LinkedHashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
         aParams.add(cp);
@@ -118,7 +118,7 @@ public class TestCytoContainerRequestValidatorImpl {
 		Map<String, String> pMap = new HashMap<>();
 		pMap.put("something", "--somearg");
 		cda.setParameterFlagMap(pMap);
-        HashSet<AlgorithmParameter> aParams = new HashSet<>();
+        LinkedHashSet<AlgorithmParameter> aParams = new LinkedHashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setDisplayName("something");
 		cp.setFlag("--somearg");
@@ -143,7 +143,7 @@ public class TestCytoContainerRequestValidatorImpl {
 		Map<String, String> pMap = new HashMap<>();
 		pMap.put("something", "--somearg");
 		cda.setParameterFlagMap(pMap);
-        HashSet<AlgorithmParameter> aParams = new HashSet<>();
+        LinkedHashSet<AlgorithmParameter> aParams = new LinkedHashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
 		try {
@@ -170,7 +170,7 @@ public class TestCytoContainerRequestValidatorImpl {
     public void testSingleCheckBoxParameterValid() throws CytoContainerException {
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
-        HashSet<AlgorithmParameter> aParams = new HashSet<>();
+        LinkedHashSet<AlgorithmParameter> aParams = new LinkedHashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
 		cp.setDisplayName("somearg");
@@ -194,7 +194,7 @@ public class TestCytoContainerRequestValidatorImpl {
     public void testSingleCheckBoxParameterWithWhiteSpaceValueButValid() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
-        HashSet<AlgorithmParameter> aParams = new HashSet<>();
+        LinkedHashSet<AlgorithmParameter> aParams = new LinkedHashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
 		cp.setDisplayName("somearg");
@@ -218,7 +218,7 @@ public class TestCytoContainerRequestValidatorImpl {
     public void testSingleCheckBoxParameterPassedValue() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
-        HashSet<AlgorithmParameter> aParams = new HashSet<>();
+        LinkedHashSet<AlgorithmParameter> aParams = new LinkedHashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
 		cp.setDisplayName("somearg");
         cp.setFlag("--somearg");
@@ -241,7 +241,7 @@ public class TestCytoContainerRequestValidatorImpl {
     public void testSingleStringParameterValueIsNull() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
-        HashSet<AlgorithmParameter> aParams = new HashSet<>();
+        LinkedHashSet<AlgorithmParameter> aParams = new LinkedHashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
 		cp.setDisplayName("somearg");
@@ -266,7 +266,7 @@ public class TestCytoContainerRequestValidatorImpl {
     public void testSingleStringParameterValueIsEmptyWhiteSpace() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
-        HashSet<AlgorithmParameter> aParams = new HashSet<>();
+        LinkedHashSet<AlgorithmParameter> aParams = new LinkedHashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
 		cp.setDisplayName("somearg");
@@ -291,7 +291,7 @@ public class TestCytoContainerRequestValidatorImpl {
     public void testSingleStringParameterNoRegex() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
-        HashSet<AlgorithmParameter> aParams = new HashSet<>();
+        LinkedHashSet<AlgorithmParameter> aParams = new LinkedHashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
 		cp.setDisplayName("somearg");
@@ -316,7 +316,7 @@ public class TestCytoContainerRequestValidatorImpl {
     public void testSingleStringParameterInvalidRegex() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
-        HashSet<AlgorithmParameter> aParams = new HashSet<>();
+        LinkedHashSet<AlgorithmParameter> aParams = new LinkedHashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
 		cp.setDisplayName("somearg");
@@ -341,7 +341,7 @@ public class TestCytoContainerRequestValidatorImpl {
     public void testSingleStringParameterPassesRegex() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
-        HashSet<AlgorithmParameter> aParams = new HashSet<>();
+        LinkedHashSet<AlgorithmParameter> aParams = new LinkedHashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
 		cp.setDisplayName("somearg");
@@ -366,7 +366,7 @@ public class TestCytoContainerRequestValidatorImpl {
     public void testSingleStringParameterFailsRegexNoHelp() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
-        HashSet<AlgorithmParameter> aParams = new HashSet<>();
+        LinkedHashSet<AlgorithmParameter> aParams = new LinkedHashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
 		cp.setDisplayName("somearg");
@@ -391,7 +391,7 @@ public class TestCytoContainerRequestValidatorImpl {
     public void testSingleStringParameterFailsRegexWithHelp() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
-        HashSet<AlgorithmParameter> aParams = new HashSet<>();
+        LinkedHashSet<AlgorithmParameter> aParams = new LinkedHashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
 		cp.setDisplayName("somearg");
@@ -417,7 +417,7 @@ public class TestCytoContainerRequestValidatorImpl {
     public void testSingleNumericParameterNullValue() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
-        HashSet<AlgorithmParameter> aParams = new HashSet<>();
+        LinkedHashSet<AlgorithmParameter> aParams = new LinkedHashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
 		cp.setDisplayName("somearg");
@@ -442,7 +442,7 @@ public class TestCytoContainerRequestValidatorImpl {
     public void testSingleNumericParameterWhitespaceValue() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
-        HashSet<AlgorithmParameter> aParams = new HashSet<>();
+        LinkedHashSet<AlgorithmParameter> aParams = new LinkedHashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
 		cp.setDisplayName("somearg");
@@ -467,7 +467,7 @@ public class TestCytoContainerRequestValidatorImpl {
     public void testSingleDigitsParameterValidValue() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
-        HashSet<AlgorithmParameter> aParams = new HashSet<>();
+        LinkedHashSet<AlgorithmParameter> aParams = new LinkedHashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
 		cp.setDisplayName("somearg");
@@ -492,7 +492,7 @@ public class TestCytoContainerRequestValidatorImpl {
     public void testSingleDigitsParameterNegativeValue() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
-        HashSet<AlgorithmParameter> aParams = new HashSet<>();
+        LinkedHashSet<AlgorithmParameter> aParams = new LinkedHashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
 		cp.setDisplayName("somearg");
@@ -517,7 +517,7 @@ public class TestCytoContainerRequestValidatorImpl {
     public void testSingleDigitsParameterInvalidFloatValue() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
-        HashSet<AlgorithmParameter> aParams = new HashSet<>();
+        LinkedHashSet<AlgorithmParameter> aParams = new LinkedHashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
 		cp.setDisplayName("somearg");
@@ -542,7 +542,7 @@ public class TestCytoContainerRequestValidatorImpl {
     public void testSingleDigitsParameterValidValueWithMinMaxSet() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
-        HashSet<AlgorithmParameter> aParams = new HashSet<>();
+        LinkedHashSet<AlgorithmParameter> aParams = new LinkedHashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
 		cp.setDisplayName("somearg");
@@ -568,7 +568,7 @@ public class TestCytoContainerRequestValidatorImpl {
     public void testSingleDigitsParameterValidValueWithValueBelowMin() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
-        HashSet<AlgorithmParameter> aParams = new HashSet<>();
+        LinkedHashSet<AlgorithmParameter> aParams = new LinkedHashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
 		cp.setDisplayName("somearg");
@@ -593,7 +593,7 @@ public class TestCytoContainerRequestValidatorImpl {
     public void testSingleDigitsParameterValidValueWithValueAboveMax() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
-        HashSet<AlgorithmParameter> aParams = new HashSet<>();
+        LinkedHashSet<AlgorithmParameter> aParams = new LinkedHashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
 		cp.setDisplayName("somearg");
@@ -618,7 +618,7 @@ public class TestCytoContainerRequestValidatorImpl {
     public void testSingleNumberParameterInValidValue() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
-        HashSet<AlgorithmParameter> aParams = new HashSet<>();
+        LinkedHashSet<AlgorithmParameter> aParams = new LinkedHashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
 		cp.setDisplayName("somearg");
@@ -643,7 +643,7 @@ public class TestCytoContainerRequestValidatorImpl {
     public void testSingleNumberParameterScientificNotationValue() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
-        HashSet<AlgorithmParameter> aParams = new HashSet<>();
+        LinkedHashSet<AlgorithmParameter> aParams = new LinkedHashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
 		cp.setDisplayName("somearg");
@@ -668,7 +668,7 @@ public class TestCytoContainerRequestValidatorImpl {
     public void testSingleNumberParameterValidValue() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
-        HashSet<AlgorithmParameter> aParams = new HashSet<>();
+        LinkedHashSet<AlgorithmParameter> aParams = new LinkedHashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
 		cp.setDisplayName("somearg");
@@ -693,7 +693,7 @@ public class TestCytoContainerRequestValidatorImpl {
     public void testSingleNumberParameterValidValueWithMinMaxSet() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
-        HashSet<AlgorithmParameter> aParams = new HashSet<>();
+        LinkedHashSet<AlgorithmParameter> aParams = new LinkedHashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
 		cp.setDisplayName("somearg");
@@ -719,7 +719,7 @@ public class TestCytoContainerRequestValidatorImpl {
     public void testSingleNumberParameterValidValueWithValueBelowMin() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
-        HashSet<AlgorithmParameter> aParams = new HashSet<>();
+        LinkedHashSet<AlgorithmParameter> aParams = new LinkedHashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
 		cp.setDisplayName("somearg");
@@ -744,7 +744,7 @@ public class TestCytoContainerRequestValidatorImpl {
     public void testSingleNumberParameterValidValueWithValueAboveMax() throws CytoContainerException{
         CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
         cda.setName("somealgo");
-        HashSet<AlgorithmParameter> aParams = new HashSet<>();
+        LinkedHashSet<AlgorithmParameter> aParams = new LinkedHashSet<>();
         CytoContainerParameter cp = new CytoContainerParameter();
         cp.setFlag("--somearg");
 		cp.setDisplayName("somearg");

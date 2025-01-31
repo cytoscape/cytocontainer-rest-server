@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -397,7 +398,7 @@ public class App {
 		
 		promptForHiddenParameters(algo, userIn);
 		
-		HashSet<AlgorithmParameter> params = new HashSet<>();
+		LinkedHashSet<AlgorithmParameter> params = new LinkedHashSet<>();
 		Map<String, String> paramFlagMap = new HashMap<>();
 		
 		while(true){
@@ -723,7 +724,7 @@ public class App {
         cp.setDisplayName("Maximum Pvalue");
         cp.setValidationHelp("Must be a number");
         cp.setValidationType("number");
-        HashSet<AlgorithmParameter> cpSet = new HashSet<>();
+        LinkedHashSet<AlgorithmParameter> cpSet = new LinkedHashSet<>();
         cpSet.add(cp);
 		pFlagMap = new HashMap<>();
 		pFlagMap.put(cp.getDisplayName(), "--maxpval");
@@ -755,7 +756,7 @@ public class App {
         cp.setDescription("If set, generate directed graph");
         cp.setDisplayName("Generate directed graph");
         cp.setType("checkBox");
-        cpSet = new HashSet<>();
+        cpSet = new LinkedHashSet<>();
         cpSet.add(cp);
 		pFlagMap = new HashMap<>();
 		pFlagMap.put(cp.getDisplayName(), "--directed");

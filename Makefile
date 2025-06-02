@@ -49,3 +49,7 @@ updateversion: ## updates version in pom.xml via maven command
 runwar: ## Builds war file and runs webapp via Jetty
 	mvn jetty:run-war
 
+dockerbuild: install
+	docker build -t cytoscape/cytocontainer:0.1.0 -f docker/Dockerfile .
+
+

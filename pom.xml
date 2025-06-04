@@ -28,6 +28,7 @@
 		<java.version>17</java.version>
 		<servlet-api.version>6.0.0</servlet-api.version>
 		<cytocontainer-rest-model.version>0.1.0-SNAPSHOT</cytocontainer-rest-model.version>
+		<io-kubernetes.version>24.0.0</io-kubernetes.version>
     </properties>
     
     <repositories>
@@ -70,6 +71,11 @@
             <version>${logback.version}</version>
         </dependency>
         
+		<dependency>
+			<groupId>io.kubernetes</groupId>
+			<artifactId>client-java</artifactId>
+			<version>${io-kubernetes.version}</version>
+		</dependency>
         <!-- If i didn't include this guava then I would get weird reflection errors -->
         <dependency>
             <groupId>com.google.guava</groupId>

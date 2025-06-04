@@ -4,6 +4,7 @@ package org.cytoscape.cytocontainer.rest;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.OutputStreamAppender;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Properties;
@@ -15,7 +16,6 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -191,33 +191,20 @@ public class App {
 				setLogLevelForClassesInThisPackage(Level.toLevel(props.getProperty(App.RUNSERVER_LOGLEVEL, "INFO")));
 
                 String logDir = props.getProperty(App.RUNSERVER_LOGDIR, ".");
-                RolloverFileOutputStream os = new RolloverFileOutputStream(logDir 
-                        + File.separator + "cytocontainer_yyyy_mm_dd.log", true);
-				
-				RolloverFileOutputStream requestOS = new RolloverFileOutputStream(logDir + File.separator + "requests_yyyy_mm_dd.log", true);
 				
 				LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-
 				PatternLayoutEncoder logEncoder = new PatternLayoutEncoder();
 				logEncoder.setContext(lc);
 				logEncoder.setPattern("[%date]\t%msg%n");
 				logEncoder.start();
 				
-				OutputStreamAppender osa = new OutputStreamAppender();
-				osa.setOutputStream(requestOS);
-				osa.setContext(lc);
-				osa.setEncoder(logEncoder);
-				osa.setName(RequestLoggingFilter.REQUEST_LOGGER_NAME + "appender");
-				osa.start();
 				ch.qos.logback.classic.Logger requestLog = 
 					  (ch.qos.logback.classic.Logger) lc.getLogger(RequestLoggingFilter.REQUEST_LOGGER_NAME);
                 requestLog.setLevel(Level.toLevel("INFO"));
 				
 				requestLog.setAdditive(false);
-				requestLog.addAppender(osa);
-		
-		
-                final int port = Integer.valueOf(props.getProperty(App.RUNSERVER_PORT, "8081"));
+				
+				final int port = Integer.valueOf(props.getProperty(App.RUNSERVER_PORT, "8081"));
                 String applicationPath = App.getApplicationPath(props);
                 System.out.println("\nSpinning up server. For status visit: \nhttp://localhost:" 
                         + Integer.toString(port) + props.getProperty(Configuration.RUNSERVER_CONTEXTPATH) 
@@ -225,14 +212,44 @@ public class App {
                 System.out.println("Swagger documentation: " + "http://localhost:" 
                         + Integer.toString(port) + props.getProperty(Configuration.RUNSERVER_CONTEXTPATH) + "\n");
                 System.out.flush();
+				
+				// if logging path is - then just write logs to stderr
+				if (logDir.strip().equals("-")){
+					ConsoleAppender csa = new ConsoleAppender();
+					csa.setTarget("System.err");
+					csa.setContext(lc);
+					csa.setEncoder(logEncoder);
+					csa.start();
+					
+					ConsoleAppender csa_request = new ConsoleAppender();
+					csa_request.setTarget("System.err");
+					csa_request.setContext(lc);
+					csa_request.setEncoder(logEncoder);
+					csa_request.setName(RequestLoggingFilter.REQUEST_LOGGER_NAME + "appender");
+					csa_request.start();
+					requestLog.addAppender(csa_request);
+				} else {
+					RolloverFileOutputStream os = new RolloverFileOutputStream(logDir 
+							+ File.separator + "cytocontainer_yyyy_mm_dd.log", true);
+
+					RolloverFileOutputStream requestOS = new RolloverFileOutputStream(logDir + File.separator + "requests_yyyy_mm_dd.log", true);
+
+					OutputStreamAppender osa = new OutputStreamAppender();
+					osa.setOutputStream(requestOS);
+					osa.setContext(lc);
+					osa.setEncoder(logEncoder);
+					osa.setName(RequestLoggingFilter.REQUEST_LOGGER_NAME + "appender");
+					osa.start();
+					requestLog.addAppender(osa);
+					//We are creating a print stream based on our RolloverFileOutputStream
+					PrintStream logStream = new PrintStream(os);
+
+					//We are redirecting system out and system error to our print stream.
+					System.setOut(logStream);
+					System.setErr(logStream);
+				}
+		
                 
-						//We are creating a print stream based on our RolloverFileOutputStream
-				PrintStream logStream = new PrintStream(os);
-
-						//We are redirecting system out and system error to our print stream.
-				System.setOut(logStream);
-				System.setErr(logStream);
-
                 final Server server = new Server(port);
 
                 final ServletContextHandler webappContext = new ServletContextHandler(Configuration.getInstance().getRunServerContextPath());

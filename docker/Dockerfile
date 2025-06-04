@@ -5,8 +5,8 @@ RUN dnf install podman java-21-openjdk-devel -y
 RUN chmod 1777 /tmp
 RUN mkdir -p /etc/cytocontainer/algorithms
 RUN mkdir -p /opt/cytocontainer
-RUN mkdir /tmp/cytocontainer_logs
-RUN mkdir /tmp/cytocontainer_tasks
+RUN mkdir -p /tmp/cytocontainer_logs
+RUN mkdir -p /tmp/cytocontainer_tasks
 
 COPY systemdservice/algorithms/*.json /etc/cytocontainer/algorithms/
 COPY systemdservice/server.conf /etc/cytocontainer/

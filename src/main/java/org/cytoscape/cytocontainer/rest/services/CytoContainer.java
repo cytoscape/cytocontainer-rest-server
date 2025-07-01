@@ -24,9 +24,12 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MultivaluedHashMap;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.ext.MessageBodyReader;
+import jakarta.ws.rs.ext.Providers;
 import java.io.IOException;
-import java.io.InputStream;
+import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Map;
 import org.cytoscape.cytocontainer.rest.model.CytoContainerRequest;
@@ -141,9 +144,8 @@ public class CytoContainer {
 		@PathParam("algorithm") final String algorithm,
 		@Context HttpHeaders headers,
 		@Context HttpServletRequest servletRequest,
-		MultipartInput multipartInput,  // This will be null if Content-Type is JSON
-		final InputStream jsonStream    // This will be null if Content-Type is multipart
-	) {
+		@Context Providers providers) {
+		
 		String contentType = headers.getHeaderString("Content-Type");
 		
 		ObjectMapper mapper = new ObjectMapper();
@@ -152,13 +154,35 @@ public class CytoContainer {
 		//handle JSON content type
 		if (contentType.contains(MediaType.APPLICATION_JSON)) {
 			try {
-				return requestJson(algorithm, mapper.readValue(jsonStream,
+				return requestJson(algorithm, mapper.readValue(servletRequest.getInputStream(),
 						CytoContainerRequest.class));
 			} catch(IOException io){
 				return Response.status(400).entity(new ErrorResponse("Caught IOException", io)).build();
 			}
 		}
 		try {
+			MediaType mediaType = MediaType.valueOf(contentType);
+
+			MessageBodyReader<MultipartInput> reader = providers.getMessageBodyReader(
+				MultipartInput.class,
+				MultipartInput.class,
+				new Annotation[0],
+				mediaType
+			);
+
+			if (reader == null) {
+				
+			}
+			MultipartInput multipartInput = reader.readFrom(
+				MultipartInput.class,
+				MultipartInput.class,
+				new Annotation[0],
+				mediaType,
+				new MultivaluedHashMap<>(), // empty headers
+				servletRequest.getInputStream()
+			);
+           
+
 			// Handle multipart and extract metadata
 			String metadataJson = null;
 			Map<String, InputPart> filePartsByName = new HashMap<>();

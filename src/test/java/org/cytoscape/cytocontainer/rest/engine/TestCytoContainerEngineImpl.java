@@ -38,6 +38,8 @@ import org.cytoscape.cytocontainer.rest.model.exceptions.CytoContainerBadRequest
 import org.cytoscape.cytocontainer.rest.model.exceptions.CytoContainerException;
 import org.cytoscape.cytocontainer.rest.services.Configuration;
 import org.cytoscape.cytocontainer.rest.engine.util.CytoContainerRequestValidator;
+import org.cytoscape.cytocontainer.rest.model.Algorithm;
+import org.cytoscape.cytocontainer.rest.model.Algorithms;
 
 
 /**
@@ -576,14 +578,12 @@ public class TestCytoContainerEngineImpl {
             
             File confFile = new File(tempDir.getAbsolutePath() + File.separator + "foo.conf");
             
-            FileWriter fw = new FileWriter(confFile);
-            
-            fw.write(Configuration.TASK_DIR + " = " + tempDir.getAbsolutePath() + "\n");
-            fw.write(Configuration.MOUNT_OPTIONS + " = :ro,z\n");
-            fw.write(Configuration.ALGORITHM_TIMEOUT + " = 10\n");
-            
-            fw.flush();
-            fw.close();
+			try (FileWriter fw = new FileWriter(confFile)) {
+				fw.write(Configuration.TASK_DIR + " = " + tempDir.getAbsolutePath() + "\n");
+				fw.write(Configuration.MOUNT_OPTIONS + " = :ro,z\n");
+				fw.write(Configuration.ALGORITHM_TIMEOUT + " = 10\n");
+				fw.flush();
+			}
             Configuration.setAlternateConfigurationFile(confFile.getAbsolutePath());
             CytoContainerAlgorithms algos = new CytoContainerAlgorithms();
             CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
@@ -611,7 +611,18 @@ public class TestCytoContainerEngineImpl {
             CytoContainerEngineImpl engine = new CytoContainerEngineImpl(mockES,
                     tempDir.getAbsolutePath(), "docker", algos, mockValidator);
             try {
-                assertNotNull(engine.request("algo",cdr));
+				String resId = engine.request("algo",cdr);
+                assertNotNull(resId);
+				CytoContainerResult ccr = engine.getResult("algo", resId);
+				assertEquals(0,ccr.getProgress());
+				assertNull(ccr.getMessage());
+				try (FileWriter errFile = new FileWriter(engine.getCytoContainerResultStdErrFilePath(resId))) {
+					errFile.append("hi\n@@MESSAGE a message\n@@PROGRESS 55\n@PROGRESS 75");
+					errFile.flush();
+				}
+				ccr = engine.getResult("algo", resId);
+				assertEquals(55, ccr.getProgress());
+				assertEquals("a message", ccr.getMessage());
             } catch(CytoContainerBadRequestException cdbe){
                 fail("Unexpected exception: " + cdbe.getMessage());
             } catch(CytoContainerException cde){
@@ -690,4 +701,121 @@ public class TestCytoContainerEngineImpl {
             _folder.delete();
         }
     }
+	
+	@Test
+	public void testGetMetaDataAlgorithmsIsNull(){
+		 CytoContainerEngineImpl engine = new CytoContainerEngineImpl(null, "task", 
+                "docker", null, null);
+		 try {
+			 engine.getMetaData("foo");
+			 fail("Expected Exception");
+		 } catch(CytoContainerException cce){
+			 assertEquals(cce.getMessage(), "No Algorithms found");
+		 }
+	}
+	
+	@Test
+	public void testGetMetaDataAlgorithmIsNull(){
+		CytoContainerAlgorithms algos = new CytoContainerAlgorithms();
+		CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
+		cda.setName("foo");
+		LinkedHashMap<String, CytoContainerAlgorithm> aMap = new LinkedHashMap<>();
+		aMap.put("algo", cda);
+		algos.setAlgorithms(aMap);
+		CytoContainerEngineImpl engine = new CytoContainerEngineImpl(null, "task", 
+                "docker", algos, null);
+		 try {
+			 engine.getMetaData(null);
+			 fail("Expected Exception");
+		 } catch(CytoContainerException cce){
+			 assertEquals(cce.getMessage(), "Algorithm must be set");
+		 }
+	}
+	
+	@Test
+	public void testGetMetaDataAlgorithmsInDBIsNull(){
+		CytoContainerAlgorithms algos = new CytoContainerAlgorithms();
+		CytoContainerEngineImpl engine = new CytoContainerEngineImpl(null, "task", 
+                "docker", algos, null);
+		 try {
+			 engine.getMetaData("foo");
+			 fail("Expected Exception");
+		 } catch(CytoContainerException cce){
+			 assertEquals(cce.getMessage(), "No algorithms found in db");
+		 }
+	}
+	
+	@Test
+	public void testGetMetaDataAlgorithmReturnedIsNull(){
+		CytoContainerAlgorithms algos = new CytoContainerAlgorithms();
+		CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
+		cda.setName("foo");
+		LinkedHashMap<String, CytoContainerAlgorithm> aMap = new LinkedHashMap<>();
+		aMap.put("foo", cda);
+		algos.setAlgorithms(aMap);
+		CytoContainerEngineImpl engine = new CytoContainerEngineImpl(null, "task", 
+                "docker", algos, null);
+		 try {
+			 engine.getMetaData("blah");
+			 fail("Expected Exception");
+		 } catch(CytoContainerException cce){
+			 assertEquals(cce.getMessage(), "No algorithm matching name found");
+		 }
+	}
+	
+	@Test
+	public void testGetMetaDataSuccess() throws CytoContainerException {
+		CytoContainerAlgorithms algos = new CytoContainerAlgorithms();
+		CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
+		cda.setName("foo");
+		LinkedHashMap<String, CytoContainerAlgorithm> aMap = new LinkedHashMap<>();
+		aMap.put("foo", cda);
+		algos.setAlgorithms(aMap);
+		CytoContainerEngineImpl engine = new CytoContainerEngineImpl(null, "task", 
+                "docker", algos, null);
+
+		Algorithm theRes = engine.getMetaData("foo");
+		assertEquals(theRes.getName(), "foo");	 
+	}
+	
+	@Test 
+	public void getAllAlgorithmsAlgorithmsNull(){
+		CytoContainerEngineImpl engine = new CytoContainerEngineImpl(null, "task", 
+                "docker", null, null);
+		 try {
+			 engine.getAllAlgorithms();
+			 fail("Expected Exception");
+		 } catch(CytoContainerException cce){
+			 assertEquals(cce.getMessage(), "No Algorithms found");
+		 }
+	}
+	
+	@Test 
+	public void getAllAlgorithmsAlgorithmsGetAlgorithmsIsNull(){
+		CytoContainerAlgorithms algos = new CytoContainerAlgorithms();
+		CytoContainerEngineImpl engine = new CytoContainerEngineImpl(null, "task", 
+                "docker", algos, null);
+		 try {
+			 engine.getAllAlgorithms();
+			 fail("Expected Exception");
+		 } catch(CytoContainerException cce){
+			 assertEquals(cce.getMessage(), "No algorithms found in db");
+		 }
+	}
+	
+	@Test 
+	public void getAllAlgorithmsSuccess() throws CytoContainerException {
+		CytoContainerAlgorithms algos = new CytoContainerAlgorithms();
+		CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
+		cda.setName("foo");
+		LinkedHashMap<String, CytoContainerAlgorithm> aMap = new LinkedHashMap<>();
+		aMap.put("foo", cda);
+		algos.setAlgorithms(aMap);
+		CytoContainerEngineImpl engine = new CytoContainerEngineImpl(null, "task", 
+                "docker", algos, null);
+
+		Algorithms res = engine.getAllAlgorithms();
+		assertTrue(res.getAlgorithms().containsKey("foo"));
+	}
+    
 }

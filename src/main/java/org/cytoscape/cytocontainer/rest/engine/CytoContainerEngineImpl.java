@@ -179,7 +179,8 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
     }
     
     /**
-     * Calls {@link #getServerStatus() } and dumps the status of the server as
+     * Calls {@link org.cytoscape.cytocontainer.rest.engine.CytoContainerEngineImpl#getServerStatus(java.lang.String) } 
+	 * and dumps the status of the server as
      * a JSON string to the info level of the logger for this class
      * @param ss status to log
      */
@@ -247,15 +248,17 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
     }
 	
 	/**
-	 * In {@code filePath} passed in, looks for last encountered line starting with @@MESSAGE XX
+	 * <pre>
+	 * In {@code filePath} passed in, looks for last encountered line starting with {@code @@MESSAGE XX\n}
 	 * and sets XX as the message in the result.
 	 * 
-	 * Also looks for last line starting with @@PROGRESS ##
+	 * Also looks for last line starting with {@code @@PROGRESS ##\n}
 	 * and sets ## as the progress in the result.
 	 * 
-	 * I
+	 * NOTE: a line without a newline is NOT parsed. 
+	 * </pre>
 	 * @param filePath Path to standard error file
-	 * @return Updated status or an empty status with 0 for progress and {@code null} for
+	 * @return Updated status or an empty status with {@code 0} for progress and {@code null} for
 	 *         message
 	 */
 	protected CytoContainerResultStatus getLastProgressAndMessage(final String filePath) {
@@ -578,7 +581,7 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
 			throw new CytoContainerException("Algorithm must be set");
 		}
 		if (_algorithms.getAlgorithms() == null){
-			throw new CytoContainerException("No algorithms found in in db");
+			throw new CytoContainerException("No algorithms found in db");
 		}
 		CytoContainerAlgorithm algo = _algorithms.getAlgorithms().get(algorithm);
 		if (algo == null){
@@ -593,7 +596,7 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
             throw new CytoContainerException("No Algorithms found");
         }
 		if (_algorithms.getAlgorithms() == null){
-			throw new CytoContainerException("No algorithms found in in db");
+			throw new CytoContainerException("No algorithms found in db");
 		}
 		return new Algorithms(_algorithms);
 	}

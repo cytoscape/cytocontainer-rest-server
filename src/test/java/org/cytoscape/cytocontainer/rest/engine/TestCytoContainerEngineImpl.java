@@ -424,6 +424,50 @@ public class TestCytoContainerEngineImpl {
         } 
 	}
 	
+	@Test
+	public void testGetLastProgressAndMessageTailOfFileHasNoData() throws IOException {
+		try {
+            File tempDir = _folder.newFolder();
+            CytoContainerEngineImpl engine = new CytoContainerEngineImpl(null,
+                    tempDir.getAbsolutePath(), "docker", null, null); 
+			
+			File confFile = new File(tempDir.getAbsolutePath() + File.separator + "foo.conf");
+            
+			try (FileWriter fw = new FileWriter(confFile)) {
+				fw.write(Configuration.BYTES_OF_STDERR_TO_PARSE + " = 10\n");
+				fw.flush();
+			}
+			Configuration.setAlternateConfigurationFile(confFile.getAbsolutePath());
+			
+			File stdErrFile = new File(tempDir.getAbsolutePath() + File.separator + "foo.conf");
+            
+			try (FileWriter fw = new FileWriter(tempDir.getAbsolutePath()
+					+ File.separator + CytoContainerEngineImpl.STDERR_FILE)) {
+				fw.write("\n");
+				
+				fw.write("@@PROGRESS 59\n");
+				fw.write("hi\n");
+				fw.write("@@MESSAGE bye\n");
+				fw.write("@@PROGRESS 23\n");
+				fw.write("@@MESSAGE\n");
+				fw.write("@@PROGRESS uu\n");
+				fw.write("@@PROGRESS\n");
+				fw.write("blahblah\n");
+				fw.write("blahblah\n");
+				fw.write("blahblah\n");
+				fw.flush();
+			}
+			System.err.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+			CytoContainerResultStatus ccrs = engine.getLastProgressAndMessage(tempDir.getAbsolutePath()
+					+ File.separator + CytoContainerEngineImpl.STDERR_FILE);
+			assertEquals(0, ccrs.getProgress());
+			assertEquals(null, ccrs.getMessage());
+    
+        } finally {
+            _folder.delete();
+        } 
+	}
+	
     @Test
     public void testRequestWhereRequestIsNull(){
         CytoContainerEngineImpl engine = new CytoContainerEngineImpl(null, "task",

@@ -1,14 +1,13 @@
 package org.cytoscape.cytocontainer.rest.engine;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.util.Arrays;
@@ -53,6 +52,13 @@ import org.cytoscape.cytocontainer.rest.model.exceptions.CytoContainerNotFoundEx
  */
 public class CytoContainerEngineImpl implements CytoContainerEngine {
 
+	public static final long TEN_MB = 1024*1024*10;
+	
+	/**
+	 * 
+	 */
+	public static final String PROGRESS_KEY = "@@PROGRESS";
+	public static final String MESSAGE_KEY = "@@MESSAGE";
     public static final String CDREQUEST_JSON_FILE = "cdrequest.json";
     
     public static final String CDRESULT_JSON_FILE = "cdresult.json";
@@ -267,11 +273,33 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
 		if (stderrFile.isFile() == false){
 			return ccrs;
 		}
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+		long numBytesToParse = 1024*1024*10;
+		try {
+			numBytesToParse = Configuration.getInstance().getNumberOfBytesToParseFromStdErrorFile();
+			System.out.println("BytesToParse\n");
+			System.out.println(numBytesToParse);
+			
+			
+		} catch(CytoContainerException cce){
+			_logger.warn("Unable to get bytes to parse", cce);
+		}
+        try (RandomAccessFile reader = new RandomAccessFile(stderrFile, "r")) {
             String line;
+			long fileLength = reader.length();
+			long startPosition = (fileLength > numBytesToParse) ? fileLength - numBytesToParse : 0;
 
+			System.out.println("startPosition\n");
+			System.out.println(startPosition);
+			
+			reader.seek(startPosition);
+
+			// If we're not at the beginning, skip the first partial line
+			if (startPosition > 0) {
+				reader.readLine();
+			}
             while ((line = reader.readLine()) != null) {
-                if (line.startsWith("@@PROGRESS")) {
+				System.out.println(line);
+                if (line.startsWith(PROGRESS_KEY)) {
                     String[] parts = line.split("\\s+", 2);
 					
                     if (parts.length == 2) {
@@ -281,7 +309,7 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
                             _logger.debug("Invalid progress format: " + parts[1]);
                         }
                     }
-                } else if (line.startsWith("@@MESSAGE")) {
+                } else if (line.startsWith(MESSAGE_KEY)) {
                     String[] parts = line.split("\\s+", 2);
                     if (parts.length == 2) {
                         ccrs.setMessage(parts[1].trim());
@@ -311,7 +339,7 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
 		if (memoryCCR == null){
 			return memoryCCR;
 		}
-
+		
 		CytoContainerResultStatus ccrs = getLastProgressAndMessage(getCytoContainerResultStdErrFilePath(id));
 		memoryCCR.setProgress(ccrs.getProgress());
 		memoryCCR.setMessage(ccrs.getMessage());

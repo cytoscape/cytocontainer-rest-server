@@ -321,6 +321,8 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
 
         } catch (IOException e) {
 			_logger.info("Caught Exception: " + e.getMessage(), e);
+			ccrs.setProgress(0);
+			ccrs.setMessage("Unable to get current progress");
         }
 		return ccrs;
     }

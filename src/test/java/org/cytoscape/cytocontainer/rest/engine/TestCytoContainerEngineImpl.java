@@ -312,6 +312,29 @@ public class TestCytoContainerEngineImpl {
 	}
 	
 	@Test
+	public void testGetLastProgressAndMessageNoStdErrFileIOError() throws IOException {
+		try {
+            File tempDir = _folder.newFolder();
+            CytoContainerEngineImpl engine = new CytoContainerEngineImpl(null,
+                    tempDir.getAbsolutePath(), "docker", null, null);
+			File stdErrFile = new File(tempDir.getAbsolutePath()
+					+ File.separator + CytoContainerEngineImpl.STDERR_FILE);
+			FileWriter fw = new FileWriter(stdErrFile);
+            
+            fw.write("");
+            fw.flush();
+            fw.close();
+			stdErrFile.setReadable(false, false);
+			CytoContainerResultStatus ccrs = engine.getLastProgressAndMessage(stdErrFile.getAbsolutePath());
+			assertEquals(ccrs.getProgress(), 0);
+			assertEquals(ccrs.getMessage(), "Unable to get current progress");
+    
+        } finally {
+            _folder.delete();
+        } 
+	}
+	
+	@Test
 	public void testGetLastProgressAndMessageEmptyStdErrFile() throws IOException {
 		try {
             File tempDir = _folder.newFolder();

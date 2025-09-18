@@ -261,6 +261,9 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
 	 * Also looks for last line starting with {@code @@PROGRESS ##\n}
 	 * and sets ## as the progress in the result.
 	 * 
+	 * If all @@MESSAGE entries lack values then no message is set.
+	 * If all @@PROGRESS entries lack values then progress is set to 0.
+	 * 
 	 * NOTE: a line without a newline is NOT parsed. 
 	 * </pre>
 	 * @param filePath Path to standard error file
@@ -273,24 +276,22 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
 		if (stderrFile.isFile() == false){
 			return ccrs;
 		}
+		
+		// limit how far back to parse the log file so we do not overwhelm the server
 		long numBytesToParse = 1024*1024*10;
 		try {
 			numBytesToParse = Configuration.getInstance().getNumberOfBytesToParseFromStdErrorFile();
-			System.out.println("BytesToParse\n");
-			System.out.println(numBytesToParse);
-			
-			
 		} catch(CytoContainerException cce){
-			_logger.warn("Unable to get bytes to parse", cce);
+			_logger.warn("Unable to get bytes to parse, using default: " + Long.toString(numBytesToParse), cce);
 		}
         try (RandomAccessFile reader = new RandomAccessFile(stderrFile, "r")) {
             String line;
 			long fileLength = reader.length();
+			
+			// read only last numBytesToParse bytes of file
 			long startPosition = (fileLength > numBytesToParse) ? fileLength - numBytesToParse : 0;
 
-			System.out.println("startPosition\n");
-			System.out.println(startPosition);
-			
+			_logger.debug("Seeking to byte position: " + startPosition);
 			reader.seek(startPosition);
 
 			// If we're not at the beginning, skip the first partial line
@@ -298,15 +299,16 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
 				reader.readLine();
 			}
             while ((line = reader.readLine()) != null) {
-				System.out.println(line);
                 if (line.startsWith(PROGRESS_KEY)) {
                     String[] parts = line.split("\\s+", 2);
 					
                     if (parts.length == 2) {
                         try {
                             ccrs.setProgress(Integer.parseInt(parts[1].trim()));
+							_logger.debug("Progress set to: " + ccrs.getProgress());
                         } catch (NumberFormatException e) {
-                            _logger.debug("Invalid progress format: " + parts[1]);
+                            _logger.info("Invalid progress format: " + parts[1] + " setting to 0");
+							ccrs.setProgress(0);
                         }
                     }
                 } else if (line.startsWith(MESSAGE_KEY)) {

@@ -370,7 +370,6 @@ public class TestCytoContainerEngineImpl {
             CytoContainerEngineImpl engine = new CytoContainerEngineImpl(null,
                     tempDir.getAbsolutePath(), "docker", null, null); 
 			
-			File stdErrFile = new File(tempDir.getAbsolutePath() + File.separator + "foo.conf");
             
             FileWriter fw = new FileWriter(tempDir.getAbsolutePath()
 					+ File.separator + CytoContainerEngineImpl.STDERR_FILE);
@@ -392,25 +391,31 @@ public class TestCytoContainerEngineImpl {
 	}
 	
 	@Test
-	public void testGetLastProgressAndMessageMultipleStdErrFile() throws IOException {
+	public void testGetLastProgressAndMessageMultipleStdErrFile() throws Exception {
 		try {
             File tempDir = _folder.newFolder();
+			
+			File confFile = new File(tempDir.getAbsolutePath() + File.separator + "foo.conf");
+            
+			try (FileWriter fw = new FileWriter(confFile)) {
+				fw.write(Configuration.BYTES_OF_STDERR_TO_PARSE + " = 1000\n");
+				fw.flush();
+			}
+			Configuration.setAlternateConfigurationFile(confFile.getAbsolutePath());
+			Configuration.reloadConfiguration();
             CytoContainerEngineImpl engine = new CytoContainerEngineImpl(null,
                     tempDir.getAbsolutePath(), "docker", null, null); 
-			
-			File stdErrFile = new File(tempDir.getAbsolutePath() + File.separator + "foo.conf");
             
-            FileWriter fw = new FileWriter(tempDir.getAbsolutePath()
+			FileWriter fw = new FileWriter(tempDir.getAbsolutePath()
 					+ File.separator + CytoContainerEngineImpl.STDERR_FILE);
-            
             fw.write("\n");
 			fw.write("@@MESSAGE hello\n");
 			fw.write("@@PROGRESS 59\n");
 			fw.write("hi\n");
+			fw.write("@@PROGRESS uu\n");
 			fw.write("@@MESSAGE bye\n");
 			fw.write("@@PROGRESS 23\n");
 			fw.write("@@MESSAGE\n");
-			fw.write("@@PROGRESS uu\n");
 			fw.write("@@PROGRESS\n");
             fw.flush();
             fw.close();

@@ -38,6 +38,8 @@ import org.cytoscape.cytocontainer.rest.model.exceptions.CytoContainerBadRequest
 import org.cytoscape.cytocontainer.rest.model.exceptions.CytoContainerException;
 import org.cytoscape.cytocontainer.rest.services.Configuration;
 import org.cytoscape.cytocontainer.rest.engine.util.CytoContainerRequestValidator;
+import org.cytoscape.cytocontainer.rest.model.Algorithm;
+import org.cytoscape.cytocontainer.rest.model.Algorithms;
 
 
 /**
@@ -94,7 +96,23 @@ public class TestCytoContainerEngineImpl {
         String res = engine.getCytoContainerResultFilePath("12345");
         assertEquals("task/12345/" + CytoContainerEngineImpl.CDRESULT_JSON_FILE, res);
     }
-    
+	
+	@Test
+    public void testgetCytoContainerResultDataFilePath(){
+        CytoContainerEngineImpl engine = new CytoContainerEngineImpl(null, "task",
+                "docker", null, null);
+        String res = engine.getCytoContainerResultDataFilePath("12345");
+        assertEquals("task/12345/" + CytoContainerEngineImpl.RESULT_DATA_FILE, res);
+    }
+
+	@Test
+    public void testgetCytoContainerStdErrPath(){
+        CytoContainerEngineImpl engine = new CytoContainerEngineImpl(null, "task",
+                "docker", null, null);
+        String res = engine.getCytoContainerResultStdErrFilePath("12345");
+        assertEquals("task/12345/" + CytoContainerEngineImpl.STDERR_FILE, res);
+    }
+	
     @Test
     public void testsaveCytoContainerResultToFilesystem() throws IOException {
         try {
@@ -277,6 +295,207 @@ public class TestCytoContainerEngineImpl {
         } 
     }
     
+	@Test
+	public void testGetLastProgressAndMessageNoStdErrFile() throws IOException {
+		try {
+            File tempDir = _folder.newFolder();
+            CytoContainerEngineImpl engine = new CytoContainerEngineImpl(null,
+                    tempDir.getAbsolutePath(), "docker", null, null); 
+			CytoContainerResultStatus ccrs = engine.getLastProgressAndMessage(tempDir.getAbsolutePath()
+					+ File.separator + CytoContainerEngineImpl.STDERR_FILE);
+			assertEquals(ccrs.getProgress(), 0);
+			assertEquals(ccrs.getMessage(), null);
+    
+        } finally {
+            _folder.delete();
+        } 
+	}
+	
+	@Test
+	public void testGetLastProgressAndMessageNoStdErrFileIOError() throws IOException {
+		try {
+            File tempDir = _folder.newFolder();
+            CytoContainerEngineImpl engine = new CytoContainerEngineImpl(null,
+                    tempDir.getAbsolutePath(), "docker", null, null);
+			File stdErrFile = new File(tempDir.getAbsolutePath()
+					+ File.separator + CytoContainerEngineImpl.STDERR_FILE);
+			FileWriter fw = new FileWriter(stdErrFile);
+            
+            fw.write("");
+            fw.flush();
+            fw.close();
+			stdErrFile.setReadable(false, false);
+			CytoContainerResultStatus ccrs = engine.getLastProgressAndMessage(stdErrFile.getAbsolutePath());
+			assertEquals(ccrs.getProgress(), 0);
+			assertEquals(ccrs.getMessage(), "Unable to get current progress");
+    
+        } finally {
+            _folder.delete();
+        } 
+	}
+	
+	@Test
+	public void testGetLastProgressAndMessageEmptyStdErrFile() throws IOException {
+		try {
+            File tempDir = _folder.newFolder();
+            CytoContainerEngineImpl engine = new CytoContainerEngineImpl(null,
+                    tempDir.getAbsolutePath(), "docker", null, null); 
+			
+			File stdErrFile = new File(tempDir.getAbsolutePath() + File.separator + "foo.conf");
+            
+            FileWriter fw = new FileWriter(tempDir.getAbsolutePath()
+					+ File.separator + CytoContainerEngineImpl.STDERR_FILE);
+            
+            fw.write("");
+            fw.flush();
+            fw.close();
+			CytoContainerResultStatus ccrs = engine.getLastProgressAndMessage(stdErrFile.getAbsolutePath());
+			assertEquals(ccrs.getProgress(), 0);
+			assertEquals(ccrs.getMessage(), null);
+    
+        } finally {
+            _folder.delete();
+        } 
+	}
+	
+	@Test
+	public void testGetLastProgressAndMessageInvalidMessageAndProgressStdErrFile() throws IOException {
+		try {
+            File tempDir = _folder.newFolder();
+            CytoContainerEngineImpl engine = new CytoContainerEngineImpl(null,
+                    tempDir.getAbsolutePath(), "docker", null, null); 
+			
+			File stdErrFile = new File(tempDir.getAbsolutePath() + File.separator + "foo.conf");
+            
+            FileWriter fw = new FileWriter(tempDir.getAbsolutePath()
+					+ File.separator + CytoContainerEngineImpl.STDERR_FILE);
+            
+            fw.write("\n");
+			fw.write("@@MESSAGE\n");
+			fw.write("@@PROGRESS sdf\n");
+			fw.write("hi\n");
+            fw.flush();
+            fw.close();
+			CytoContainerResultStatus ccrs = engine.getLastProgressAndMessage(tempDir.getAbsolutePath()
+					+ File.separator + CytoContainerEngineImpl.STDERR_FILE);
+			assertEquals(ccrs.getProgress(), 0);
+			assertEquals(ccrs.getMessage(), null);
+    
+        } finally {
+            _folder.delete();
+        } 
+	}
+	
+	@Test
+	public void testGetLastProgressAndMessageSingleEachStdErrFile() throws IOException {
+		try {
+            File tempDir = _folder.newFolder();
+            CytoContainerEngineImpl engine = new CytoContainerEngineImpl(null,
+                    tempDir.getAbsolutePath(), "docker", null, null); 
+			
+            
+            FileWriter fw = new FileWriter(tempDir.getAbsolutePath()
+					+ File.separator + CytoContainerEngineImpl.STDERR_FILE);
+            
+            fw.write("\n");
+			fw.write("@@MESSAGE hello\n");
+			fw.write("@@PROGRESS 59\n");
+			fw.write("hi\n");
+            fw.flush();
+            fw.close();
+			CytoContainerResultStatus ccrs = engine.getLastProgressAndMessage(tempDir.getAbsolutePath()
+					+ File.separator + CytoContainerEngineImpl.STDERR_FILE);
+			assertEquals(ccrs.getProgress(), 59);
+			assertEquals(ccrs.getMessage(), "hello");
+    
+        } finally {
+            _folder.delete();
+        } 
+	}
+	
+	@Test
+	public void testGetLastProgressAndMessageMultipleStdErrFile() throws Exception {
+		try {
+            File tempDir = _folder.newFolder();
+			
+			File confFile = new File(tempDir.getAbsolutePath() + File.separator + "foo.conf");
+            
+			try (FileWriter fw = new FileWriter(confFile)) {
+				fw.write(Configuration.BYTES_OF_STDERR_TO_PARSE + " = 1000\n");
+				fw.flush();
+			}
+			Configuration.setAlternateConfigurationFile(confFile.getAbsolutePath());
+			Configuration.reloadConfiguration();
+            CytoContainerEngineImpl engine = new CytoContainerEngineImpl(null,
+                    tempDir.getAbsolutePath(), "docker", null, null); 
+            
+			FileWriter fw = new FileWriter(tempDir.getAbsolutePath()
+					+ File.separator + CytoContainerEngineImpl.STDERR_FILE);
+            fw.write("\n");
+			fw.write("@@MESSAGE hello\n");
+			fw.write("@@PROGRESS 59\n");
+			fw.write("hi\n");
+			fw.write("@@PROGRESS uu\n");
+			fw.write("@@MESSAGE bye\n");
+			fw.write("@@PROGRESS 23\n");
+			fw.write("@@MESSAGE\n");
+			fw.write("@@PROGRESS\n");
+            fw.flush();
+            fw.close();
+			CytoContainerResultStatus ccrs = engine.getLastProgressAndMessage(tempDir.getAbsolutePath()
+					+ File.separator + CytoContainerEngineImpl.STDERR_FILE);
+			assertEquals(ccrs.getProgress(), 23);
+			assertEquals(ccrs.getMessage(), "bye");
+    
+        } finally {
+            _folder.delete();
+        } 
+	}
+	
+	@Test
+	public void testGetLastProgressAndMessageTailOfFileHasNoData() throws IOException {
+		try {
+            File tempDir = _folder.newFolder();
+            CytoContainerEngineImpl engine = new CytoContainerEngineImpl(null,
+                    tempDir.getAbsolutePath(), "docker", null, null); 
+			
+			File confFile = new File(tempDir.getAbsolutePath() + File.separator + "foo.conf");
+            
+			try (FileWriter fw = new FileWriter(confFile)) {
+				fw.write(Configuration.BYTES_OF_STDERR_TO_PARSE + " = 10\n");
+				fw.flush();
+			}
+			Configuration.setAlternateConfigurationFile(confFile.getAbsolutePath());
+			
+			File stdErrFile = new File(tempDir.getAbsolutePath() + File.separator + "foo.conf");
+            
+			try (FileWriter fw = new FileWriter(tempDir.getAbsolutePath()
+					+ File.separator + CytoContainerEngineImpl.STDERR_FILE)) {
+				fw.write("\n");
+				
+				fw.write("@@PROGRESS 59\n");
+				fw.write("hi\n");
+				fw.write("@@MESSAGE bye\n");
+				fw.write("@@PROGRESS 23\n");
+				fw.write("@@MESSAGE\n");
+				fw.write("@@PROGRESS uu\n");
+				fw.write("@@PROGRESS\n");
+				fw.write("blahblah\n");
+				fw.write("blahblah\n");
+				fw.write("blahblah\n");
+				fw.flush();
+			}
+			System.err.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+			CytoContainerResultStatus ccrs = engine.getLastProgressAndMessage(tempDir.getAbsolutePath()
+					+ File.separator + CytoContainerEngineImpl.STDERR_FILE);
+			assertEquals(0, ccrs.getProgress());
+			assertEquals(null, ccrs.getMessage());
+    
+        } finally {
+            _folder.delete();
+        } 
+	}
+	
     @Test
     public void testRequestWhereRequestIsNull(){
         CytoContainerEngineImpl engine = new CytoContainerEngineImpl(null, "task",
@@ -431,14 +650,12 @@ public class TestCytoContainerEngineImpl {
             
             File confFile = new File(tempDir.getAbsolutePath() + File.separator + "foo.conf");
             
-            FileWriter fw = new FileWriter(confFile);
-            
-            fw.write(Configuration.TASK_DIR + " = " + tempDir.getAbsolutePath() + "\n");
-            fw.write(Configuration.MOUNT_OPTIONS + " = :ro,z\n");
-            fw.write(Configuration.ALGORITHM_TIMEOUT + " = 10\n");
-            
-            fw.flush();
-            fw.close();
+			try (FileWriter fw = new FileWriter(confFile)) {
+				fw.write(Configuration.TASK_DIR + " = " + tempDir.getAbsolutePath() + "\n");
+				fw.write(Configuration.MOUNT_OPTIONS + " = :ro,z\n");
+				fw.write(Configuration.ALGORITHM_TIMEOUT + " = 10\n");
+				fw.flush();
+			}
             Configuration.setAlternateConfigurationFile(confFile.getAbsolutePath());
             CytoContainerAlgorithms algos = new CytoContainerAlgorithms();
             CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
@@ -466,7 +683,18 @@ public class TestCytoContainerEngineImpl {
             CytoContainerEngineImpl engine = new CytoContainerEngineImpl(mockES,
                     tempDir.getAbsolutePath(), "docker", algos, mockValidator);
             try {
-                assertNotNull(engine.request("algo",cdr));
+				String resId = engine.request("algo",cdr);
+                assertNotNull(resId);
+				CytoContainerResult ccr = engine.getResult("algo", resId);
+				assertEquals(0,ccr.getProgress());
+				assertNull(ccr.getMessage());
+				try (FileWriter errFile = new FileWriter(engine.getCytoContainerResultStdErrFilePath(resId))) {
+					errFile.append("hi\n@@MESSAGE a message\n@@PROGRESS 55\n@PROGRESS 75");
+					errFile.flush();
+				}
+				ccr = engine.getResult("algo", resId);
+				assertEquals(55, ccr.getProgress());
+				assertEquals("a message", ccr.getMessage());
             } catch(CytoContainerBadRequestException cdbe){
                 fail("Unexpected exception: " + cdbe.getMessage());
             } catch(CytoContainerException cde){
@@ -545,4 +773,121 @@ public class TestCytoContainerEngineImpl {
             _folder.delete();
         }
     }
+	
+	@Test
+	public void testGetMetaDataAlgorithmsIsNull(){
+		 CytoContainerEngineImpl engine = new CytoContainerEngineImpl(null, "task", 
+                "docker", null, null);
+		 try {
+			 engine.getMetaData("foo");
+			 fail("Expected Exception");
+		 } catch(CytoContainerException cce){
+			 assertEquals(cce.getMessage(), "No Algorithms found");
+		 }
+	}
+	
+	@Test
+	public void testGetMetaDataAlgorithmIsNull(){
+		CytoContainerAlgorithms algos = new CytoContainerAlgorithms();
+		CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
+		cda.setName("foo");
+		LinkedHashMap<String, CytoContainerAlgorithm> aMap = new LinkedHashMap<>();
+		aMap.put("algo", cda);
+		algos.setAlgorithms(aMap);
+		CytoContainerEngineImpl engine = new CytoContainerEngineImpl(null, "task", 
+                "docker", algos, null);
+		 try {
+			 engine.getMetaData(null);
+			 fail("Expected Exception");
+		 } catch(CytoContainerException cce){
+			 assertEquals(cce.getMessage(), "Algorithm must be set");
+		 }
+	}
+	
+	@Test
+	public void testGetMetaDataAlgorithmsInDBIsNull(){
+		CytoContainerAlgorithms algos = new CytoContainerAlgorithms();
+		CytoContainerEngineImpl engine = new CytoContainerEngineImpl(null, "task", 
+                "docker", algos, null);
+		 try {
+			 engine.getMetaData("foo");
+			 fail("Expected Exception");
+		 } catch(CytoContainerException cce){
+			 assertEquals(cce.getMessage(), "No algorithms found in db");
+		 }
+	}
+	
+	@Test
+	public void testGetMetaDataAlgorithmReturnedIsNull(){
+		CytoContainerAlgorithms algos = new CytoContainerAlgorithms();
+		CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
+		cda.setName("foo");
+		LinkedHashMap<String, CytoContainerAlgorithm> aMap = new LinkedHashMap<>();
+		aMap.put("foo", cda);
+		algos.setAlgorithms(aMap);
+		CytoContainerEngineImpl engine = new CytoContainerEngineImpl(null, "task", 
+                "docker", algos, null);
+		 try {
+			 engine.getMetaData("blah");
+			 fail("Expected Exception");
+		 } catch(CytoContainerException cce){
+			 assertEquals(cce.getMessage(), "No algorithm matching name found");
+		 }
+	}
+	
+	@Test
+	public void testGetMetaDataSuccess() throws CytoContainerException {
+		CytoContainerAlgorithms algos = new CytoContainerAlgorithms();
+		CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
+		cda.setName("foo");
+		LinkedHashMap<String, CytoContainerAlgorithm> aMap = new LinkedHashMap<>();
+		aMap.put("foo", cda);
+		algos.setAlgorithms(aMap);
+		CytoContainerEngineImpl engine = new CytoContainerEngineImpl(null, "task", 
+                "docker", algos, null);
+
+		Algorithm theRes = engine.getMetaData("foo");
+		assertEquals(theRes.getName(), "foo");	 
+	}
+	
+	@Test 
+	public void getAllAlgorithmsAlgorithmsNull(){
+		CytoContainerEngineImpl engine = new CytoContainerEngineImpl(null, "task", 
+                "docker", null, null);
+		 try {
+			 engine.getAllAlgorithms();
+			 fail("Expected Exception");
+		 } catch(CytoContainerException cce){
+			 assertEquals(cce.getMessage(), "No Algorithms found");
+		 }
+	}
+	
+	@Test 
+	public void getAllAlgorithmsAlgorithmsGetAlgorithmsIsNull(){
+		CytoContainerAlgorithms algos = new CytoContainerAlgorithms();
+		CytoContainerEngineImpl engine = new CytoContainerEngineImpl(null, "task", 
+                "docker", algos, null);
+		 try {
+			 engine.getAllAlgorithms();
+			 fail("Expected Exception");
+		 } catch(CytoContainerException cce){
+			 assertEquals(cce.getMessage(), "No algorithms found in db");
+		 }
+	}
+	
+	@Test 
+	public void getAllAlgorithmsSuccess() throws CytoContainerException {
+		CytoContainerAlgorithms algos = new CytoContainerAlgorithms();
+		CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
+		cda.setName("foo");
+		LinkedHashMap<String, CytoContainerAlgorithm> aMap = new LinkedHashMap<>();
+		aMap.put("foo", cda);
+		algos.setAlgorithms(aMap);
+		CytoContainerEngineImpl engine = new CytoContainerEngineImpl(null, "task", 
+                "docker", algos, null);
+
+		Algorithms res = engine.getAllAlgorithms();
+		assertTrue(res.getAlgorithms().containsKey("foo"));
+	}
+    
 }

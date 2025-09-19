@@ -46,6 +46,7 @@ public class Configuration {
     public static final String MOUNT_OPTIONS = "cytocontainer.mount.options";
     public static final String DIFFUSION_ALGO = "cytocontainer.diffusion.algorithm";
     public static final String DIFFUSION_POLLDELAY = "cytocontainer.diffusion.polldelay";
+	public static final String BYTES_OF_STDERR_TO_PARSE = "cytocontainer.bytes.of.stderr.toparse";
     public static final String SWAGGER_TITLE = "swagger.title";
     public static final String SWAGGER_DESC = "swagger.description";
 
@@ -73,6 +74,7 @@ public class Configuration {
     private String _swaggerDescription;
     private String _contextPath;
     private String _applicationPath;
+	private long _bytesOfStdErrToParse;
     
     /**
      * Constructor that attempts to get configuration from properties file
@@ -114,6 +116,7 @@ public class Configuration {
         } else if (!_hostURL.endsWith("/")){
             _hostURL =_hostURL + "/";
         }
+		_bytesOfStdErrToParse = Long.parseLong(props.getProperty(Configuration.BYTES_OF_STDERR_TO_PARSE, Long.toString(1024*1024*10)));
     }
     
     protected CytoContainerAlgorithms getAlgorithms(final String algoConfDir){
@@ -302,8 +305,18 @@ public class Configuration {
      * @return time in milliseconds
      */
     public long getDiffusionPollingDelay(){
-	return _diffusionPollingDelay;
+		return _diffusionPollingDelay;
     }
+	
+	/**
+	 * Defines number of bytes to examine from end of stderr file
+	 * when looking for message and progress data
+	 * 
+	 * @return 
+	 */
+	public long getNumberOfBytesToParseFromStdErrorFile(){
+		return this._bytesOfStdErrToParse;
+	}
     
     /**
      * Gets singleton instance of configuration

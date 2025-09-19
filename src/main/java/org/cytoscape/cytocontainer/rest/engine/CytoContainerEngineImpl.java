@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.util.Arrays;
@@ -42,6 +43,7 @@ import org.cytoscape.cytocontainer.rest.engine.util.CytoContainerRequestValidato
 import org.cytoscape.cytocontainer.rest.model.Algorithm;
 import org.cytoscape.cytocontainer.rest.model.AlgorithmParameter;
 import org.cytoscape.cytocontainer.rest.model.Algorithms;
+import org.cytoscape.cytocontainer.rest.model.RequestStatus;
 import org.cytoscape.cytocontainer.rest.model.exceptions.CytoContainerNotFoundException;
 
 /**
@@ -50,12 +52,21 @@ import org.cytoscape.cytocontainer.rest.model.exceptions.CytoContainerNotFoundEx
  */
 public class CytoContainerEngineImpl implements CytoContainerEngine {
 
+	public static final long TEN_MB = 1024*1024*10;
+	
+	/**
+	 * 
+	 */
+	public static final String PROGRESS_KEY = "@@PROGRESS";
+	public static final String MESSAGE_KEY = "@@MESSAGE";
     public static final String CDREQUEST_JSON_FILE = "cdrequest.json";
     
     public static final String CDRESULT_JSON_FILE = "cdresult.json";
 	
 	// @TODO rethink what we want to name this
 	public static final String RESULT_DATA_FILE = "stdout.txt";
+	
+	public static final String STDERR_FILE = "stderr.txt";
     
     static Logger _logger = LoggerFactory.getLogger(CytoContainerEngineImpl.class);
 
@@ -174,7 +185,8 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
     }
     
     /**
-     * Calls {@link #getServerStatus() } and dumps the status of the server as
+     * Calls {@link org.cytoscape.cytocontainer.rest.engine.CytoContainerEngineImpl#getServerStatus(java.lang.String) } 
+	 * and dumps the status of the server as
      * a JSON string to the info level of the logger for this class
      * @param ss status to log
      */
@@ -201,6 +213,10 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
 	protected String getCytoContainerResultDataFilePath(final String id){
 		return this._taskDir + File.separator + id + File.separator + CytoContainerEngineImpl.RESULT_DATA_FILE;
     }
+	
+	protected String getCytoContainerResultStdErrFilePath(final String id){
+		return this._taskDir + File.separator + id + File.separator + CytoContainerEngineImpl.STDERR_FILE;
+	}
 
     protected void saveCytoContainerResultToFilesystem(final CytoContainerResult cdr){
         if (cdr == null){
@@ -236,21 +252,105 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
 	sb.append(result.getMessage() == null ? "NULL" : result.getMessage());
 	_logger.info(sb.toString());
     }
+	
+	/**
+	 * <pre>
+	 * In {@code filePath} passed in, looks for last encountered line starting with {@code @@MESSAGE XX\n}
+	 * and sets XX as the message in the result.
+	 * 
+	 * Also looks for last line starting with {@code @@PROGRESS ##\n}
+	 * and sets ## as the progress in the result.
+	 * 
+	 * If all @@MESSAGE entries lack values then no message is set.
+	 * If all @@PROGRESS entries lack values then progress is set to 0.
+	 * 
+	 * NOTE: a line without a newline is NOT parsed. 
+	 * </pre>
+	 * @param filePath Path to standard error file
+	 * @return Updated status or an empty status with {@code 0} for progress and {@code null} for
+	 *         message
+	 */
+	protected CytoContainerResultStatus getLastProgressAndMessage(final String filePath) {
+        CytoContainerResultStatus ccrs = new CytoContainerResultStatus();
+		File stderrFile = new File(filePath);
+		if (stderrFile.isFile() == false){
+			return ccrs;
+		}
+		
+		// limit how far back to parse the log file so we do not overwhelm the server
+		long numBytesToParse = 1024*1024*10;
+		try {
+			numBytesToParse = Configuration.getInstance().getNumberOfBytesToParseFromStdErrorFile();
+		} catch(CytoContainerException cce){
+			_logger.warn("Unable to get bytes to parse, using default: " + Long.toString(numBytesToParse), cce);
+		}
+        try (RandomAccessFile reader = new RandomAccessFile(stderrFile, "r")) {
+            String line;
+			long fileLength = reader.length();
+			
+			// read only last numBytesToParse bytes of file
+			long startPosition = (fileLength > numBytesToParse) ? fileLength - numBytesToParse : 0;
+
+			_logger.debug("Seeking to byte position: " + startPosition);
+			reader.seek(startPosition);
+
+			// If we're not at the beginning, skip the first partial line
+			if (startPosition > 0) {
+				reader.readLine();
+			}
+            while ((line = reader.readLine()) != null) {
+                if (line.startsWith(PROGRESS_KEY)) {
+                    String[] parts = line.split("\\s+", 2);
+					
+                    if (parts.length == 2) {
+                        try {
+                            ccrs.setProgress(Integer.parseInt(parts[1].trim()));
+							_logger.debug("Progress set to: " + ccrs.getProgress());
+                        } catch (NumberFormatException e) {
+                            _logger.info("Invalid progress format: " + parts[1] + " setting to 0");
+							ccrs.setProgress(0);
+                        }
+                    }
+                } else if (line.startsWith(MESSAGE_KEY)) {
+                    String[] parts = line.split("\\s+", 2);
+                    if (parts.length == 2) {
+                        ccrs.setMessage(parts[1].trim());
+                    }
+                }
+            }
+
+        } catch (IOException e) {
+			_logger.info("Caught Exception: " + e.getMessage(), e);
+			ccrs.setProgress(0);
+			ccrs.setMessage("Unable to get current progress");
+        }
+		return ccrs;
+    }
 
     protected CytoContainerResult getCytoContainerResultFromDbOrFilesystem(final String id){
         ObjectMapper mappy = new ObjectMapper();
         File cdrFile = new File(getCytoContainerResultFilePath(id));
-        if (cdrFile.isFile() == false){
-            _logger.debug(cdrFile.getAbsolutePath() + " is not a file. "
-		    + "Will attempt to retreive from in memory store");
-            return _results.get(id);
-        }
-        try {
-            return mappy.readValue(cdrFile, CytoContainerResult.class);
-        }catch(IOException io){
-            _logger.error("Caught exception trying to load " + cdrFile.getAbsolutePath(), io);
-        }
-        return _results.get(id);
+        if (cdrFile.isFile() == true){
+			try {
+				return mappy.readValue(cdrFile, CytoContainerResult.class);
+			}catch(IOException io){
+				_logger.error("Caught exception trying to load " + cdrFile.getAbsolutePath(), io);
+			}
+		}
+		_logger.debug(cdrFile.getAbsolutePath() + " is not a file or file is not valid json yet. "
+		+ "Will attempt to retreive from in memory store");
+		CytoContainerResult memoryCCR = _results.get(id);
+		if (memoryCCR == null){
+			return memoryCCR;
+		}
+		
+		CytoContainerResultStatus ccrs = getLastProgressAndMessage(getCytoContainerResultStdErrFilePath(id));
+		memoryCCR.setProgress(ccrs.getProgress());
+		memoryCCR.setMessage(ccrs.getMessage());
+		if (ccrs.getProgress() > 0){
+			memoryCCR.setStatus(RequestStatus.PROCESSING_STATUS);
+		}
+		return memoryCCR;
     }
     
     /**
@@ -513,7 +613,7 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
 			throw new CytoContainerException("Algorithm must be set");
 		}
 		if (_algorithms.getAlgorithms() == null){
-			throw new CytoContainerException("No algorithms found in in db");
+			throw new CytoContainerException("No algorithms found in db");
 		}
 		CytoContainerAlgorithm algo = _algorithms.getAlgorithms().get(algorithm);
 		if (algo == null){
@@ -528,7 +628,7 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
             throw new CytoContainerException("No Algorithms found");
         }
 		if (_algorithms.getAlgorithms() == null){
-			throw new CytoContainerException("No algorithms found in in db");
+			throw new CytoContainerException("No algorithms found in db");
 		}
 		return new Algorithms(_algorithms);
 	}

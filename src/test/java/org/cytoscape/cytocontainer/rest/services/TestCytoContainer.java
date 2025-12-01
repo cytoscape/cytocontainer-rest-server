@@ -2,12 +2,14 @@ package org.cytoscape.cytocontainer.rest.services;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.MultivaluedMap;
+import java.io.ByteArrayInputStream;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.notNull;
@@ -30,6 +32,8 @@ import org.cytoscape.cytocontainer.rest.model.CytoContainerRequestId;
 import org.cytoscape.cytocontainer.rest.model.exceptions.CytoContainerBadRequestException;
 import org.cytoscape.cytocontainer.rest.model.exceptions.CytoContainerException;
 import org.cytoscape.cytocontainer.rest.engine.CytoContainerEngine;
+import org.easymock.EasyMock;
+import org.jboss.resteasy.core.ResteasyContext;
 
 /**
  *
@@ -84,14 +88,22 @@ public class TestCytoContainer {
             File tempDir = _folder.newFolder();
             File confFile = createBasicConfigurationFile(tempDir);
             Dispatcher dispatcher = getDispatcher();
-
-            MockHttpRequest request = MockHttpRequest.post(Configuration.V_ONE_PATH + "/algo");
-            CytoContainerRequest query = new CytoContainerRequest();
+			
+			CytoContainerRequest query = new CytoContainerRequest();
             ObjectMapper omappy = new ObjectMapper();
-            request.contentType(MediaType.APPLICATION_JSON);
-            
-            request.content(omappy.writeValueAsBytes(query));
+			
+			HttpServletRequest mockRequest = EasyMock.createMock(HttpServletRequest.class);
+			ByteArrayInputStream bis = new ByteArrayInputStream(omappy.writeValueAsBytes(query));
+	
+			expect(mockRequest.getInputStream()).andReturn(bis);
+			EasyMock.replay(mockRequest);
 
+			// Push the mock request into RESTEasy context
+			ResteasyContext.getContextDataMap().put(HttpServletRequest.class, mockRequest);
+            
+            MockHttpRequest request = MockHttpRequest.post(Configuration.V_ONE_PATH + "/algo")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(omappy.writeValueAsBytes(query));
 
             MockHttpResponse response = new MockHttpResponse();
             Configuration.setAlternateConfigurationFile(confFile.getAbsolutePath());

@@ -74,7 +74,6 @@ public class CytoContainer {
      * @return {@link jakarta.ws.rs.core.Response} 
      */
     private Response requestJson(final String algorithm, final CytoContainerRequest query) {
-        ObjectMapper omappy = new ObjectMapper();
 
         try {
             // not sure why but I cannot get resteasy and jackson to worktogether to
@@ -150,10 +149,15 @@ public class CytoContainer {
 		
 		ObjectMapper mapper = new ObjectMapper();
 		CytoContainerRequest query;
-
+		
+		
 		//handle JSON content type
 		if (contentType.contains(MediaType.APPLICATION_JSON)) {
 			try {
+				
+				_logger.error("Content-Type: " + headers.getHeaderString("Content-Type"));
+				_logger.error("Application type is json, trying to convert");
+				_logger.error("Input Stream: " + servletRequest.getInputStream());
 				return requestJson(algorithm, mapper.readValue(servletRequest.getInputStream(),
 						CytoContainerRequest.class));
 			} catch(IOException io){

@@ -1,4 +1,4 @@
-CX2 Layout Demo
+kCX2 Layout Demo
 ===============
 
 This is a minimal Cytoscape Container service app implemented in Python
@@ -63,14 +63,17 @@ CytoContainer-style service app.
 Build image
 ~~~~~~~~~~~
 
-From the *cx2_layout_demo* directory (same level as ``pyproject.toml``) run:
+From the *updatelayouts_demo* directory (same level as ``pyproject.toml``) run:
 
 .. code-block:: bash
 
-   cd example_apps/cx2_layout_demo
+   cd docker
 
-   # Build the image, tagging it as cx2-layout-demo:latest
-   docker build -f docker/Dockerfile -t cx2-layout-demo:latest .
+   # Build the image (same as the plain docker build command above)
+   make build
+
+Above will create `cytoscape-cx2-layout-demo:latest` image. For additional configuration options
+invoke `make` with no arguments
 
 Basic usage
 ~~~~~~~~~~~
@@ -79,7 +82,7 @@ Show help for the service app inside the container:
 
 .. code-block:: bash
 
-   docker run --rm cx2-layout-demo:latest
+   docker run --rm cytoscape-cx2-layout-demo:latest
 
 Run layout on a local CX2 file (read-only bind mount assuming file is named test.cx2):
 
@@ -87,7 +90,7 @@ Run layout on a local CX2 file (read-only bind mount assuming file is named test
 
    docker run --rm \
      -v "$(pwd)":/data \
-     cx2-layout-demo:latest \
+     cytoscape-cx2-layout-demo:latest \
      /data/test.cx2
 
 The layout JSON will be output to stdout
@@ -97,28 +100,4 @@ Integration with Cytocontainer
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 TODO
-
-Makefile helpers
-~~~~~~~~~~~~~~~~
-
-A simple ``Makefile`` is provided under ``docker/``. From that directory:
-
-.. code-block:: bash
-
-   cd example_apps/cx2_layout_demo/docker
-
-   # Build the image (same as the plain docker build command above)
-   make build
-
-   # Run the image (prints cx2-layout-demo help by default)
-   make run
-
-   # Open an interactive shell in the container
-   make shell
-
-To push to a registry, set ``REGISTRY``:
-
-.. code-block:: bash
-
-   make push REGISTRY=myregistry.io/myorg
 

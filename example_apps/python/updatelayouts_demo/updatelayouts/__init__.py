@@ -1,5 +1,5 @@
 """
-cx2layoutdemo
+updatelayouts
 
 Minimal Cytoscape Container service app that:
 

@@ -1,7 +1,7 @@
 # example_apps/cx2_layout_demo/docker/Makefile
 
 # Name and tag for the Docker image
-IMAGE_NAME ?= cytoscape-cx2-layout-demo
+IMAGE_NAME ?= cytoscape-updatelayouts-demo
 IMAGE_TAG  ?= latest
 IMAGE      := $(IMAGE_NAME):$(IMAGE_TAG)
 
@@ -22,7 +22,7 @@ help:
 	@echo "  push         Push the image to a registry (set REGISTRY=...)"
 	@echo ""
 	@echo "Variables:"
-	@echo "  IMAGE_NAME   (default: cx2-layout-demo)"
+	@echo "  IMAGE_NAME   (default: cytoscape-updatelayouts-demo)"
 	@echo "  IMAGE_TAG    (default: latest)"
 	@echo "  REGISTRY     (default: empty; e.g. myregistry.io/myorg)"
 

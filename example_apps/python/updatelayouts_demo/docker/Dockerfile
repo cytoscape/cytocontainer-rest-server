@@ -1,4 +1,4 @@
-# example_apps/cx2_layout_demo/docker/Dockerfile
+# example_apps/python/updatelayouts_demo/docker/Dockerfile
 
 FROM python:3.11-slim
 
@@ -14,9 +14,9 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy project metadata and sources into the image
-# (assumes you build with context = example_apps/cx2_layout_demo)
+# (assumes you build with context = example_apps/python/updatelayouts_demo)
 COPY ../pyproject.toml README.rst requirements.txt ./
-COPY ../cx2layoutdemo ./cx2layoutdemo
+COPY ../updatelayouts ./updatelayouts
 
 # Install the package into the container
 RUN pip install --upgrade pip \
@@ -24,7 +24,7 @@ RUN pip install --upgrade pip \
     && pip cache purge
 
 # Default entrypoint is the console script we defined in pyproject.toml
-ENTRYPOINT ["cx2-layout-demo"]
+ENTRYPOINT ["cytoscape-updatelayouts-demo"]
 
 # By default just show help if no args given
 CMD ["-h"]

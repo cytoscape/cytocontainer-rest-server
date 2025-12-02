@@ -53,7 +53,6 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     This is wired up in setup.py as:
 
-        cx2-layout-demo = cx2layoutdemo.cli:main
     """
     if argv is None:
         argv = sys.argv[1:]

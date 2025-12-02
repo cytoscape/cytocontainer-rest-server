@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=65", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cx2_layout_demo"
+version = "0.1.0"
+description = "Example Cytoscape Container service app that computes a layout from a CX2 network"
+authors = [
+    { name = "Cytoscape / Ideker Lab" }
+]
+readme = "README.rst"
+license = { text = "BSD-3-Clause" }
+requires-python = ">=3.8"
+
+dependencies = [
+    "ndex2>=3.6.0",
+    "networkx>=3.0",
+]
+
+[project.scripts]
+cx2-layout-demo = "cx2layoutdemo.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "."}
+
+[tool.setuptools.packages.find]
+include = ["cx2layoutdemo*"]
+

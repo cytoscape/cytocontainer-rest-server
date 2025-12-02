@@ -1,7 +1,8 @@
-kCX2 Layout Demo
-===============
+===================================================================
+UpdateLayouts Cytoscape Container REST Service Demo Service App
+===================================================================
 
-This is a minimal Cytoscape Container service app implemented in Python
+This is a minimal Cytoscape Container REST service service app implemented in Python
 that does the following:
 
 * Reads a network in `CX2 format <https://cytoscape.org/cx/cx2/specification/cytoscape-exchange-format-specification-(version-2)/>`__

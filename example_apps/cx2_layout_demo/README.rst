@@ -1,14 +1,13 @@
 CX2 Layout Demo
 ===============
 
-This is a minimal Cytoscape Container service app implemented in Python.
+This is a minimal Cytoscape Container service app implemented in Python
+that does the following:
 
-It:
-
-* Reads a network in CX2 format
-* Constructs a NetworkX graph from the CX2
-* Computes a simple spring layout
-* Outputs node coordinates as JSON
+* Reads a network in `CX2 format <https://cytoscape.org/cx/cx2/specification/cytoscape-exchange-format-specification-(version-2)/>`__
+* Constructs a NetworkX graph from the `CX2 <https://cytoscape.org/cx/cx2/specification/cytoscape-exchange-format-specification-(version-2)/>`__
+* Computes a simple spring layout using NetworkX
+* Outputs node coordinates as JSON in `updateLayouts` format `json format <https://github.com/cytoscape/cytoscape-web/wiki/updateLayouts-Example>`__
 
 Dependencies
 ------------
@@ -35,19 +34,8 @@ Read CX2 from a file and write layout JSON to stdout:
 
 .. code-block:: bash
 
-   cx2-layout-demo --input test.cx2
+   cx2-layout-demo test.cx2
 
-Explicit input/output files:
-
-.. code-block:: bash
-
-   cx2-layout-demo --input test.cx2 --output layout.json
-
-You can also pipe CX2 on stdin:
-
-.. code-block:: bash
-
-   cat test.cx2 | cx2-layout-demo --input - --output -
 
 Output format
 -------------
@@ -56,12 +44,12 @@ The output JSON looks like:
 
 .. code-block:: json
 
-   {
-     "nodes": [
+   [{"action": "updateLayouts",
+     "data": [
        { "id": 1, "x": 0.123, "y": -0.456 },
        { "id": 2, "x": -0.321, "y": 0.789 }
      ]
-   }
+   }]
 
 Only node positions are returned; all other aspects of the network are ignored.
 
@@ -93,33 +81,22 @@ Show help for the service app inside the container:
 
    docker run --rm cx2-layout-demo:latest
 
-Run layout on a local CX2 file (read-only bind mount):
+Run layout on a local CX2 file (read-only bind mount assuming file is named test.cx2):
 
 .. code-block:: bash
 
    docker run --rm \
      -v "$(pwd)":/data \
      cx2-layout-demo:latest \
-     --input /data/test.cx2 --output /data/layout.json
+     /data/test.cx2
 
-After this, ``layout.json`` will be created (or overwritten) in the current
-directory on the host.
+The layout JSON will be output to stdout
 
-Run with CX2 on stdin and layout JSON to stdout:
-
-.. code-block:: bash
-
-   cat test.cx2 | docker run --rm -i cx2-layout-demo:latest \
-     --input - --output -
 
 Integration with Cytocontainer
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When wired into a Cytocontainer REST server, the container is typically invoked
-with ``cx2-layout-demo`` as the entrypoint and arguments specifying where the
-input CX2 is located and where the output JSON should be written. The Dockerfile
-is structured so that the container's default entrypoint is already the
-``cx2-layout-demo`` console script.
+TODO
 
 Makefile helpers
 ~~~~~~~~~~~~~~~~

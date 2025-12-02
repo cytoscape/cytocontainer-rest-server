@@ -1,0 +1,33 @@
+{
+  "dockerImage": "docker.io/library/cytoscape-cx2-layout-demo:latest",
+  "description": "Update Layout Demo App for Cytoscape Container Service",
+  "cyWebActions": [
+    "updateLayouts"
+  ],
+  "version": "0.1.0",
+  "parameters": null,
+  "cyWebMenuItem": {
+    "root": "Tools",
+    "path": [
+      {
+        "gravity": 0,
+        "name": "Cytoscape Container REST service Demo Apps"
+      },
+      {
+        "gravity": 1,
+        "name": "Update Layout Demo"
+      }
+    ]
+  },
+  "serviceInputDefinition": {
+    "type": "network",
+    "scope": "all",
+    "inputColumns": null,
+    "inputNetwork": {
+      "model": "network",
+      "format": "cx2"
+    }
+  },
+  "name": "cx2layoutdemo"
+}
+

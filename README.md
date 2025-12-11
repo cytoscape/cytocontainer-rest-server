@@ -110,9 +110,9 @@ Every Service App Docker container must follow these rules:
    The container writes the final service output to **STDOUT** adhering to JSON structure defined
    in the Service App Framework specification.
 
-3 **Realtime task progress**
+3. **Real time task progress**
 
-  Lines of format `@@MESSAGE <TEXT>\n` output to **STDERR** by the container will be captured and used to set the `message` value in the REST endpoint. Lines of format `@@PROGRESS #\n` where `#` should be a value 0-100 output to **STDERR** by the container will be captured and used to set the `progress` value in the REST endpoint.
+   :wLines of format `@@MESSAGE <TEXT>\n` output to **STDERR** by the container will be captured and used to set the `message` value in the REST endpoint. Lines of format `@@PROGRESS #\n` where `#` should be a value 0-100 output to **STDERR** by the container will be captured and used to set the `progress` value in the REST endpoint.
 
 3. **No network dependency required**  
    Containers should not depend on external network calls unless explicitly needed.

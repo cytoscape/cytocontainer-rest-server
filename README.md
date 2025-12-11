@@ -70,11 +70,11 @@ This design enforces strong isolation, reproducibility, and language independenc
 ```
 Cytoscape Web
        |
-       | REST Request (with input file)
+       | REST Request
        v
 Container REST Service  -------------------------
 |  Validate request                              |
-|  Write input file                              |
+|  Write input to file                           |
 |  Launch Docker container (Service App image)   |
 |  Capture stdout                                |
 |  Return response                               |

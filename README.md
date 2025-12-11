@@ -42,8 +42,8 @@ Cytoscape Web supports extensibility through **Service Apps**—external REST se
 
 Useful references:
 
-- **[Service App Framework overview](https://cytoscape-web.readthedocs.io/en/latest/Extending.html#service-apps):**
-- **[Service App API specification](<https://github.com/cytoscape/cytoscape-web/wiki/Specification-for-Service-App-in-Cytoscape-Web-(draft-v2)>):**
+- [Service App Framework overview](https://cytoscape-web.readthedocs.io/en/latest/Extending.html#service-apps)
+- [Service App API specification](<https://github.com/cytoscape/cytoscape-web/wiki/Specification-for-Service-App-in-Cytoscape-Web-(draft-v2)>)
 
 This repository provides a ready-to-use server implementation that:
 

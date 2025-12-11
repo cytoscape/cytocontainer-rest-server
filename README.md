@@ -1,3 +1,11 @@
+[jetty]: http://eclipse.org/jetty/
+[maven]: http://maven.apache.org/
+[java]: https://www.oracle.com/java/index.html
+[git]: https://git-scm.com/
+[rest]: https://en.wikipedia.org/wiki/Representational_state_transfer
+[make]: https://www.gnu.org/software/make
+[docker]: https://www.docker.com/
+
 # Cytoscape Container REST Service
 
 The **Cytoscape Container REST Service** is a reference implementation of a **Service App host** for **Cytoscape Web**. It provides a REST interface that executes Docker-packaged analysis tools (Service Apps) in isolated containers, captures their output, and returns results to Cytoscape Web according to the Service App Framework specification.
@@ -114,42 +122,33 @@ https://github.com/cytoscape/cytoscape-web/wiki/Specification-for-Service-App-in
 
 ---
 
-## Running the Server
+## Building and running the Server
 
 ### Requirements
 
-- Java 21
-- Docker daemon
+- MacOS, Rocky Linux 8+, Ubuntu 20+, and most other Linux distributions should work
+- [Java][java] 17+ **(jdk to build)**
+- [Make][make] **(to build)**
+- [Cytoscape Container REST Model](https://github.com/cytoscape/cytocontainer-rest-model)
+- [Maven][maven] 3.6 or higher **(to build)**
+- [Docker] **(to run algorithms)**
 
-### Basic Usage
+### Building
 
-TODO
+Commands build Cytoscape Container REST Service assuming machine has [Git][git] command line tools
+installed and above Java modules have been installed.
 
----
+```Bash
+# In lieu of git one can just download repo and unzip it
+git clone https://github.com/cytoscape/cytocontainer-rest-server.git
 
-## Adding New Service Apps
-
-TODO
-
+cd cytocontainer-rest-server
+mvn clean test install
 ```
-POST TODO
-```
 
-### Service App Definition Example
-
-TODO
-
----
-
-## Logging and Output
-
-TODO
-
----
-
-## Deployment Notes
-
-TODO
+The above command will create a jar file under **target/** named  
+**cytocontainer-rest-\<VERSION\>-jar-with-dependencies.jar** that
+is a command line application
 
 ---
 

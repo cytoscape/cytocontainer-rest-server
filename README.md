@@ -25,13 +25,7 @@ The Service App Framework allows Cytoscape Web to call external analytical servi
 - [Architecture](#architecture)
 - [Service App Specification](#service-app-specification)
 - [Buiding and Running the Server](#building-and-running-the-server)
-- [Environment Variables](#environment-variables)
-- [Adding New Service Apps](#adding-new-service-apps)
-- [Example Request](#example-request)
-- [Logging and Output](#logging-and-output)
-- [Deployment Notes](#deployment-notes)
 - [Development Setup](#development-setup)
-- [Repository Structure](#repository-structure)
 - [License](#license)
 
 ---

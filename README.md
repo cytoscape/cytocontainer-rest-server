@@ -24,7 +24,7 @@ The Service App Framework allows Cytoscape Web to call external analytical servi
 - [How the Container REST Service Works](#how-the-container-rest-service-works)
 - [Architecture](#architecture)
 - [Service App Specification](#service-app-specification)
-- [Running the Server](#running-the-server)
+- [Buiding and Running the Server](#building-and-running-the-server)
 - [Environment Variables](#environment-variables)
 - [Adding New Service Apps](#adding-new-service-apps)
 - [Example Request](#example-request)
@@ -112,7 +112,7 @@ Every Service App Docker container must follow these rules:
 
 3. **Real time task progress**
 
-   :wLines of format `@@MESSAGE <TEXT>\n` output to **STDERR** by the container will be captured and used to set the `message` value in the REST endpoint. Lines of format `@@PROGRESS #\n` where `#` should be a value 0-100 output to **STDERR** by the container will be captured and used to set the `progress` value in the REST endpoint.
+   Lines of format `@@MESSAGE <TEXT>\n` output to **STDERR** by the container will be captured and used to set the `message` value in the REST endpoint. Lines of format `@@PROGRESS #\n` where `#` should be a value 0-100 output to **STDERR** by the container will be captured and used to set the `progress` value in the REST endpoint.
 
 3. **No network dependency required**  
    Containers should not depend on external network calls unless explicitly needed.

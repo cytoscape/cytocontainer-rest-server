@@ -98,4 +98,28 @@ The updated network JSON will be output to stdout
 Integration with Cytocontainer
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-TODO
+Copy ``python_updatenetworkdemo.json`` directory to the directory specified by 
+``cytocontainer.algorithm.conf.dir`` in the configuration for your local installation of the
+Cytoscape Container REST Service and restart the Cytoscape Container REST Service.
+The app will be available at the endpoint ``/v1/algorithms/python_updatenetworkdemo`` 
+
+and can be invoked with a POST request containing a CX2 network in the body and the header ``Content-Type: application/json``.
+
+The post should be JSON and look like this:
+
+```bash
+{
+  "parameters": { 
+                  "Updated By": "my tool"
+   }, 
+  "data": [{"CXVersion": "2.0", "hasFragments": false}, {"metaData": [{"elementCount": 1, "name": "attributeDeclarations"}, {"elementCount": 1, "name": "networkAttributes"}, {"elementCount": 1, "name": "nodes"}]}, {"attributeDeclarations": [{"networkAttributes": {"name": {"d": "string"}}, "nodes": {"name": {"d": "string"}, "represents": {"d": "string"}}}]}, {"networkAttributes": [{"name": "empty network"}]}, {"nodes": [{"id": 0, "x": 10, "y": 0, "v": {"name": "node 1", "represents": "representing node1"}}]}, {"edges": []}, {"status": [{"error": "", "success": true}]}]
+}
+```
+
+The response will be a JSON object containing id of the task
+
+```bash
+{
+  "id": "some-uuid"
+}
+```

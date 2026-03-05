@@ -11,7 +11,6 @@ def _build_arg_parser() -> argparse.ArgumentParser:
             "CX2 Update Network Demo: read a CX2 network and emit an updated network payload."
         )
     )
-
     parser.add_argument(
         dest="input",
         default="-",
@@ -19,7 +18,6 @@ def _build_arg_parser() -> argparse.ArgumentParser:
             "Input CX2 file."
         ),
     )
-
     parser.add_argument(
         "-o",
         "--output",
@@ -27,6 +25,13 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         default="-",
         help=(
             "Output JSON file for updated network. Use '-' (default) to write to stdout."
+        ),
+    )
+    parser.add_argument(
+        "--updatedby", default="updateNetworkDemo",
+        dest="updatedby",
+        help=(
+            "Value to use for the 'updatedBy' network attribute. If not provided, defaults to 'updateNetworkDemo'."
         ),
     )
 
@@ -56,6 +61,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         run_update(
             input_source=args.input,
             output_stream=out_stream,
+            updatedby=args.updatedby
         )
     finally:
         if args.output != "-":

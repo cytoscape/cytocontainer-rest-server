@@ -5,7 +5,24 @@
     "updateNetwork"
   ],
   "version": "0.1.0",
-  "parameters": null,
+  "parameterFlagMap": {
+    "Updated By": "--updated_by"
+  },
+  "parameters": [
+    {
+      "displayName": "Updated By",
+      "description": "Value to set in updatedBy network attribute.",
+      "type": "text",
+      "valueList": null,
+      "defaultValue": "updatenetworkdemo",
+      "validationType": "string",
+      "columnTypeFilter": null,
+      "validationHelp": "Must be a string at least 2 characters long.",
+      "validationRegex": "..+",
+      "minValue": null,
+      "maxValue": null
+   }
+  ],
   "cyWebMenuItem": {
     "root": "Apps",
     "path": [

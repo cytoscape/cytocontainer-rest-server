@@ -50,15 +50,18 @@ def _ensure_network_attributes_aspect(data) -> Dict[str, Any]:
 
 def update_network(
     net: CX2Network,
-    err_stream=sys.stderr) -> CX2Network:
+    err_stream=sys.stderr,
+    updatedby: str="updateNetworkDemo"
+) -> CX2Network:
     """
     Add a simple audit attribute to the network and return the modified CX2 data.
     """
+
     err_stream.write('@@PROGRESS 30\n')
     err_stream.write('@@MESSAGE Adding updatedBy attribute\n')
 
     net.add_network_attribute(key="updatedBy",
-                              value="updateNetworkDemo", datatype="string")
+                              value=updatedby, datatype="string")
 
     return net.to_cx2()
 
@@ -80,12 +83,13 @@ def network_to_json(data: Union[Dict[str, Any], Iterable[Dict[str, Any]]],
 def run_update(
     input_source: str,
     output_stream,
+    updatedby: str,
 ) -> None:
     """
     High-level helper used by the CLI.
     """
     net = load_cx2_from_file(input_source)
-    updated = update_network(net)
+    updated = update_network(net,updatedby=updatedby)
     result = network_to_json(updated)
 
     json.dump(result, output_stream, indent=2)

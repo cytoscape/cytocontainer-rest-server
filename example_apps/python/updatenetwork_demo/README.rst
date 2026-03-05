@@ -107,7 +107,7 @@ and can be invoked with a POST request containing a CX2 network in the body and 
 
 The post should be JSON and look like this:
 
-..code-block:: json
+.. code-block:: json
  
   {
     "parameters": { 
@@ -118,7 +118,7 @@ The post should be JSON and look like this:
 
 The response will be a JSON object containing id of the task
 
-..code-block:: json
+.. code-block:: json
 
   {
     "id": "some-uuid"

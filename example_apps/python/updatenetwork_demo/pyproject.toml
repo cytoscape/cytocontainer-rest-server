@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=65", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "updatenetwork_demo"
+version = "0.1.0"
+description = "Example Cytoscape Container service app that returns an updated CX2 network"
+authors = [
+    { name = "Cytoscape / Ideker Lab" }
+]
+readme = "README.rst"
+license = { text = "BSD-3-Clause" }
+requires-python = ">=3.8"
+
+dependencies = [
+    "ndex2>=3.6.0",
+]
+
+[project.scripts]
+cytoscape-updatenetwork-demo = "updatenetwork.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "."}
+
+[tool.setuptools.packages.find]
+include = ["updatenetwork*"]

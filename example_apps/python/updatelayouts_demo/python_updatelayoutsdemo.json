@@ -7,11 +7,11 @@
   "version": "0.1.0",
   "parameters": null,
   "cyWebMenuItem": {
-    "root": "Tools",
+    "root": "Apps",
     "path": [
       {
         "gravity": 0,
-        "name": "Cytoscape Container REST service Demo Apps"
+        "name": "CytoContainer Demo Apps"
       },
       {
         "gravity": 1,

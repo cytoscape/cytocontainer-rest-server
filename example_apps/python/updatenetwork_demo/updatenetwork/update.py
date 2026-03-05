@@ -1,7 +1,7 @@
 import json
 import sys
 from typing import Any, Dict, Iterable, Union
-
+from ndex2.cx2 import CX2Network, RawCX2NetworkFactory
 
 def load_cx2_from_file(path: str, err_stream=sys.stderr) -> Union[Dict[str, Any], Iterable[Dict[str, Any]]]:
     """
@@ -16,7 +16,8 @@ def load_cx2_from_file(path: str, err_stream=sys.stderr) -> Union[Dict[str, Any]
     else:
         with open(path, "r", encoding="utf-8") as f:
             data = json.load(f)
-    return data
+    cx2_netfactory = RawCX2NetworkFactory()
+    return cx2_netfactory.get_cx2network(data)
 
 
 def _find_meta_data(meta_data, name: str):
@@ -48,41 +49,18 @@ def _ensure_network_attributes_aspect(data) -> Dict[str, Any]:
 
 
 def update_network(
-    data: Union[Dict[str, Any], Iterable[Dict[str, Any]]],
-    err_stream=sys.stderr
-) -> Union[Dict[str, Any], Iterable[Dict[str, Any]]]:
+    net: CX2Network,
+    err_stream=sys.stderr) -> CX2Network:
     """
     Add a simple audit attribute to the network and return the modified CX2 data.
     """
     err_stream.write('@@PROGRESS 30\n')
     err_stream.write('@@MESSAGE Adding updatedBy attribute\n')
 
-    if isinstance(data, list):
-        meta_holder = next((entry for entry in data if "metaData" in entry), None)
-        network_attr_holder = _ensure_network_attributes_aspect(data)
-        network_attrs = network_attr_holder["networkAttributes"]
-        network_attrs.append({
-            "name": "updatedBy",
-            "value": "updatenetwork_demo",
-            "type": "string"
-        })
-        # keep metaData elementCount in sync if present
-        if meta_holder and isinstance(meta_holder.get("metaData"), list):
-            md_item = _find_meta_data(meta_holder["metaData"], "networkAttributes")
-            if md_item is not None:
-                md_item["elementCount"] = len(network_attrs)
-    elif isinstance(data, dict):
-        network_attrs = data.setdefault("networkAttributes", [])
-        network_attrs.append({
-            "name": "updatedBy",
-            "value": "updatenetwork_demo",
-            "type": "string"
-        })
-    else:
-        # fall back: just return data unchanged if structure unexpected
-        return data
+    net.add_network_attribute(key="updatedBy",
+                              value="updateNetworkDemo", datatype="string")
 
-    return data
+    return net.to_cx2()
 
 
 def network_to_json(data: Union[Dict[str, Any], Iterable[Dict[str, Any]]],
@@ -106,8 +84,8 @@ def run_update(
     """
     High-level helper used by the CLI.
     """
-    data = load_cx2_from_file(input_source)
-    updated = update_network(data)
+    net = load_cx2_from_file(input_source)
+    updated = update_network(net)
     result = network_to_json(updated)
 
     json.dump(result, output_stream, indent=2)

@@ -2,7 +2,7 @@ import argparse
 import sys
 from typing import Optional, Sequence
 
-from .layout import run_update
+from .update import run_update
 
 
 def _build_arg_parser() -> argparse.ArgumentParser:

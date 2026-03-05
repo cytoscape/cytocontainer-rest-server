@@ -25,7 +25,7 @@ Install (for local testing)
 
 .. code-block:: bash
 
-   cd example_apps/python/updatelayouts_demo
+   cd example_apps/python/updatenetwork_demo
    python -m venv .venv
    source .venv/bin/activate
    pip install -r requirements.txt
@@ -62,7 +62,7 @@ CytoContainer-style service app.
 Build image
 ~~~~~~~~~~~
 
-From the *updatelayouts_demo* directory (same level as ``pyproject.toml``) run:
+From the *updatenetwork_demo* directory (same level as ``pyproject.toml``) run:
 
 .. code-block:: bash
 
@@ -107,19 +107,19 @@ and can be invoked with a POST request containing a CX2 network in the body and 
 
 The post should be JSON and look like this:
 
-```bash
-{
-  "parameters": { 
-                  "Updated By": "my tool"
-   }, 
-  "data": [{"CXVersion": "2.0", "hasFragments": false}, {"metaData": [{"elementCount": 1, "name": "attributeDeclarations"}, {"elementCount": 1, "name": "networkAttributes"}, {"elementCount": 1, "name": "nodes"}]}, {"attributeDeclarations": [{"networkAttributes": {"name": {"d": "string"}}, "nodes": {"name": {"d": "string"}, "represents": {"d": "string"}}}]}, {"networkAttributes": [{"name": "empty network"}]}, {"nodes": [{"id": 0, "x": 10, "y": 0, "v": {"name": "node 1", "represents": "representing node1"}}]}, {"edges": []}, {"status": [{"error": "", "success": true}]}]
-}
-```
+..code-block:: json
+ 
+  {
+    "parameters": { 
+                    "Updated By": "my tool"
+     }, 
+    "data": [{"CXVersion": "2.0", "hasFragments": false}, {"metaData": [{"elementCount": 1, "name": "attributeDeclarations"}, {"elementCount": 1, "name": "networkAttributes"}, {"elementCount": 1, "name": "nodes"}]}, {"attributeDeclarations": [{"networkAttributes": {"name": {"d": "string"}}, "nodes": {"name": {"d": "string"}, "represents": {"d": "string"}}}]}, {"networkAttributes": [{"name": "empty network"}]}, {"nodes": [{"id": 0, "x": 10, "y": 0, "v": {"name": "node 1", "represents": "representing node1"}}]}, {"edges": []}, {"status": [{"error": "", "success": true}]}]
+  }
 
 The response will be a JSON object containing id of the task
 
-```bash
-{
-  "id": "some-uuid"
-}
-```
+..code-block:: json
+
+  {
+    "id": "some-uuid"
+  }

@@ -6,7 +6,7 @@
   ],
   "version": "0.1.0",
   "parameterFlagMap": {
-    "Updated By": "--updated_by"
+    "Updated By": "--updatedby"
   },
   "parameters": [
     {
@@ -14,7 +14,7 @@
       "description": "Value to set in updatedBy network attribute.",
       "type": "text",
       "valueList": null,
-      "defaultValue": "updatenetworkdemo",
+      "defaultValue": "updateNetworkDemo",
       "validationType": "string",
       "columnTypeFilter": null,
       "validationHelp": "Must be a string at least 2 characters long.",

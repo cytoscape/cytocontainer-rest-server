@@ -1,0 +1,49 @@
+{
+  "dockerImage": "cytoscape-updatenetwork-demo:latest",
+  "description": "Update Network Demo App for Cytoscape Container Service",
+  "cyWebActions": [
+    "updateNetwork"
+  ],
+  "version": "0.1.0",
+  "parameterFlagMap": {
+    "Updated By": "--updatedby"
+  },
+  "parameters": [
+    {
+      "displayName": "Updated By",
+      "description": "Value to set in updatedBy network attribute.",
+      "type": "text",
+      "valueList": null,
+      "defaultValue": "updateNetworkDemo",
+      "validationType": "string",
+      "columnTypeFilter": null,
+      "validationHelp": "Must be a string at least 2 characters long.",
+      "validationRegex": "..+",
+      "minValue": null,
+      "maxValue": null
+   }
+  ],
+  "cyWebMenuItem": {
+    "root": "Apps",
+    "path": [
+      {
+        "gravity": 0,
+        "name": "CytoContainer Demo Apps"
+      },
+      {
+        "gravity": 1,
+        "name": "Update Network Demo"
+      }
+    ]
+  },
+  "serviceInputDefinition": {
+    "type": "network",
+    "scope": "all",
+    "inputColumns": null,
+    "inputNetwork": {
+      "model": "network",
+      "format": "cx2"
+    }
+  },
+  "name": "python_updatenetworkdemo"
+}

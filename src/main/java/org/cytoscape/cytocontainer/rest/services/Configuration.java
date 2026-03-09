@@ -1,5 +1,6 @@
 package org.cytoscape.cytocontainer.rest.services;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.nio.file.Paths;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -98,7 +99,9 @@ public class Configuration {
                      " : " + io);
         }
         
-        _taskDir = props.getProperty(Configuration.TASK_DIR, "/tmp");
+        // docker needs absolute paths so lets try to get that correct path here
+        _taskDir = Paths.get(props.getProperty(Configuration.TASK_DIR, "/tmp")).toAbsolutePath().normalize().toString();
+        
         _numWorkers = Integer.parseInt(props.getProperty(Configuration.NUM_WORKERS, "1"));
         _hostURL = props.getProperty(Configuration.HOST_URL, "");
         _dockerCmd = props.getProperty(Configuration.DOCKER_CMD, "docker");

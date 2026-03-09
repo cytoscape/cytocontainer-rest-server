@@ -16,7 +16,11 @@ import org.cytoscape.cytocontainer.rest.services.CytoContainer;
 import org.cytoscape.cytocontainer.rest.services.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataReader;
+import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataWriter;
+import org.jboss.resteasy.plugins.providers.InputStreamProvider;
+import org.jboss.resteasy.plugins.providers.ByteArrayProvider;
+import org.jboss.resteasy.plugins.providers.StringTextStar;
 public class CytoContainerApplication extends Application {
 
 	static Logger _logger = LoggerFactory.getLogger(CytoContainerApplication.class.getSimpleName());
@@ -45,6 +49,11 @@ public class CytoContainerApplication extends Application {
 				         OpenApiResource.class, 
 						 AcceptHeaderOpenApiResource.class,
 						 StringMessageBodyWriter.class,
-                         Status.class).collect(Collectors.toSet());
+                MultipartFormDataReader.class,
+                MultipartFormDataWriter.class,
+                InputStreamProvider.class,
+                ByteArrayProvider.class,
+                StringTextStar.class,
+                Status.class).collect(Collectors.toSet());
     }
 }

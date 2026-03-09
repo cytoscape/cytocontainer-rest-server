@@ -81,29 +81,20 @@ public class TestCytoContainer {
 		fw.close();
 		return confFile;
 	}
-	
+
     @Test
     public void testRequestCytoContainerWhereEngineNotLoaded() throws Exception {
         try {
             File tempDir = _folder.newFolder();
             File confFile = createBasicConfigurationFile(tempDir);
             Dispatcher dispatcher = getDispatcher();
-			
-			CytoContainerRequest query = new CytoContainerRequest();
-            ObjectMapper omappy = new ObjectMapper();
-			
-			HttpServletRequest mockRequest = EasyMock.createMock(HttpServletRequest.class);
-			ByteArrayInputStream bis = new ByteArrayInputStream(omappy.writeValueAsBytes(query));
-	
-			expect(mockRequest.getInputStream()).andReturn(bis);
-			EasyMock.replay(mockRequest);
 
-			// Push the mock request into RESTEasy context
-			ResteasyContext.getContextDataMap().put(HttpServletRequest.class, mockRequest);
-            
+            CytoContainerRequest query = new CytoContainerRequest();
+            ObjectMapper omappy = new ObjectMapper();
+
             MockHttpRequest request = MockHttpRequest.post(Configuration.V_ONE_PATH + "/algo")
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(omappy.writeValueAsBytes(query));
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(omappy.writeValueAsBytes(query));
 
             MockHttpResponse response = new MockHttpResponse();
             Configuration.setAlternateConfigurationFile(confFile.getAbsolutePath());
@@ -111,8 +102,7 @@ public class TestCytoContainer {
             dispatcher.invoke(request, response);
             assertEquals(500, response.getStatus());
             ObjectMapper mapper = new ObjectMapper();
-            ErrorResponse er = mapper.readValue(response.getOutput(),
-                    ErrorResponse.class);
+            ErrorResponse er = mapper.readValue(response.getOutput(), ErrorResponse.class);
             assertEquals("Error requesting CytoContainer", er.getMessage());
             assertEquals("CytoContainer Engine not loaded", er.getDescription());
         } finally {

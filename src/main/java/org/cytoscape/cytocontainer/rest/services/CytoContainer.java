@@ -103,7 +103,11 @@ public class CytoContainer {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(
             summary = "Submits task using multipart/form-data",
-            description = "Contains 'metadata' JSON part and named file parts.",
+            description = """
+        Contains a 'metadata' JSON part and optional named file parts.
+        Any parameters that take a file as input should have the value set
+        to the name of the corresponding file part in the multipart body.
+        """,
             responses = {
                     @ApiResponse(responseCode = "202", description = "Accepted",
                             headers = @Header(name = "Location", description = "Polling URL"),
@@ -116,39 +120,54 @@ public class CytoContainer {
     )
     public Response requestMultipart(
             @PathParam("algorithm") final String algorithm,
-            org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput input) {
+            MultipartFormDataInput input) {
 
         try {
-            // Get the metadata part
             Map<String, List<InputPart>> formParts = input.getFormDataMap();
 
+            // 1. Extract and parse metadata
             List<InputPart> metadataParts = formParts.get("metadata");
             if (metadataParts == null || metadataParts.isEmpty()) {
                 return Response.status(400)
+                        .type(MediaType.APPLICATION_JSON)
                         .entity(new ErrorResponse("Missing 'metadata' part")).build();
             }
 
             InputPart metadataPart = metadataParts.get(0);
-            metadataPart.setMediaType(jakarta.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM_TYPE);
-            InputStream is = metadataPart.getBody(InputStream.class, null);
-            String metadataJson = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+            metadataPart.setMediaType(MediaType.APPLICATION_OCTET_STREAM_TYPE);
+            InputStream metaStream = metadataPart.getBody(InputStream.class, null);
+            String metadataJson = new String(metaStream.readAllBytes(), StandardCharsets.UTF_8);
 
             ObjectMapper mapper = new ObjectMapper();
             CytoContainerRequest query = mapper.readValue(metadataJson, CytoContainerRequest.class);
 
-            // Get the file part(s)
-            List<InputPart> networkParts = formParts.get("network");
-            if (networkParts != null && !networkParts.isEmpty()) {
-                InputStream fileStream = networkParts.get(0).getBody(InputStream.class, null);
-
+            // 2. Collect all non-metadata parts as file streams keyed by part name.
+            //    Per the spec, parameter values in metadata reference these part names.
+            Map<String, InputStream> fileParts = new HashMap<>();
+            for (Map.Entry<String, List<InputPart>> entry : formParts.entrySet()) {
+                if ("metadata".equals(entry.getKey())) {
+                    continue;
+                }
+                if (entry.getValue() != null && !entry.getValue().isEmpty()) {
+                    InputPart filePart = entry.getValue().get(0);
+                    filePart.setMediaType(MediaType.APPLICATION_OCTET_STREAM_TYPE);
+                    fileParts.put(entry.getKey(), filePart.getBody(InputStream.class, null));
+                }
             }
 
-            // For now, delegate to the engine same as the JSON endpoint
+            // 3. Delegate to engine
             CytoContainerEngine engine = Configuration.getInstance().getCytoContainerEngine();
-            if (engine == null) throw new NullPointerException("CytoContainer Engine not loaded");
+            if (engine == null) {
+                throw new NullPointerException("CytoContainer Engine not loaded");
+            }
 
+            // TODO: pass fileParts to the engine — you'll need to extend
+            //       engine.request() to accept the file map, e.g.:
+            //       String id = engine.request(algorithm, query, fileParts);
             String id = engine.request(algorithm, query);
-            if (id == null) throw new CytoContainerException("No id returned from CytoContainer engine");
+            if (id == null) {
+                throw new CytoContainerException("No id returned from CytoContainer engine");
+            }
 
             CytoContainerRequestId t = new CytoContainerRequestId();
             t.setId(id);

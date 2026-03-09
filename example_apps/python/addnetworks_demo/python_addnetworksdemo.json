@@ -1,0 +1,49 @@
+{
+  "dockerImage": "cytoscape-addnetworks-demo:latest",
+  "description": "Add Networks Demo App for Cytoscape Container Service",
+  "cyWebActions": [
+    "addNetworks"
+  ],
+  "version": "0.1.0",
+  "parameterFlagMap": {
+    "Created By": "--createdby"
+  },
+  "parameters": [
+    {
+      "displayName": "Created By",
+      "description": "Value to set in createdBy network attribute.",
+      "type": "text",
+      "valueList": null,
+      "defaultValue": "addNetworksDemo",
+      "validationType": "string",
+      "columnTypeFilter": null,
+      "validationHelp": "Must be a string at least 2 characters long.",
+      "validationRegex": "..+",
+      "minValue": null,
+      "maxValue": null
+   }
+  ],
+  "cyWebMenuItem": {
+    "root": "Apps",
+    "path": [
+      {
+        "gravity": 0,
+        "name": "CytoContainer Demo Apps"
+      },
+      {
+        "gravity": 1,
+        "name": "Add Networks Demo"
+      }
+    ]
+  },
+  "serviceInputDefinition": {
+    "type": "network",
+    "scope": "all",
+    "inputColumns": null,
+    "inputNetwork": {
+      "model": "network",
+      "format": "cx2"
+    }
+  },
+  "name": "python_addnetworksdemo"
+}

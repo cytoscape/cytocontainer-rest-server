@@ -143,7 +143,8 @@ public class CytoContainer {
 
             // 2. Collect all non-metadata parts as file streams keyed by part name.
             //    Per the spec, parameter values in metadata reference these part names.
-            Map<String, InputStream> fileParts = new HashMap<>();
+            Map<String, InputStream> fileStreams = new HashMap<>();
+            Map<String, String> fileFlags = new HashMap<>();
             for (Map.Entry<String, List<InputPart>> entry : formParts.entrySet()) {
                 if ("metadata".equals(entry.getKey())) {
                     continue;
@@ -151,20 +152,26 @@ public class CytoContainer {
                 if (entry.getValue() != null && !entry.getValue().isEmpty()) {
                     InputPart filePart = entry.getValue().get(0);
                     filePart.setMediaType(MediaType.APPLICATION_OCTET_STREAM_TYPE);
-                    fileParts.put(entry.getKey(), filePart.getBody(InputStream.class, null));
+
+                    String cd = filePart.getHeaders().getFirst("Content-Disposition");
+                    String originalName = extractFilenameFromContentDisposition(cd);
+                    String ext = "";
+                    if (originalName != null && originalName.contains(".")) {
+                        ext = originalName.substring(originalName.lastIndexOf("."));
+                    }
+                    String destName = entry.getKey() + ext; // e.g. "network.cx2"
+
+                    fileStreams.put(destName, filePart.getBody(InputStream.class, null));
+                    fileFlags.put("--" + entry.getKey(), destName);
                 }
             }
-
             // 3. Delegate to engine
             CytoContainerEngine engine = Configuration.getInstance().getCytoContainerEngine();
             if (engine == null) {
                 throw new NullPointerException("CytoContainer Engine not loaded");
             }
 
-            // TODO: pass fileParts to the engine — you'll need to extend
-            //       engine.request() to accept the file map, e.g.:
-            //       String id = engine.request(algorithm, query, fileParts);
-            String id = engine.request(algorithm, query);
+            String id = engine.request(algorithm, query, fileStreams.isEmpty() ? null : fileStreams, fileFlags);
             if (id == null) {
                 throw new CytoContainerException("No id returned from CytoContainer engine");
             }
@@ -379,5 +386,18 @@ public class CytoContainer {
             ErrorResponse er = new ErrorResponse("Error deleting: " + id, ex);
             return Response.serverError().type(MediaType.APPLICATION_JSON).entity(er).build();
         }
+    }
+
+
+
+    private String extractFilenameFromContentDisposition(String contentDisposition) {
+        if (contentDisposition == null) return null;
+        for (String param : contentDisposition.split(";")) {
+            param = param.trim();
+            if (param.startsWith("filename=")) {
+                return param.substring("filename=".length()).replace("\"", "");
+            }
+        }
+        return null;
     }
 }

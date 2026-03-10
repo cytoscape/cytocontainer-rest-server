@@ -19,7 +19,9 @@ import org.cytoscape.cytocontainer.rest.model.CytoContainerResult;
 import org.cytoscape.cytocontainer.rest.model.exceptions.CytoContainerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.FileOutputStream;
 /**
  * Runs algorithm via commandline
  * @author churas
@@ -48,7 +50,7 @@ public class DockerCytoContainerRunner implements Callable {
     private String _inputFilePath;
 	private boolean _outputIsBinary;
 	private String _rawResultContentType;
- 
+    private Map<String, InputStream> _fileInputs;
     private CommandLineRunner _runner;
     
     /**
@@ -126,6 +128,53 @@ public class DockerCytoContainerRunner implements Callable {
         this(id, cdr, startTime, taskDir, dockerCmd, dockerImage, customParameters,
 				timeOut, unit, mountOptions, false, null);
     }
+    /**
+     * Constructor with file inputs from multipart upload.
+     * Files are written to the task work directory alongside input.txt.
+     * @param id id of task (should be a 37 char uuid string)
+     * @param cdr The request to process
+     * @param startTime Time task started in ms since epoch (1969)
+     * @param taskDir Base directory for tasks (this task will be put into taskDir/id)
+     * @param dockerCmd Command to run docker (/usr/bin/docker /bin/docker etc..)
+     * @param dockerImage Docker image to run (hello-world)
+     * @param customParameters Parameters to add to command line
+     * @param timeOut Any task exceeding this time (in unit set by unit) will be killed
+     * @param unit Unit to use for timeout
+     * @param mountOptions flags used by container to mount filesystem
+     * @param outputIsBinary if true then output from container is binary
+     * @param rawResultContentType denotes mime type of result data
+     * @param files Map of part name to InputStream (from multipart request). Can be null.
+     */
+    public DockerCytoContainerRunner(final String id,
+                                     final CytoContainerRequest cdr, final long startTime, final String taskDir,
+                                     final String dockerCmd, final String dockerImage,
+                                     final Map<String, String> customParameters,
+                                     final long timeOut,
+                                     final TimeUnit unit,
+                                     final String mountOptions,
+                                     final boolean outputIsBinary,
+                                     final String rawResultContentType,
+                                     final Map<String, InputStream> files) throws Exception {
+        _id = id;
+        _cdr = cdr;
+        _dockerCmd = dockerCmd;
+        _dockerImage = dockerImage;
+        _customParameters = customParameters;
+        _startTime = startTime;
+        _taskDir = taskDir;
+        _workDir = _taskDir + File.separator + _id;
+        _timeOut = timeOut;
+        _timeUnit = unit;
+        _mountOptions = (mountOptions != null) ? mountOptions : "";
+        _outputIsBinary = outputIsBinary;
+        _rawResultContentType = rawResultContentType;
+        _fileInputs = files;
+
+        _inputFilePath = writeInputFile();
+        writeUploadedFiles();
+
+        _runner = new CommandLineRunnerImpl();
+    }
     
     /**
      * For testing, lets one set alternate command line runner
@@ -164,7 +213,36 @@ public class DockerCytoContainerRunner implements Callable {
         }
         return destFile.getAbsolutePath();
     }
-    
+
+    /**
+     * Writes uploaded file parts to the task work directory.
+     * Each file is written as <workdir>/<partName> so it is visible
+     * inside the Docker container via the volume mount.
+     *
+     * @throws IOException if there is an error writing a file
+     * @throws CytoContainerException if the work directory does not exist
+     */
+    protected void writeUploadedFiles() throws IOException, CytoContainerException {
+        if (_fileInputs == null || _fileInputs.isEmpty()) return;
+        File workDir = new File(_workDir);
+        if (!workDir.isDirectory()) {
+            throw new CytoContainerException("Work directory does not exist: " + _workDir);
+        }
+        for (Map.Entry<String, InputStream> entry : _fileInputs.entrySet()) {
+            File destFile = new File(_workDir + File.separator + entry.getKey());
+            _logger.debug("Writing uploaded file to {}", destFile.getAbsolutePath());
+            try (OutputStream os = new FileOutputStream(destFile)) {
+                byte[] buffer = new byte[8192];
+                int bytesRead;
+                while ((bytesRead = entry.getValue().read(buffer)) != -1) {
+                    os.write(buffer, 0, bytesRead);
+                }
+            } finally {
+                entry.getValue().close();
+            }
+        }
+    }
+
     /**
      * This method generates a {@link java.io.File} object pointing to standard 
      * out file generated by {@link #call()}

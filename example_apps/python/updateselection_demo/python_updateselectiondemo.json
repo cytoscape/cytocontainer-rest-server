@@ -1,0 +1,51 @@
+{
+  "dockerImage": "cytoscape-updateselection-demo:latest",
+  "description": "Update Selected Nodes in Network Demo App for Cytoscape Container Service",
+  "cyWebActions": [
+    "updateNetwork"
+  ],
+  "version": "0.1.0",
+  "parameterFlagMap": {
+    "Select Edges": "--selectedges",
+    "Select Nodes": "--selectnodes"
+  },
+  "parameters": [
+        {
+          "displayName": "Select Edges",
+          "description": "Select edges if set",
+          "type": "checkBox",
+          "valueList": null,
+          "defaultValue": true
+      },
+      {
+          "displayName": "Select Nodes",
+          "description": "Select nodes if set",
+          "type": "checkBox",
+          "valueList": null,
+          "defaultValue": true
+      }
+  ],
+  "cyWebMenuItem": {
+    "root": "Apps",
+    "path": [
+      {
+        "gravity": 0,
+        "name": "CytoContainer Demo Apps"
+      },
+      {
+        "gravity": 1,
+        "name": "Update Selected Nodes in Network Demo"
+      }
+    ]
+  },
+  "serviceInputDefinition": {
+    "type": "network",
+    "scope": "all",
+    "inputColumns": null,
+    "inputNetwork": {
+      "model": "network",
+      "format": "cx2"
+    }
+  },
+  "name": "python_updateselectiondemo"
+}

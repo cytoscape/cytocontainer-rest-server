@@ -1,6 +1,8 @@
 package org.cytoscape.cytocontainer.rest.engine;
 
 import java.io.InputStream;
+import java.util.Map;
+
 import org.cytoscape.cytocontainer.rest.model.CytoContainerRequest;
 import org.cytoscape.cytocontainer.rest.model.CytoContainerResultStatus;
 import org.cytoscape.cytocontainer.rest.model.CytoContainerResult;
@@ -24,8 +26,21 @@ public interface CytoContainerEngine extends Runnable {
      * @return UUID as a string that is an identifier for query
      */
     public String request(final String algorithm, CytoContainerRequest request) throws CytoContainerException;
-     
-    /**
+
+	/**
+	 * Submits request for processing with uploaded file parts.
+	 *
+	 * @param algorithm name of algorithm
+	 * @param request to process
+	 * @param files map of part name to InputStream from multipart upload. Can be null.
+	 * @throws CytoContainerException if there is an error
+	 * @return UUID as a string that is an identifier for query
+	 */
+	public String request(final String algorithm, CytoContainerRequest request,
+						  Map<String, InputStream> fileStreams,
+						  Map<String, String> fileFlags) throws CytoContainerException;
+
+	/**
      * Gets query results
 	 * 
 	 * @param algorithm name of algorithm

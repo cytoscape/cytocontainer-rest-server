@@ -409,6 +409,74 @@ public class CytoContainerEngineImpl implements CytoContainerEngine {
             throw new CytoContainerException(ex.getMessage());
         }
     }
+    /**
+     * Request a algorithm be run with input files. This is the call that
+     * should be coming from the rest POST endpoint
+     * @param request The request
+     * @param files the multipart uploaded file
+     * @return UUID as string
+     * @throws CytoContainerBadRequestException if request is invalid
+     * @throws CytoContainerException If there is a server side error
+     */
+    @Override
+    public String request(final String algorithm, CytoContainerRequest request,
+                          Map<String, InputStream> fileStreams,
+                          Map<String, String> fileFlags) throws CytoContainerException,
+            CytoContainerBadRequestException {
+
+        if (algorithm == null) {
+            throw new CytoContainerBadRequestException("No algorithm specified");
+        }
+        if (request == null) {
+            throw new CytoContainerBadRequestException("Request is null");
+        }
+        if (_algorithms == null || _algorithms.getAlgorithms() == null) {
+            throw new CytoContainerException("No algorithms are available to run in service");
+        }
+        if (!_algorithms.getAlgorithms().containsKey(algorithm)) {
+            throw new CytoContainerBadRequestException(algorithm
+                    + " is not a valid algorithm");
+        }
+
+        CytoContainerAlgorithm cda = _algorithms.getAlgorithms().get(algorithm);
+        if (fileStreams == null || fileStreams.isEmpty()) {
+            ErrorResponse er = this._validator.validateRequest(cda, request);
+            if (er != null) {
+                throw new CytoContainerBadRequestException("Validation failed", er);
+            }
+        }
+        String id = UUID.randomUUID().toString();
+
+        CytoContainerResult cdr = new CytoContainerResult(System.currentTimeMillis());
+        cdr.setStatus(CytoContainerResult.SUBMITTED_STATUS);
+        cdr.setId(id);
+        _results.put(id, cdr);
+        logRequest(request, algorithm, id);
+        String dockerImage = cda.getDockerImage();
+        Map<String, String> combinedParams = getParametersCombinedWithHiddenParameters(cda, request.getParameters());
+
+        // Merge file flags into command line params
+        if (fileFlags != null && !fileFlags.isEmpty()) {
+            if (combinedParams == null) {
+                combinedParams = new LinkedHashMap<>();
+            }
+            combinedParams.putAll(fileFlags);
+        }
+
+        try {
+            DockerCytoContainerRunner task = new DockerCytoContainerRunner(id, request, cdr.getStartTime(),
+                    _taskDir, _dockerCmd, dockerImage, combinedParams,
+                    Configuration.getInstance().getAlgorithmTimeOut(),
+                    TimeUnit.SECONDS,
+                    Configuration.getInstance().getMountOptions(),
+                    false, null,
+                    fileStreams);  // <-- pass fileStreams, not files
+            _futureTaskMap.put(id, _executorService.submit(task));
+            return id;
+        } catch (Exception ex) {
+            throw new CytoContainerException(ex.getMessage());
+        }
+    }
 	
 	/**
 	 * Add parameter to pMap unless datatype is checkbox which is a special case

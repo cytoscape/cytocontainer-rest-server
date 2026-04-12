@@ -2,9 +2,9 @@ package org.cytoscape.cytocontainer.rest.engine;
 
 
 import com.fasterxml.jackson.databind.node.TextNode;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -889,5 +889,190 @@ public class TestCytoContainerEngineImpl {
 		Algorithms res = engine.getAllAlgorithms();
 		assertTrue(res.getAlgorithms().containsKey("foo"));
 	}
-    
+    @Test
+    public void testRequestWithFilesNullAlgorithm() {
+        CytoContainerEngineImpl engine = new CytoContainerEngineImpl(null, "task",
+                "docker", null, null);
+        try {
+            engine.request(null, new CytoContainerRequest(), null, null);
+            fail("Expected CytoContainerBadRequestException");
+        } catch (CytoContainerBadRequestException cdbe) {
+            assertEquals("No algorithm specified", cdbe.getMessage());
+        } catch (CytoContainerException cde) {
+            fail("Unexpected exception: " + cde.getMessage());
+        }
+    }
+
+    @Test
+    public void testRequestWithFilesNullRequest() {
+        CytoContainerEngineImpl engine = new CytoContainerEngineImpl(null, "task",
+                "docker", null, null);
+        try {
+            engine.request("algo", null, null, null);
+            fail("Expected CytoContainerBadRequestException");
+        } catch (CytoContainerBadRequestException cdbe) {
+            assertEquals("Request is null", cdbe.getMessage());
+        } catch (CytoContainerException cde) {
+            fail("Unexpected exception: " + cde.getMessage());
+        }
+    }
+
+    @Test
+    public void testRequestWithFilesNoAlgorithmsSet() {
+        CytoContainerEngineImpl engine = new CytoContainerEngineImpl(null, "task",
+                "docker", null, null);
+        try {
+            engine.request("algo", new CytoContainerRequest(), null, null);
+            fail("Expected CytoContainerException");
+        } catch (CytoContainerBadRequestException cdbe) {
+            fail("Unexpected exception: " + cdbe.getMessage());
+        } catch (CytoContainerException cde) {
+            assertEquals("No algorithms are available to run in service", cde.getMessage());
+        }
+    }
+
+    @Test
+    public void testRequestWithFilesSkipsValidationWhenFilesPresent() throws Exception {
+        try {
+            File tempDir = _folder.newFolder();
+            File confFile = new File(tempDir.getAbsolutePath() + File.separator + "foo.conf");
+            try (FileWriter fw = new FileWriter(confFile)) {
+                fw.write(Configuration.TASK_DIR + " = " + tempDir.getAbsolutePath() + "\n");
+                fw.write(Configuration.MOUNT_OPTIONS + " = :ro\n");
+                fw.write(Configuration.ALGORITHM_TIMEOUT + " = 10\n");
+                fw.flush();
+            }
+            Configuration.setAlternateConfigurationFile(confFile.getAbsolutePath());
+
+            CytoContainerAlgorithms algos = new CytoContainerAlgorithms();
+            CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
+            cda.setName("algo");
+            cda.setDockerImage("hello-world");
+            LinkedHashMap<String, CytoContainerAlgorithm> aMap = new LinkedHashMap<>();
+            aMap.put("algo", cda);
+            algos.setAlgorithms(aMap);
+
+            // Validator that would fail if called (data is null)
+            CytoContainerRequestValidator mockValidator = mock(CytoContainerRequestValidator.class);
+            // Do NOT set any expect — if validator is called, test fails
+            replay(mockValidator);
+
+            ExecutorService mockES = mock(ExecutorService.class);
+            Capture<DockerCytoContainerRunner> cappy = Capture.newInstance();
+            FutureTask<CytoContainerResult> mockFT = mock(FutureTask.class);
+            expect(mockES.submit(capture(cappy))).andReturn(mockFT);
+            replay(mockFT);
+            replay(mockES);
+
+            CytoContainerEngineImpl engine = new CytoContainerEngineImpl(mockES,
+                    tempDir.getAbsolutePath(), "docker", algos, mockValidator);
+
+            // Request with no data but with files — should skip validation
+            CytoContainerRequest cdr = new CytoContainerRequest();
+
+            Map<String, InputStream> fileStreams = new HashMap<>();
+            fileStreams.put("network.cx2",
+                    new ByteArrayInputStream("cx2data".getBytes(StandardCharsets.UTF_8)));
+
+            Map<String, String> fileFlags = new HashMap<>();
+            fileFlags.put("--network", "network.cx2");
+
+            String resId = engine.request("algo", cdr, fileStreams, fileFlags);
+            assertNotNull(resId);
+            assertNotNull(cappy.getValue());
+
+            verify(mockValidator);
+            verify(mockES);
+            verify(mockFT);
+        } finally {
+            _folder.delete();
+        }
+    }
+
+    @Test
+    public void testRequestWithFilesRunsValidationWhenNoFiles() throws Exception {
+        CytoContainerAlgorithms algos = new CytoContainerAlgorithms();
+        CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
+        cda.setName("algo");
+        LinkedHashMap<String, CytoContainerAlgorithm> aMap = new LinkedHashMap<>();
+        aMap.put("algo", cda);
+        algos.setAlgorithms(aMap);
+
+        CytoContainerRequestValidator mockValidator = mock(CytoContainerRequestValidator.class);
+        CytoContainerRequest cdr = new CytoContainerRequest();
+        ErrorResponse er = new ErrorResponse();
+        er.setMessage("No data passed in with request");
+        expect(mockValidator.validateRequest(cda, cdr)).andReturn(er);
+        replay(mockValidator);
+
+        CytoContainerEngineImpl engine = new CytoContainerEngineImpl(null, "task",
+                "docker", algos, mockValidator);
+        try {
+            engine.request("algo", cdr, null, null);
+            fail("Expected CytoContainerBadRequestException");
+        } catch (CytoContainerBadRequestException cdbe) {
+            assertEquals("Validation failed", cdbe.getMessage());
+        }
+        verify(mockValidator);
+    }
+
+    @Test
+    public void testRequestWithFilesFlagsMergedIntoParams() throws Exception {
+        try {
+            File tempDir = _folder.newFolder();
+            File confFile = new File(tempDir.getAbsolutePath() + File.separator + "foo.conf");
+            try (FileWriter fw = new FileWriter(confFile)) {
+                fw.write(Configuration.TASK_DIR + " = " + tempDir.getAbsolutePath() + "\n");
+                fw.write(Configuration.MOUNT_OPTIONS + " = :ro\n");
+                fw.write(Configuration.ALGORITHM_TIMEOUT + " = 10\n");
+                fw.flush();
+            }
+            Configuration.setAlternateConfigurationFile(confFile.getAbsolutePath());
+
+            CytoContainerAlgorithms algos = new CytoContainerAlgorithms();
+            CytoContainerAlgorithm cda = new CytoContainerAlgorithm();
+            cda.setName("algo");
+            cda.setDockerImage("hello-world");
+            LinkedHashMap<String, CytoContainerAlgorithm> aMap = new LinkedHashMap<>();
+            aMap.put("algo", cda);
+            algos.setAlgorithms(aMap);
+
+            CytoContainerRequestValidator mockValidator = mock(CytoContainerRequestValidator.class);
+            replay(mockValidator);
+
+            ExecutorService mockES = mock(ExecutorService.class);
+            Capture<DockerCytoContainerRunner> cappy = Capture.newInstance();
+            FutureTask<CytoContainerResult> mockFT = mock(FutureTask.class);
+            expect(mockES.submit(capture(cappy))).andReturn(mockFT);
+            replay(mockFT);
+            replay(mockES);
+
+            CytoContainerEngineImpl engine = new CytoContainerEngineImpl(mockES,
+                    tempDir.getAbsolutePath(), "docker", algos, mockValidator);
+
+            CytoContainerRequest cdr = new CytoContainerRequest();
+
+            Map<String, InputStream> fileStreams = new HashMap<>();
+            fileStreams.put("network.cx2",
+                    new ByteArrayInputStream("cx2data".getBytes(StandardCharsets.UTF_8)));
+
+            Map<String, String> fileFlags = new LinkedHashMap<>();
+            fileFlags.put("--network", "network.cx2");
+
+            String resId = engine.request("algo", cdr, fileStreams, fileFlags);
+            assertNotNull(resId);
+
+            // Verify the file was written to the task directory
+            File taskDir = new File(tempDir.getAbsolutePath() + File.separator + resId);
+            assertTrue(taskDir.isDirectory());
+            File uploadedFile = new File(taskDir, "network.cx2");
+            assertTrue(uploadedFile.exists());
+
+            verify(mockValidator);
+            verify(mockES);
+            verify(mockFT);
+        } finally {
+            _folder.delete();
+        }
+    }
 }

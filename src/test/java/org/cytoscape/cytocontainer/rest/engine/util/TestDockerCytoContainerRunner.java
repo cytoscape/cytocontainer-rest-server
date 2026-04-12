@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -23,6 +24,9 @@ import org.junit.rules.TemporaryFolder;
 import org.cytoscape.cytocontainer.rest.model.CytoContainerRequest;
 import org.cytoscape.cytocontainer.rest.model.CytoContainerResult;
 import org.cytoscape.cytocontainer.rest.model.exceptions.CytoContainerException;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 /**
  *
  * @author churas
@@ -452,4 +456,155 @@ public class TestDockerCytoContainerRunner {
             _folder.delete();
         }
     }
+    @Test
+    public void testWriteUploadedFilesNullFiles() throws Exception {
+        File tempDir = _folder.newFolder();
+        try {
+            CytoContainerRequest cdr = new CytoContainerRequest();
+            ObjectMapper mapper = new ObjectMapper();
+            cdr.setData(mapper.readTree("{\"blah\": \"data\"}"));
+            DockerCytoContainerRunner runner = new DockerCytoContainerRunner("someid", cdr,
+                    0, tempDir.getAbsolutePath(), "docker", "hello-world", null, 1,
+                    TimeUnit.SECONDS, ":ro", false, null, null);
+
+            // Should not throw — just returns without doing anything
+            File workDir = new File(tempDir.getAbsolutePath() + File.separator + "someid");
+            // Only input.txt should exist
+            assertEquals(1, workDir.listFiles().length);
+            assertEquals(DockerCytoContainerRunner.INPUT_FILE, workDir.listFiles()[0].getName());
+        } finally {
+            _folder.delete();
+        }
+    }
+
+    @Test
+    public void testWriteUploadedFilesEmptyMap() throws Exception {
+        File tempDir = _folder.newFolder();
+        try {
+            CytoContainerRequest cdr = new CytoContainerRequest();
+            ObjectMapper mapper = new ObjectMapper();
+            cdr.setData(mapper.readTree("{\"blah\": \"data\"}"));
+            Map<String, InputStream> files = new HashMap<>();
+            DockerCytoContainerRunner runner = new DockerCytoContainerRunner("someid", cdr,
+                    0, tempDir.getAbsolutePath(), "docker", "hello-world", null, 1,
+                    TimeUnit.SECONDS, ":ro", false, null, files);
+
+            File workDir = new File(tempDir.getAbsolutePath() + File.separator + "someid");
+            assertEquals(1, workDir.listFiles().length);
+        } finally {
+            _folder.delete();
+        }
+    }
+
+    @Test
+    public void testWriteUploadedFilesSingleFile() throws Exception {
+        File tempDir = _folder.newFolder();
+        try {
+            CytoContainerRequest cdr = new CytoContainerRequest();
+            ObjectMapper mapper = new ObjectMapper();
+            cdr.setData(mapper.readTree("{\"blah\": \"data\"}"));
+
+            String fileContent = "{\"nodes\": []}";
+            Map<String, InputStream> files = new HashMap<>();
+            files.put("network.cx2", new ByteArrayInputStream(fileContent.getBytes(StandardCharsets.UTF_8)));
+
+            DockerCytoContainerRunner runner = new DockerCytoContainerRunner("someid", cdr,
+                    0, tempDir.getAbsolutePath(), "docker", "hello-world", null, 1,
+                    TimeUnit.SECONDS, ":ro", false, null, files);
+
+            File workDir = new File(tempDir.getAbsolutePath() + File.separator + "someid");
+            File uploadedFile = new File(workDir, "network.cx2");
+            assertTrue(uploadedFile.exists());
+
+            try (BufferedReader br = new BufferedReader(new FileReader(uploadedFile))) {
+                assertEquals(fileContent, br.readLine());
+            }
+        } finally {
+            _folder.delete();
+        }
+    }
+
+    @Test
+    public void testWriteUploadedFilesMultipleFiles() throws Exception {
+        File tempDir = _folder.newFolder();
+        try {
+            CytoContainerRequest cdr = new CytoContainerRequest();
+            ObjectMapper mapper = new ObjectMapper();
+            cdr.setData(mapper.readTree("{\"blah\": \"data\"}"));
+
+            Map<String, InputStream> files = new HashMap<>();
+            files.put("network.cx2", new ByteArrayInputStream("cx2data".getBytes(StandardCharsets.UTF_8)));
+            files.put("features.tsv", new ByteArrayInputStream("col1\tcol2\n".getBytes(StandardCharsets.UTF_8)));
+
+            DockerCytoContainerRunner runner = new DockerCytoContainerRunner("someid", cdr,
+                    0, tempDir.getAbsolutePath(), "docker", "hello-world", null, 1,
+                    TimeUnit.SECONDS, ":ro", false, null, files);
+
+            File workDir = new File(tempDir.getAbsolutePath() + File.separator + "someid");
+            assertTrue(new File(workDir, "network.cx2").exists());
+            assertTrue(new File(workDir, "features.tsv").exists());
+
+            try (BufferedReader br = new BufferedReader(new FileReader(new File(workDir, "network.cx2")))) {
+                assertEquals("cx2data", br.readLine());
+            }
+            try (BufferedReader br = new BufferedReader(new FileReader(new File(workDir, "features.tsv")))) {
+                assertEquals("col1\tcol2", br.readLine());
+            }
+        } finally {
+            _folder.delete();
+        }
+    }
+
+    @Test
+    public void testCallWithUploadedFilesAndFileFlags() throws Exception {
+        File tempDir = _folder.newFolder();
+        try {
+            CytoContainerRequest cdr = new CytoContainerRequest();
+            ObjectMapper mapper = new ObjectMapper();
+            cdr.setData(mapper.readTree("{\"blah\": \"data\"}"));
+
+            Map<String, String> cParams = new LinkedHashMap<>();
+            cParams.put("--network", "network.cx2");
+
+            Map<String, InputStream> files = new HashMap<>();
+            files.put("network.cx2", new ByteArrayInputStream("cx2data".getBytes(StandardCharsets.UTF_8)));
+
+            String workingDir = tempDir.getAbsolutePath() + File.separator + "task";
+            DockerCytoContainerRunner runner = new DockerCytoContainerRunner("someid", cdr,
+                    0, workingDir, "docker", "hello-world", cParams, 1,
+                    TimeUnit.SECONDS, ":ro", false, null, files);
+
+            CommandLineRunner mockCLR = mock(CommandLineRunner.class);
+            String wDir = workingDir + File.separator + "someid";
+            mockCLR.setWorkingDirectory(wDir);
+            File stdOutFile = runner.getStandardOutFile();
+
+            try (BufferedWriter bw = new BufferedWriter(new FileWriter(stdOutFile))) {
+                bw.write("hello");
+                bw.flush();
+            }
+            File inputFile = runner.getInputFile();
+            File stdErrFile = runner.getStandardErrorFile();
+            expect(mockCLR.runCommandLineProcess(1, TimeUnit.SECONDS, stdOutFile, stdErrFile,
+                    "docker", "run", "--rm", "-v", wDir + ":" + wDir + ":ro", "hello-world",
+                    inputFile.getAbsolutePath(), "--network", "network.cx2")).andReturn(0);
+            expect(mockCLR.getLastCommand()).andReturn("lastcommand");
+            runner.setAlternateCommandLineRunner(mockCLR);
+            replay(mockCLR);
+
+            CytoContainerResult res = runner.call();
+            assertEquals(CytoContainerResult.COMPLETE_STATUS, res.getStatus());
+            assertEquals(100, res.getProgress());
+
+            // Verify uploaded file was written
+            File uploadedFile = new File(wDir, "network.cx2");
+            assertTrue(uploadedFile.exists());
+
+            verify(mockCLR);
+        } finally {
+            _folder.delete();
+        }
+    }
+
+
 }
